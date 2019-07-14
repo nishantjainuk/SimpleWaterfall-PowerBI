@@ -1,6 +1,8 @@
 # SimpleWaterfallPBI
 Simple Waterfall, as name suggest is a waterfall chart designed to give users ability to use measures to create a multi-step waterfall. 
-Additionally, you can add Text/Commentary to the chart to give users additional information and analysis 
+Additionally, you can add Text/Commentary to the chart to give users additional information and analysis.
+
+There is no capability of drilldown or interaction.
 
 You will need create 2 types of measures
 
@@ -16,7 +18,7 @@ Step 2: Drop you measures in the field "Values"
 Step 3: Rename your base pillar easures in the visual and add "_" (underscore) in the beginning. This is very important as this distinguies which measures are base pillars and which are steps.
 
 Additional step:
-Step 3: Drop the commentary /  additional text in the field "Commentary"
+Step 4: Drop the commentary /  additional text in the field "Commentary"
 
 Important to know:
 

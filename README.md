@@ -10,12 +10,16 @@ You will need create 2 types of measures
 How to create the visual
 
 Step 1: Drop you measures in the field "Values"
+
 Step 2: Rename your base pillar easures in the visual and add "_" (underscore) in the beginning. This is very important as this distinguies which measures are base pillars and which are steps.
 
 Additional step:
 Step 3: Drop the commentary /  additional text in the field "Commentary"
 
 Important to know:
+
 The first measure should be a "Base pillar" measure. You cannot start with a step measure. You can instead have a base pillar with blank
+
 The visual doesn't carry out a reconciliation in case you steps don't add up to the base pillar. 
+
 The order of the measures if defined by the order in which they are arranged in the "value" field. You can move measures around to put them in the right order

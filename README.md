@@ -9,9 +9,11 @@ You will need create 2 types of measures
 
 How to create the visual
 
-Step 1: Drop you measures in the field "Values"
+Step 1: Add "Simple Waterfall" visual on the canvas
 
-Step 2: Rename your base pillar easures in the visual and add "_" (underscore) in the beginning. This is very important as this distinguies which measures are base pillars and which are steps.
+Step 2: Drop you measures in the field "Values"
+
+Step 3: Rename your base pillar easures in the visual and add "_" (underscore) in the beginning. This is very important as this distinguies which measures are base pillars and which are steps.
 
 Additional step:
 Step 3: Drop the commentary /  additional text in the field "Commentary"

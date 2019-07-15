@@ -27,3 +27,5 @@ The first measure should be a "Base pillar" measure. You cannot start with a ste
 The visual doesn't carry out a reconciliation in case you steps don't add up to the base pillar. 
 
 The order of the measures if defined by the order in which they are arranged in the "value" field. You can move measures around to put them in the right order
+
+https://youtu.be/kBDzMkwxyUs

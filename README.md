@@ -4,6 +4,8 @@ Additionally, you can add Text/Commentary to the chart to give users additional 
 
 There is no capability of drilldown or interaction.
 
+You can watch the demo [here](https://youtu.be/kBDzMkwxyUs)
+
 You will need create 2 types of measures
 
 1. Base piller measures: These are measures that will be used to create the pillars of the waterfall
@@ -27,5 +29,3 @@ The first measure should be a "Base pillar" measure. You cannot start with a ste
 The visual doesn't carry out a reconciliation in case you steps don't add up to the base pillar. 
 
 The order of the measures if defined by the order in which they are arranged in the "value" field. You can move measures around to put them in the right order
-
-https://youtu.be/kBDzMkwxyUs

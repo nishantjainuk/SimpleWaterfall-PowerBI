@@ -14,7 +14,7 @@ The visual is fully interactive with other PBI visual such as slicers and chart 
 - Option to hide/show steps values that are blank or zero
 
 ## Demo Video and Sample file
-- [Demo video](https://youtu.be/kBDzMkwxyUs)
+- [Demo video](https://youtu.be/Mz6zCzp87-A)
 - [Sample pbix file](https://github.com/nishantjainuk/SimpleWaterfallPBI/blob/master/Simple%20Waterfall%20Sample.pbix?raw=true)
 
 ## How to create the visual

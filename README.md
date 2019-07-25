@@ -5,7 +5,7 @@ Additionally, you can add Text/Commentary to the chart to give users additional 
 
 The visual is fully interactive with other PBI visual such as slicers and chart points. 
 
-Key Functionality
+## Key Functionality
 
 - Easily define which measures are base measures and which are step measures, simply by remaning the measures in the visual
 - Customise how your measures are arranged and change the layout easily
@@ -13,28 +13,23 @@ Key Functionality
 - Option to show negative numbers in brackets i.e. show -30 as (30)
 - Option to hide/show steps values that are blank or zero
 
-You can watch the demo [here](https://youtu.be/kBDzMkwxyUs). You can also download the sample pbix file [here](https://github.com/nishantjainuk/SimpleWaterfallPBI/blob/master/Simple%20Waterfall%20Sample.pbix?raw=true)
+## Demo Video and Sample file
+- [Demo video](https://youtu.be/kBDzMkwxyUs)
+- [Sample pbix file](https://github.com/nishantjainuk/SimpleWaterfallPBI/blob/master/Simple%20Waterfall%20Sample.pbix?raw=true)
 
-Before you start, ensure that you have 2 categories of measures
+## How to create the visual
 
-1. Base piller measures: These are measures that will be used to create the pillars of the waterfall
-2. Step measures: These are the measures that will create the steps in the measure
+- Step 1: Add "Simple Waterfall" visual on the canvas
 
-How to create the visual
+- Step 2: Drop you measures in the field "Values"
 
-Step 1: Add "Simple Waterfall" visual on the canvas
+- Step 3: Rename your base pillar easures in the visual and add "_" (underscore) in the beginning. This is very important as this distinguies which measures are base pillars and which are steps.
 
-Step 2: Drop you measures in the field "Values"
+### Optional step:
+- Step 4: Drop the commentary /  additional text in the field "Commentary"
 
-Step 3: Rename your base pillar easures in the visual and add "_" (underscore) in the beginning. This is very important as this distinguies which measures are base pillars and which are steps.
+## Important to know:
 
-Additional step:
-Step 4: Drop the commentary /  additional text in the field "Commentary"
-
-Important to know:
-
-The first measure should be a "Base pillar" measure. You cannot start with a step measure. You can instead have a base pillar with blank
-
-The visual doesn't carry out a reconciliation in case you steps don't add up to the base pillar. 
-
-The order of the measures if defined by the order in which they are arranged in the "value" field. You can move measures around to put them in the right order
+- The first measure should be a "Base pillar" measure. You cannot start with a step measure. You can instead have a base pillar with blank
+- The visual doesn't carry out a reconciliation in case you steps don't add up to the base pillar. 
+- The order of the measures if defined by the order in which they are arranged in the "value" field. You can move measures around to put them in the right order

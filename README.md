@@ -2,7 +2,7 @@
 Simple Waterfall, as name suggest is a waterfall chart designed to give users ability to use measures to create a multi-step waterfall. 
 Additionally, you can add Text/Commentary to the chart to give users additional information and analysis.
 
-You can watch the demo [here](https://youtu.be/kBDzMkwxyUs)
+You can watch the demo [here](https://youtu.be/kBDzMkwxyUs). You can also download the sample pbix file here
 
 You will need create 2 types of measures
 

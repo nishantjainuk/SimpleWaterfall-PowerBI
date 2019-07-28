@@ -7,7 +7,7 @@ The visual is fully interactive with other PBI visual such as slicers and chart 
 
 ## Key Functionality
 
-- Easily define which measures are base measures and which are step measures, simply by remaning the measures in the visual
+- Easily define which measures are base measures and which are step measures, simply by renaming the measures in the visual
 - Customise how your measures are arranged and change the layout easily
 - Complete formatting options available, including change the pillar/step colors, font size, font type, font color etc
 - Option to show negative numbers in brackets i.e. show -30 as (30)

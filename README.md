@@ -1,4 +1,4 @@
-# SimpleWaterfallPBI
+# Simple Waterfall
 Simple Waterfall, as name suggest allows users to create a multi step waterfall chart with full control to defind how measures are used and how they are layed out in the waterfall. User can define which measures are "Base / Pillers" and which measures are "Step measures". You can move them around to get them arrange in the right order without the need to create any custom sort order. 
 
 Additionally, you can add Text/Commentary to the chart to give users additional information and analysis.

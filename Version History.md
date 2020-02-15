@@ -2,9 +2,9 @@
 
 ## 2.0.4
 
-- Vertical Watarfall
-- Scrollable version
-- Adjust bar width (if scrollable)
+- Vertical Watarfall - Select chart orientation - Horizontal or Vertical (Default)
+- Scrollable - Choose whether you want your chart to fit or be scrollable
+- Adjust bar width (if scrollable) 
 - Added Margin (left, right, bottom, top)
 - Gridlines for x-axis
 - More Y-axis value formatting (Thousands, Millions, Billions)

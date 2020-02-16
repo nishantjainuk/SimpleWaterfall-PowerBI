@@ -7,6 +7,7 @@
 - Adjust bar width (if scrollable) 
 - Added Margin (left, right, bottom, top)
 - Gridlines for x-axis
+- Option to wrap text X-Axis labels
 - More Y-axis value formatting (Thousands, Millions, Billions)
 - More Label value formatting (Thousands, Millions, Billions)
 - Other bug fixes

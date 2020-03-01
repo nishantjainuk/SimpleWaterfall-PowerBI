@@ -1,24 +1,43 @@
 # Simple Waterfall
-Simple Waterfall, as name suggest allows users to create a multi step waterfall chart with full control to defind how measures are used and how they are layed out in the waterfall. User can define which measures are "Base / Pillers" and which measures are "Step measures". You can move them around to get them arrange in the right order without the need to create any custom sort order. 
 
-Version 2.0 has significant improvements compared to version 1. We have added new ways of creating waterfall and a lot of formatting options are now available.
+## Live Version: 2.0.3
 
-## DRILLABLE WATERFALL
-Create a drillable waterfall with multiple measures and multiple categories. In this chart, your measures are used as the pillars and the data points are used to calculate the difference between each measure to define the steps
+## Under Review (Microsoft): 2.0.6
 
-## SINGLE CATEGORY WATERFALL
-Create a waterfall by using one measure and one category. You will be able to define the pillars based on the data points. If you don’t define any pillar, each data point is used as a step, showing the total of all the categories at the end. This is also the default behaviour until you define the pillars
+## Development Version: 2.0.7
 
-## STATIC WATERFALL
-Create a waterfall by using measures only. The visual will allow you to define which of the measures are pillars measures and which are step measures
+Simple Waterfall provides an easy to use interface to create a waterfall chart. You can define pillars based on categories or measures and choose between vertical or horizontal chart type. You can format all elements of the waterfall chart including individual bar colours, label colour and a lot more. 
 
-## NEW FORMATTING OPTIONS
--	Define bar colours, label font colours and label positioning based on sentiment (i.e. favourable or adverse) or individually customise each bar.
--	Choose which measure or category is a pillar and which is a step (except in case of drillable waterfall) directly within the visual
--	All standard customisation for X-axis and Y-axis available
+## Key Features
+-	Choose between Vertical and Horizontal Chart
+-	Define chart pillars by measure or category (see attached image)
+-	Drillable and Drill-through capability
+-	Format the chart either by sentiment (Total, favourable and adverse) or each individual data point
+-	Define scrollable or non-scrollable chart (fit to the chart window)
+-	Customize bar colour
+-	Customisable margins of the chart
+-	Choose when to show or hide category / measure with zero value 
+-	X-axis / Y-axis
+    o	Choose whether y-axis is auto defined or always starts with zero
+    o	Choose between wrap-text or otherwise for x-axis labels
+    o	Customise
+      	x-axis padding
+      	bars width
+      	gridlines
+      	font size and font type
+      	and a lot more
+  o	Choose the number formatting for y-axis as (none, auto, thousand, millions or billions)
+-	Labels
+  o	Customise font colour, label positioning by sentiment or individual data points
+  o	Choose the number formatting for y-axis as (none, auto, thousand, millions or billions)
 
-## NEW FUNCTIONALITY
--	Report page tooltip added
--	Drillthrough option added
--	Right click (context menu ) added
+## Chart types
+
+| Number of Categories |	Number of Measures |	Define pillars using | Drillable? |
+| -------------------  | ------------------- | --------------- | ------------- |  
+| None |	Any |	Measures |	No |
+| 1 |	1 |	Category | No |
+| 1 |	More than 1	| Default (Measures = Pillars  Categories = Steps) | No |
+| More than 1 |	More than 1 |	Default (Measures = Pillars Categories = Steps) |	Yes |
+| More than 1 |	1 |	Category |	Yes|
 

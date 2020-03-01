@@ -18,20 +18,20 @@ Simple Waterfall provides an easy to use interface to create a waterfall chart. 
 -	Customisable margins of the chart
 -	Choose when to show or hide category / measure with zero value 
 -	X-axis / Y-axis
-    o	Choose whether y-axis is auto defined or always starts with zero
-    o	Choose between wrap-text or otherwise for x-axis labels
-    o	Customise
-      	x-axis padding
-      	bars width
-      	gridlines
-      	font size and font type
-      	and a lot more
-  o	Choose the number formatting for y-axis as (none, auto, thousand, millions or billions)
+    -	Choose whether y-axis is auto defined or always starts with zero
+    -	Choose between wrap-text or otherwise for x-axis labels
+    -	Customise
+        -	x-axis padding
+        -	bars width
+        -	gridlines
+        -	font size and font type
+        -	and a lot more
+  -	Choose the number formatting for y-axis as (none, auto, thousand, millions or billions)
 -	Labels
-  o	Customise font colour, label positioning by sentiment or individual data points
-  o	Choose the number formatting for y-axis as (none, auto, thousand, millions or billions)
+    -	Customise font colour, label positioning by sentiment or individual data points
+    -	Choose the number formatting for y-axis as (none, auto, thousand, millions or billions)
 
-## Chart types
+## Different ways of creating charts
 
 | Number of Categories |	Number of Measures |	Define pillars using | Drillable? |
 | -------------------  | ------------------- | --------------- | ------------- |  

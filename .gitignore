@@ -1,0 +1,6 @@
+# Don't track content of these folders
+node_modules/
+dist/
+assets/Other
+.tmp/
+gitIgnore Files/

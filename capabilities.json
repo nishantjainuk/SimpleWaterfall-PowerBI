@@ -1,0 +1,943 @@
+{
+    "dataRoles": [
+        {
+            "displayName": "Category",
+            "name": "category",
+            "displayNameKey": "Visual_Category",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Values",
+            "name": "measure",
+            "displayNameKey": "Visual_Values",
+            "kind": "Measure"
+        }
+    ],
+    "drilldown": {
+        "roles": [
+            "category"
+        ]
+    },
+    "sorting": {
+        "default": {}
+    },
+    "dataViewMappings": [
+        {
+            
+            "matrix": {
+                "rows": {
+                    "for": {
+                        "in": "category"
+                    }
+                },
+                "values": {
+                    "select": [
+                        {
+                            "for": {
+                                "in": "measure"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "objects": {
+        "chartOrientation": {
+            "displayName": "Chart Options",
+            "properties": {
+                "orientation": {
+                    "displayName": "Chart Orientation",
+                    "description": "Chart Orientation",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "displayName": "Vertical",
+                                "description": "Vertical",
+                                "value": "Vertical"
+                            },
+                            {
+                                "displayName": "Horizontal",
+                                "description": "Horizontal",
+                                "value": "Horizontal"
+                            }
+                        ]
+                    }
+                },
+                "useSentimentFeatures": {
+                    "displayName": "Format using Sentiments",
+                    "description": "Use sentiments to define bar colors, label font colors and label positioning ",
+                    "type": {
+                        "bool": true
+                    }
+                }
+            }
+        },
+        "definePillars": {
+            "displayName": "Define Pillars",
+            "properties": {
+                "pillars": {
+                    "displayName": "is Pillar",
+                    "description": "is Pillar",
+                    "type": {
+                        "bool": true
+                    }
+                }
+            }
+        },
+        "margins": {
+            "displayName": "Margins",
+            "properties": {                
+                "topMargin": {
+                    "displayName": "Top Margin",
+                    "description": "Top Margin",
+                    "type": {
+                        "integer": true
+                    }
+                },
+                "bottomMargin": {
+                    "displayName": "Bottom Margin",
+                    "description": "Bottom Margin",
+                    "type": {
+                        "integer": true
+                    }
+                },
+                "leftMargin": {
+                    "displayName": "Left Margin",
+                    "description": "Left Margin",
+                    "type": {
+                        "integer": true
+                    }
+                },
+                "rightMargin": {
+                    "displayName": "Right Margin",
+                    "description": "Right Margin",
+                    "type": {
+                        "integer": true
+                    }
+                }
+            }
+        },         
+        "sentimentColor": {
+            "displayName": "Bar Color",
+            "properties": {                            
+                "useSentimentFeatures": {
+                    "displayName": "Use Sentiment Features (hover mouse to see more)",
+                    "description": "Activate to use sentiments to define bar colors, label font colors and label positioning ",
+                    "type": {
+                        "bool": true
+                    }
+                },    
+                "sentimentColorTotal": {
+                    "displayName": "Total",
+                    "description": "The fill color for the Total",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "sentimentColorFavourable": {
+                    "displayName": "Favourable",
+                    "description": "The fill color for Favourable",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "sentimentColorAdverse": {
+                    "displayName": "Adverse",
+                    "description": "The fill color for Adverse",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "fill1": {
+                    "displayName": "Use individual bar colors",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "xAxisFormatting": {
+            "displayName": "X-Axis",
+            "properties": {
+                "fontSize": {
+                    "displayName": "Font Size",
+                    "description": "Font Size",
+                    "type": {
+                        "formatting": {
+                            "fontSize": true
+                        }
+                    }
+                },
+                "fontColor": {
+                    "displayName": "Font Color",
+                    "description": "The font color",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "fontFamily": {
+                    "displayName": "Font family",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "displayName": "Default",
+                                "description": "helvetica, arial, sans-serif",
+                                "value": "helvetica, arial, sans-serif"
+                            },
+                            {
+                                "displayName": "Arial",
+                                "value": "Arial"
+                            },
+                            {
+                                "displayName": "Arial Black",
+                                "value": "\"Arial Black\""
+                            },
+                            {
+                                "displayName": "Arial Unicode MS",
+                                "value": "\"Arial Unicode MS\""
+                            },
+                            {
+                                "displayName": "Calibri",
+                                "value": "Calibri"
+                            },
+                            {
+                                "displayName": "Cambria",
+                                "value": "Cambria"
+                            },
+                            {
+                                "displayName": "Cambria Math",
+                                "value": "\"Cambria Math\""
+                            },
+                            {
+                                "displayName": "Candara",
+                                "value": "Candara"
+                            },
+                            {
+                                "displayName": "Comic Sans MS",
+                                "value": "\"Comic Sans MS\""
+                            },
+                            {
+                                "displayName": "Consolas",
+                                "value": "Consolas"
+                            },
+                            {
+                                "displayName": "Constantia",
+                                "value": "Constantia"
+                            },
+                            {
+                                "displayName": "Corbel",
+                                "value": "Corbel"
+                            },
+                            {
+                                "displayName": "Courier New",
+                                "value": "\"Courier New\""
+                            },
+                            {
+                                "displayName": "Georgia",
+                                "value": "Georgia"
+                            },
+                            {
+                                "displayName": "Lucida Sans Unicode",
+                                "value": "\"Lucida Sans Unicode\""
+                            },
+                            {
+                                "displayName": "Segoe (Bold)",
+                                "value": "\"Segoe UI Bold\", wf_segoe-ui_bold, helvetica, arial, sans-serif"
+                            },
+                            {
+                                "displayName": "Segoe UI",
+                                "value": "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif"
+                            },
+                            {
+                                "displayName": "Segoe UI Light",
+                                "value": "\"Segoe UI Light\", wf_segoe-ui_bold, helvetica, arial, sans-serif"
+                            },
+                            {
+                                "displayName": "Symbol",
+                                "value": "Symbol"
+                            },
+                            {
+                                "displayName": "Tahoma",
+                                "value": "Tahoma"
+                            },
+                            {
+                                "displayName": "Times New Roman",
+                                "value": "\"Times New Roman\""
+                            },
+                            {
+                                "displayName": "Trebuchet MS",
+                                "value": "\"Trebuchet MS\""
+                            },
+                            {
+                                "displayName": "Verdana",
+                                "value": "Verdana"
+                            },
+                            {
+                                "displayName": "Wingdings",
+                                "value": "Wingdings"
+                            }
+                        ]
+                    }
+                },
+                "labelWrapText": {
+                    "displayName": "Wrap text",
+                    "description": "Wrap text",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "fitToWidth": {
+                    "displayName": "Fit to width",
+                    "description": "Fit to width",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "barWidth": {
+                    "displayName": "Minimum Bar Width",
+                    "description": "Minimum Bar Width",
+                    "type": {
+                        "integer": true
+                    }
+                },
+                "padding": {
+                    "displayName": "Padding",
+                    "description": "Padding",
+                    "type": {
+                        "integer": true
+                    }
+                },
+                "showGridLine": {
+                    "displayName": "Show / Hide Gridlines",
+                    "description": "Show / Hide Gridlines",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "gridLineStrokeWidth": {
+                    "displayName": "Stroke Width",
+                    "description": "Stroke Width",
+                    "type": {
+                        "integer": true
+                    }
+                },
+                "gridLineColor": {
+                    "displayName": "Gridlines Color",
+                    "description": "Gridlines color",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "yAxisFormatting": {
+            "displayName": "Y-Axis",            
+            "properties": {
+                "show": {
+                    "displayName": "My Property Switch",
+                    "type": {"bool": true}
+                },                
+                "YAxisDataPointOption": {
+                    "displayName": "Base Starting Point",
+                    "description": "Select how the starting point of the Y Axis is determined",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "displayName": "Auto",
+                                "description": "Base starting point is determined automatically ",
+                                "value": "Auto"
+                            },
+                            {
+                                "displayName": "Zero",
+                                "value": "Zero"
+                            },
+                            {
+                                "displayName": "Range",
+                                "value": "Range"
+                            }
+                        ]
+                    }
+                },
+                "YAxisDataPointRangeStart": {
+                    "displayName": "Start Range  (approx.)",
+                    "description": "Pleae specify an approximate start value. The actual value might be different",
+                    "type": {                        
+                        "numeric": true                        
+                    }
+                },
+                "YAxisDataPointRangeEnd": {
+                    "displayName": "End Range (approx.)",
+                    "description": "Pleae specify an approximate end value. The actual value might be different",
+                    "type": {                        
+                        "numeric": true                        
+                    }
+                },
+                "fontSize": {
+                    "displayName": "Font Size",
+                    "description": "Font Size",
+                    "type": {
+                        "formatting": {
+                            "fontSize": true
+                        }
+                    }
+                },
+                "fontColor": {
+                    "displayName": "Font Color",
+                    "description": "The font color",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "fontFamily": {
+                    "displayName": "Font family",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "displayName": "Default",
+                                "description": "helvetica, arial, sans-serif",
+                                "value": "helvetica, arial, sans-serif"
+                            },
+                            {
+                                "displayName": "Arial",
+                                "value": "Arial"
+                            },
+                            {
+                                "displayName": "Arial Black",
+                                "value": "\"Arial Black\""
+                            },
+                            {
+                                "displayName": "Arial Unicode MS",
+                                "value": "\"Arial Unicode MS\""
+                            },
+                            {
+                                "displayName": "Calibri",
+                                "value": "Calibri"
+                            },
+                            {
+                                "displayName": "Cambria",
+                                "value": "Cambria"
+                            },
+                            {
+                                "displayName": "Cambria Math",
+                                "value": "\"Cambria Math\""
+                            },
+                            {
+                                "displayName": "Candara",
+                                "value": "Candara"
+                            },
+                            {
+                                "displayName": "Comic Sans MS",
+                                "value": "\"Comic Sans MS\""
+                            },
+                            {
+                                "displayName": "Consolas",
+                                "value": "Consolas"
+                            },
+                            {
+                                "displayName": "Constantia",
+                                "value": "Constantia"
+                            },
+                            {
+                                "displayName": "Corbel",
+                                "value": "Corbel"
+                            },
+                            {
+                                "displayName": "Courier New",
+                                "value": "\"Courier New\""
+                            },
+                            {
+                                "displayName": "Georgia",
+                                "value": "Georgia"
+                            },
+                            {
+                                "displayName": "Lucida Sans Unicode",
+                                "value": "\"Lucida Sans Unicode\""
+                            },
+                            {
+                                "displayName": "Segoe (Bold)",
+                                "value": "\"Segoe UI Bold\", wf_segoe-ui_bold, helvetica, arial, sans-serif"
+                            },
+                            {
+                                "displayName": "Segoe UI",
+                                "value": "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif"
+                            },
+                            {
+                                "displayName": "Segoe UI Light",
+                                "value": "\"Segoe UI Light\", wf_segoe-ui_bold, helvetica, arial, sans-serif"
+                            },
+                            {
+                                "displayName": "Symbol",
+                                "value": "Symbol"
+                            },
+                            {
+                                "displayName": "Tahoma",
+                                "value": "Tahoma"
+                            },
+                            {
+                                "displayName": "Times New Roman",
+                                "value": "\"Times New Roman\""
+                            },
+                            {
+                                "displayName": "Trebuchet MS",
+                                "value": "\"Trebuchet MS\""
+                            },
+                            {
+                                "displayName": "Verdana",
+                                "value": "Verdana"
+                            },
+                            {
+                                "displayName": "Wingdings",
+                                "value": "Wingdings"
+                            }
+                        ]
+                    }
+                },                
+                "YAxisValueFormatOption": {
+                    "displayName": "Value Format",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "displayName": "None",
+                                "value": "None"
+                            },
+                            {
+                                "displayName": "Auto",
+                                "value": "Auto"
+                            },
+                            {
+                                "displayName": "Thousands",
+                                "value": "Thousands"
+                            },
+                            {
+                                "displayName": "Millions",
+                                "value": "Millions"
+                            },
+                            {
+                                "displayName": "Billions",
+                                "value": "Billions"
+                            }
+                        ]
+                    }
+                },
+                "showGridLine": {
+                    "displayName": "Show / Hide Gridlines",
+                    "description": "Show / Hide Gridlines",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "gridLineStrokeWidth": {
+                    "displayName": "Stroke Width",
+                    "description": "Stroke Width",
+                    "type": {
+                        "integer": true
+                    }
+                },
+                "gridLineColor": {
+                    "displayName": "Gridlines Color",
+                    "description": "Gridlines color",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "LabelsFormatting": {
+            "displayName": "Labels",
+            "properties": {
+                "show": {
+                    "displayName": "My Property Switch",
+                    "type": {"bool": true}
+                },                
+                "fontSize": {
+                    "displayName": "Font Size",
+                    "description": "Font Size",
+                    "type": {
+                        "formatting": {
+                            "fontSize": true
+                        }
+                    }
+                },
+                "useDefaultFontColor": {
+                    "displayName": "Use Default Font Color",
+                    "description": "Use default color for labels",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "fontColor": {
+                    "displayName": "Default Font Color",
+                    "description": "The font color",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "sentimentFontColorTotal": {
+                    "displayName": "Font Color - Total",
+                    "description": "The Font color for the Total",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "sentimentFontColorFavourable": {
+                    "displayName": "Font Color - Favourable",
+                    "description": "The Font color for Favourable",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "sentimentFontColorAdverse": {
+                    "displayName": "Font Color -  Adverse",
+                    "description": "The Font color for Adverse",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },                
+                "fill1": {
+                    "displayName": "Use individual font colors",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "fontFamily": {
+                    "displayName": "Font family",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "displayName": "Default",
+                                "description": "helvetica, arial, sans-serif",
+                                "value": "helvetica, arial, sans-serif"
+                            },
+                            {
+                                "displayName": "Arial",
+                                "value": "Arial"
+                            },
+                            {
+                                "displayName": "Arial Black",
+                                "value": "\"Arial Black\""
+                            },
+                            {
+                                "displayName": "Arial Unicode MS",
+                                "value": "\"Arial Unicode MS\""
+                            },
+                            {
+                                "displayName": "Calibri",
+                                "value": "Calibri"
+                            },
+                            {
+                                "displayName": "Cambria",
+                                "value": "Cambria"
+                            },
+                            {
+                                "displayName": "Cambria Math",
+                                "value": "\"Cambria Math\""
+                            },
+                            {
+                                "displayName": "Candara",
+                                "value": "Candara"
+                            },
+                            {
+                                "displayName": "Comic Sans MS",
+                                "value": "\"Comic Sans MS\""
+                            },
+                            {
+                                "displayName": "Consolas",
+                                "value": "Consolas"
+                            },
+                            {
+                                "displayName": "Constantia",
+                                "value": "Constantia"
+                            },
+                            {
+                                "displayName": "Corbel",
+                                "value": "Corbel"
+                            },
+                            {
+                                "displayName": "Courier New",
+                                "value": "\"Courier New\""
+                            },
+                            {
+                                "displayName": "Georgia",
+                                "value": "Georgia"
+                            },
+                            {
+                                "displayName": "Lucida Sans Unicode",
+                                "value": "\"Lucida Sans Unicode\""
+                            },
+                            {
+                                "displayName": "Segoe (Bold)",
+                                "value": "\"Segoe UI Bold\", wf_segoe-ui_bold, helvetica, arial, sans-serif"
+                            },
+                            {
+                                "displayName": "Segoe UI",
+                                "value": "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif"
+                            },
+                            {
+                                "displayName": "Segoe UI Light",
+                                "value": "\"Segoe UI Light\", wf_segoe-ui_bold, helvetica, arial, sans-serif"
+                            },
+                            {
+                                "displayName": "Symbol",
+                                "value": "Symbol"
+                            },
+                            {
+                                "displayName": "Tahoma",
+                                "value": "Tahoma"
+                            },
+                            {
+                                "displayName": "Times New Roman",
+                                "value": "\"Times New Roman\""
+                            },
+                            {
+                                "displayName": "Trebuchet MS",
+                                "value": "\"Trebuchet MS\""
+                            },
+                            {
+                                "displayName": "Verdana",
+                                "value": "Verdana"
+                            },
+                            {
+                                "displayName": "Wingdings",
+                                "value": "Wingdings"
+                            }
+                        ]
+                    }
+                },
+                "valueFormat": {
+                    "displayName": "Value Format",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "displayName": "None",
+                                "value": "None"
+                            },
+                            {
+                                "displayName": "Auto",
+                                "value": "Auto"
+                            },
+                            {
+                                "displayName": "Thousands",
+                                "value": "Thousands"
+                            },
+                            {
+                                "displayName": "Millions",
+                                "value": "Millions"
+                            },
+                            {
+                                "displayName": "Billions",
+                                "value": "Billions"
+                            }
+                        ]
+                    }
+                },
+                "useDefaultLabelPositioning": {
+                    "displayName": "Use Default Label Positioning",
+                    "description": "Use Default Label Positioning",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "labelPosition": {
+                    "displayName": "Position of labels",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "displayName": "Inside end",
+                                "value": "Inside end"
+                            },
+                            {
+                                "displayName": "Outside end",
+                                "value": "Outside end"
+                            },
+                            {
+                                "displayName": "Inside center",
+                                "value": "Inside center"
+                            },
+                            {
+                                "displayName": "Inside base",
+                                "value": "Inside base"
+                            },
+                            {
+                                "displayName": "Always top/right",
+                                "value": "Outside top"
+                            },
+                            {
+                                "displayName": "Always bottom/left",
+                                "value": "Inside bottom"
+                            }
+                        ]
+                    }
+                },
+                "labelPositionTotal": {
+                    "displayName": "Position - Totals",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "displayName": "Inside end",
+                                "value": "Inside end"
+                            },
+                            {
+                                "displayName": "Outside end",
+                                "value": "Outside end"
+                            },
+                            {
+                                "displayName": "Inside center",
+                                "value": "Inside center"
+                            },
+                            {
+                                "displayName": "Inside base",
+                                "value": "Inside base"
+                            },
+                            {
+                                "displayName": "Always top/right",
+                                "value": "Outside top"
+                            },
+                            {
+                                "displayName": "Always bottom/left",
+                                "value": "Inside bottom"
+                            }
+                        ]
+                    }
+                },
+                "labelPositionFavourable": {
+                    "displayName": "Position - Favourable",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "displayName": "Inside end",
+                                "value": "Inside end"
+                            },
+                            {
+                                "displayName": "Outside end",
+                                "value": "Outside end"
+                            },
+                            {
+                                "displayName": "Inside center",
+                                "value": "Inside center"
+                            },
+                            {
+                                "displayName": "Inside base",
+                                "value": "Inside base"
+                            },
+                            {
+                                "displayName": "Always top/right",
+                                "value": "Outside top"
+                            },
+                            {
+                                "displayName": "Always bottom/left",
+                                "value": "Inside bottom"
+                            }
+                        ]
+                    }
+                },
+                "labelPositionAdverse": {
+                    "displayName": "Position - Adverse",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "displayName": "Inside end",
+                                "value": "Inside end"
+                            },
+                            {
+                                "displayName": "Outside end",
+                                "value": "Outside end"
+                            },
+                            {
+                                "displayName": "Inside center",
+                                "value": "Inside center"
+                            },
+                            {
+                                "displayName": "Inside base",
+                                "value": "Inside base"
+                            },
+                            {
+                                "displayName": "Always top/right",
+                                "value": "Outside top"
+                            },
+                            {
+                                "displayName": "Always bottom/left",
+                                "value": "Inside bottom"
+                            }
+                        ]
+                    }
+                },                
+                "negativeInBrackets": {
+                    "displayName": "Negative value in brackets",
+                    "description": "Show Negative value in brackets. Only works when you have selected 'Auto' as an option in 'Value Format' above",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "HideZeroBlankValues": {
+                    "displayName": "Hide Zero / Blank values",
+                    "description": "Show or hide columns that have zero or blank values ",
+                    "type": {
+                        "bool": true
+                    }
+                }
+            }
+        }
+    },
+    "tooltips": {
+        "supportedTypes": {
+            "default": true,
+            "canvas": true
+        },
+        "roles": [
+            "tooltips"
+        ]
+    }
+}

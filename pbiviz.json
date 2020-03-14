@@ -1,0 +1,25 @@
+{
+    "visual": {
+        "name": "Simple Waterfall",
+        "displayName": "Simple Waterfall",
+        "guid": "SimpleWaterfall_dev",
+        "visualClassName": "Visual",
+        "version": "2.0.6",
+        "description": "A simple waterfall allowing users to create multi step waterfall",
+        "supportUrl": "http://nishantjain.co.uk/simple-waterfall-support/",
+        "gitHubUrl": ""
+    },
+    "apiVersion": "2.6.0",
+    "author": {
+        "name": "Nishant Jain",
+        "email": "nishant@nishantjain.co.uk"
+    },
+    "assets": {
+        "icon": "assets/icon-visual.png"
+    },
+    "externalJS": null,
+    "style": "style/visual.less",
+    "capabilities": "capabilities.json",
+    "dependencies": null,
+    "stringResources": []
+}

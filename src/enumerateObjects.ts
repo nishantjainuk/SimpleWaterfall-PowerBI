@@ -7,7 +7,7 @@ import { VisualSettings, yAxisFormatting, chartOrientation } from "./settings";
 import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInstancesOptions;
 import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
 
-interface BarChartDataPoint {
+interface barChartDataPoint {
     value: PrimitiveValue;
     numberFormat: string;
     formattedValue: string;
@@ -28,7 +28,7 @@ export interface IEnumerateObjects {
 }
 export function createenumerateObjects(
     visualType: String,
-        barChartData: BarChartDataPoint[],
+        barChartData: barChartDataPoint[],
         visualSettings: VisualSettings,
         defaultXAxisGridlineStrokeWidth: PrimitiveValue,
         defaultYAxisGridlineStrokeWidth: PrimitiveValue
@@ -42,23 +42,55 @@ export function createenumerateObjects(
 }
 class enumerateObjects implements IEnumerateObjects{
     private visualType: String;
-    private barChartData: BarChartDataPoint[];
+    private barChartData: barChartDataPoint[];
     private visualSettings: VisualSettings;
     private defaultXAxisGridlineStrokeWidth: PrimitiveValue;
     private defaultYAxisGridlineStrokeWidth: PrimitiveValue;
     
-    constructor(visualType: String, barChartData: BarChartDataPoint[],visualSettings: VisualSettings,defaultXAxisGridlineStrokeWidth: PrimitiveValue,defaultYAxisGridlineStrokeWidth: PrimitiveValue) {
+    constructor(visualType: String,barchartData: barChartDataPoint[],visualSettings: VisualSettings,defaultXAxisGridlineStrokeWidth: PrimitiveValue,defaultYAxisGridlineStrokeWidth: PrimitiveValue) {
         this.visualType = visualType;
-        this.barChartData = barChartData;
+        this.barChartData = barchartData;
         this.visualSettings = visualSettings;
         this.defaultXAxisGridlineStrokeWidth = defaultXAxisGridlineStrokeWidth;        
-        this.defaultYAxisGridlineStrokeWidth = defaultYAxisGridlineStrokeWidth;
+        this.defaultYAxisGridlineStrokeWidth = defaultYAxisGridlineStrokeWidth;        
+    }
+    public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
+        let objectName: string = options.objectName;
+        let objectEnumeration: VisualObjectInstance[] = [];
+        switch (objectName) {
+
+            case 'chartOrientation':
+                this.propertiesChartOrientation(objectName, objectEnumeration);
+                break;
+            case 'definePillars':
+                this.propertiesDefinePillars(objectName, objectEnumeration);
+                break;
+            case 'sentimentColor':
+                this.propertiesSentimentColor(objectName, objectEnumeration);
+                break;
+            case 'xAxisFormatting':
+                this.propertiesXaxis(objectName, objectEnumeration);
+                break;
+            case 'yAxisFormatting':
+                this.propertiesYaxis(objectName, objectEnumeration);
+                break;
+            case 'LabelsFormatting':
+                this.propertiesLabelFormatting(objectName, objectEnumeration);
+                break;
+            case 'margins':
+                this.propertiesMargin(objectName, objectEnumeration);
+                break;
+
+        };
+
+        return objectEnumeration;
     }
     private propertiesDefinePillars(objectName: string, objectEnumeration: VisualObjectInstance[]) {
         if (this.visualType == "static") {
             switch (objectName) {
                 case 'definePillars':
                     var isPillarBoolean: boolean;
+                    
                     for (var index = 0; index < this.barChartData.length; index++) {
                         if (this.barChartData[index].isPillar) {
                             isPillarBoolean = true;
@@ -230,17 +262,7 @@ class enumerateObjects implements IEnumerateObjects{
             selector: null
         });
 
-        if (this.visualSettings.yAxisFormatting.YAxisDataPointOption == "Range") {
-            objectEnumeration.push({
-                objectName: "objectName",
-                properties: {
-
-                    YAxisDataPointRangeStart: this.visualSettings.yAxisFormatting.YAxisDataPointRangeStart,
-                    YAxisDataPointRangeEnd: this.visualSettings.yAxisFormatting.YAxisDataPointRangeEnd
-                },
-                selector: null
-            });
-        };
+        
         objectEnumeration.push({
             objectName: "objectName",
             properties: {
@@ -265,7 +287,7 @@ class enumerateObjects implements IEnumerateObjects{
                 selector: null
             });
             objectEnumeration[objectEnumeration.length - 1].validValues = {
-                gridLineStrokeWidth: { numberRange: { min: 1, max: 10 } }
+                gridLineStrokeWidth: { numberRange: { min: 1, max: 50 } }
 
             };
         }
@@ -418,40 +440,10 @@ class enumerateObjects implements IEnumerateObjects{
         });
         objectEnumeration[0].validValues = {
             topMargin: { numberRange: { min: 0, max: 100 } },
-            leftMargin: { numberRange: { min: 0, max: 50 } },
-            bottomMargin: { numberRange: { min: 0, max: 50 } },
-            rightMargin: { numberRange: { min: 0, max: 50 } }
+            leftMargin: { numberRange: { min: 0, max: 100 } },
+            bottomMargin: { numberRange: { min: 0, max: 100 } },
+            rightMargin: { numberRange: { min: 0, max: 100 } }
         };
     }
-    public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
-        let objectName: string = options.objectName;
-        let objectEnumeration: VisualObjectInstance[] = [];
-        switch (objectName) {
-
-            case 'chartOrientation':
-                this.propertiesChartOrientation(objectName, objectEnumeration);
-                break;
-            case 'definePillars':
-                this.propertiesDefinePillars(objectName, objectEnumeration);
-                break;
-            case 'sentimentColor':
-                this.propertiesSentimentColor(objectName, objectEnumeration);
-                break;
-            case 'xAxisFormatting':
-                this.propertiesXaxis(objectName, objectEnumeration);
-                break;
-            case 'yAxisFormatting':
-                this.propertiesYaxis(objectName, objectEnumeration);
-                break;
-            case 'LabelsFormatting':
-                this.propertiesLabelFormatting(objectName, objectEnumeration);
-                break;
-            case 'margins':
-                this.propertiesMargin(objectName, objectEnumeration);
-                break;
-
-        };
-
-        return objectEnumeration;
-    }
+    
 }

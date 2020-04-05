@@ -124,8 +124,7 @@ export class Visual implements IVisual {
     
     public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
         this.enumerateObjects = createenumerateObjects(this.visualType, this.barChartData, this.visualSettings, this.defaultXAxisGridlineStrokeWidth(),this.defaultYAxisGridlineStrokeWidth());
-        return this.enumerateObjects.enumerateObjectInstances(options);
-    
+        return this.enumerateObjects.enumerateObjectInstances(options);         
     }
     public update(options: VisualUpdateOptions) {
         this.visualUpdateOptions = options;
@@ -1017,12 +1016,12 @@ export class Visual implements IVisual {
                         .createSelectionId();
 
 
-
-                    if (x.objects) {
-                        if (x.objects.definePillars) {
+                    var y =dataView.matrix.valueSources[index];
+                    if (y.objects) {
+                        if (y.objects.definePillars) {
                             data2["category"] = dataView.matrix.valueSources[index].displayName;
                             data2["displayName"] = dataView.matrix.valueSources[index].displayName;
-                            if (x.objects["definePillars"]["pillars"]) {
+                            if (y.objects["definePillars"]["pillars"]) {
                                 data2["isPillar"] = 1;
                             } else {
                                 data2["isPillar"] = 0;
@@ -1039,14 +1038,14 @@ export class Visual implements IVisual {
                                 data2["displayName"] = dataView.matrix.valueSources[index].displayName.substring(1);
                             }
                         }
-                        if (x.objects.sentimentColor && !this.visualSettings.chartOrientation.useSentimentFeatures) {
-                            data2["customBarColor"] = x.objects["sentimentColor"]["fill1"]["solid"]["color"];
+                        if (y.objects.sentimentColor && !this.visualSettings.chartOrientation.useSentimentFeatures) {
+                            data2["customBarColor"] = y.objects["sentimentColor"]["fill1"]["solid"]["color"];
                         } else {
                             data2["customBarColor"] = this.getfillColor(data2["isPillar"], data2["value"]);
                         }
-                        if (x.objects.LabelsFormatting && !this.visualSettings.chartOrientation.useSentimentFeatures && !this.visualSettings.LabelsFormatting.useDefaultFontColor) {
-                            if (x.objects.LabelsFormatting.fill1) {
-                                data2["customFontColor"] = x.objects["LabelsFormatting"]["fill1"]["solid"]["color"];
+                        if (y.objects.LabelsFormatting && !this.visualSettings.chartOrientation.useSentimentFeatures && !this.visualSettings.LabelsFormatting.useDefaultFontColor) {
+                            if (y.objects.LabelsFormatting.fill1) {
+                                data2["customFontColor"] = y.objects["LabelsFormatting"]["fill1"]["solid"]["color"];
                             } else {
                                 data2["customFontColor"] = this.getLabelFontColor(data2["isPillar"], data2["value"]);
                             }
@@ -1054,9 +1053,9 @@ export class Visual implements IVisual {
                             data2["customFontColor"] = this.getLabelFontColor(data2["isPillar"], data2["value"]);
                         }
 
-                        if (x.objects.LabelsFormatting && !this.visualSettings.chartOrientation.useSentimentFeatures && !this.visualSettings.LabelsFormatting.useDefaultLabelPositioning) {
-                            if (x.objects.LabelsFormatting.labelPosition) {
-                                data2["customLabelPositioning"] = x.objects["LabelsFormatting"]["labelPosition"];
+                        if (y.objects.LabelsFormatting && !this.visualSettings.chartOrientation.useSentimentFeatures && !this.visualSettings.LabelsFormatting.useDefaultLabelPositioning) {
+                            if (y.objects.LabelsFormatting.labelPosition) {
+                                data2["customLabelPositioning"] = y.objects["LabelsFormatting"]["labelPosition"];
                             } else {
                                 data2["customLabelPositioning"] = this.getLabelPosition(data2["isPillar"], data2["value"]);
                             }
@@ -2785,5 +2784,5 @@ export class Visual implements IVisual {
             }
         });
 
-    }
+    }    
 }

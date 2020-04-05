@@ -90,28 +90,28 @@
             "properties": {                
                 "topMargin": {
                     "displayName": "Top Margin",
-                    "description": "Top Margin",
+                    "description": "Increase the top margin (min: 0; max: 100)",
                     "type": {
                         "integer": true
                     }
                 },
                 "bottomMargin": {
                     "displayName": "Bottom Margin",
-                    "description": "Bottom Margin",
+                    "description": "Increase the bottom margin (min: 0; max: 100)",
                     "type": {
                         "integer": true
                     }
                 },
                 "leftMargin": {
                     "displayName": "Left Margin",
-                    "description": "Left Margin",
+                    "description": "Increase the left margin (min: 0; max: 100)",
                     "type": {
                         "integer": true
                     }
                 },
                 "rightMargin": {
                     "displayName": "Right Margin",
-                    "description": "Right Margin",
+                    "description": "Increase the right margin (min: 0; max: 100)",
                     "type": {
                         "integer": true
                     }
@@ -316,14 +316,14 @@
                 },
                 "barWidth": {
                     "displayName": "Minimum Bar Width",
-                    "description": "Minimum Bar Width",
+                    "description": "Enter a numeric value to specify the minimum bar width (min:10; max: 100",
                     "type": {
                         "integer": true
                     }
                 },
                 "padding": {
                     "displayName": "Padding",
-                    "description": "Padding",
+                    "description": "Enter a numeric value to specify the padding between the x-axis and x-axis laels (min:0; max: 20)",
                     "type": {
                         "integer": true
                     }
@@ -337,7 +337,7 @@
                 },
                 "gridLineStrokeWidth": {
                     "displayName": "Stroke Width",
-                    "description": "Stroke Width",
+                    "description": "Stroke Width (min:1; max: 50)",
                     "type": {
                         "integer": true
                     }
@@ -375,10 +375,6 @@
                             {
                                 "displayName": "Zero",
                                 "value": "Zero"
-                            },
-                            {
-                                "displayName": "Range",
-                                "value": "Range"
                             }
                         ]
                     }
@@ -557,7 +553,7 @@
                 },
                 "gridLineStrokeWidth": {
                     "displayName": "Stroke Width",
-                    "description": "Stroke Width",
+                    "description": "Stroke Width (min: 1; max: 50)",
                     "type": {
                         "integer": true
                     }

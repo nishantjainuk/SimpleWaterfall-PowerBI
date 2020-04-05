@@ -37,8 +37,8 @@ Simple Waterfall provides an easy to use interface to create a waterfall chart. 
 | -------------------  | ------------------- | --------------- | ------------- |  
 | None |	Any |	Measures |	No |
 | 1 |	1 |	Category | No |
-| 1 |	More than 1	| Default (Measures = Pillars  Categories = Steps) | No |
 | More than 1 |	1 |	Category |	Yes|
+| 1 |	More than 1	| Default (Measures = Pillars  Categories = Steps) | No |
 | More than 1 |	More than 1 |	Default (Measures = Pillars Categories = Steps) |	Yes |
 
 

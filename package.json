@@ -4,23 +4,24 @@
     "pbiviz": "pbiviz",
     "start": "pbiviz start",
     "package": "pbiviz package",
-    "lint": "tslint -r \"node_modules/tslint-microsoft-contrib\"  \"+(src|test)/**/*.ts\""
+    "lint": "tslint -c tslint.json -p tsconfig.json"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.4.4",
-    "@babel/runtime": "^7.4.5",
-    "@babel/runtime-corejs2": "^7.4.5",
     "@types/d3": "5.5.0",
-    "core-js": "^2.6.8",
+    "core-js": "^3.0.0",
     "d3": "5.5.0",
     "powerbi-visuals-api": "~2.6.0",
+    "powerbi-visuals-tools": "^3.1.12",
     "powerbi-visuals-utils-dataviewutils": "^2.2.1",
     "powerbi-visuals-utils-formattingutils": "^4.5.0",
     "powerbi-visuals-utils-tooltiputils": "^2.3.1",
-    "powerbi-visuals-utils-typeutils": "^2.2.1"
+    "powerbi-visuals-utils-typeutils": "^2.2.1",
+    "regenerator-runtime": "^0.13.5"
   },
   "devDependencies": {
     "ts-loader": "5.2.2",
-    "typescript": "3.0.1"
+    "tslint": "^6.1.1",
+    "tslint-microsoft-contrib": "^6.2.0",
+    "typescript": "^3.0.1"
   }
 }

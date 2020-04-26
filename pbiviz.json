@@ -2,7 +2,7 @@
     "visual": {
         "name": "Simple Waterfall",
         "displayName": "Simple Waterfall",
-        "guid": "SimpleWaterfall_dev",
+        "guid": "SimpleWaterfall",
         "visualClassName": "Visual",
         "version": "2.0.10.0",
         "description": "A simple waterfall allowing users to create multi step waterfall",

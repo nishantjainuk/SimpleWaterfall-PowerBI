@@ -31,7 +31,9 @@ import "./../style/visual.less";
 import powerbi from "powerbi-visuals-api";
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
+import IVisualEventService = powerbi.extensibility.IVisualEventService;
 import IVisual = powerbi.extensibility.visual.IVisual;
+import ILocalizationManager = powerbi.extensibility.ILocalizationManager;
 import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInstancesOptions;
 import VisualObjectInstance = powerbi.VisualObjectInstance;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
@@ -55,7 +57,7 @@ import {
 } from "powerbi-visuals-utils-formattingutils";
 import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 import { VisualSettings, yAxisFormatting, chartOrientation } from "./settings";
-import { IEnumerateObjects, createenumerateObjects} from "./enumerateObjects";
+import { IEnumerateObjects, createenumerateObjects } from "./enumerateObjects";
 import { dataRoleHelper } from "powerbi-visuals-utils-dataviewutils";
 import { AxisScale, AxisDomain } from "d3";
 
@@ -72,12 +74,15 @@ interface BarChartDataPoint {
     customLabelPositioning: string;
     selectionId: ISelectionId;
     childrenCount: number;
+    sortOrderIndex: number;
 }
 export class Visual implements IVisual {
 
     private svg: d3.Selection<any, any, any, any>;
     private svgYAxis: d3.Selection<any, any, any, any>;
-    private container: d3.Selection<any, any, any, any>;
+    private mainContainer: d3.Selection<any, any, any, any>;
+    private legendContainer: d3.Selection<any, any, any, any>;
+    private chartContainer: d3.Selection<any, any, any, any>;
     private gScrollable: d3.Selection<any, any, any, any>;
     private visualSettings: VisualSettings;
     private enumerateObjects: IEnumerateObjects;
@@ -92,6 +97,7 @@ export class Visual implements IVisual {
     private innerHeight: number;
     private barChartData: BarChartDataPoint[];
     private margin;
+    private legendHeight;
     private host: IVisualHost;
     private selectionIdBuilder: ISelectionIdBuilder;
     private selectionManager: ISelectionManager;
@@ -104,66 +110,180 @@ export class Visual implements IVisual {
     private yAxisHeightHorizontal = 0;
     private scrollbarBreath = 0;
     private yScaleTickValues = [];
-
+    private events: IVisualEventService;
+    private locale: string;
 
 
 
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
-        this.container = d3.select<HTMLElement, any>(options.element)
+        this.mainContainer = d3.select<HTMLElement, any>(options.element)
             .append('div');
+        this.legendContainer = this.mainContainer
+            .append('div');
+        this.chartContainer = this.mainContainer
+            .append('div');
+
         this.adjustmentConstant = 0;
         this.scrollbarBreath = 8;
         this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
         this.selectionIdBuilder = options.host.createSelectionIdBuilder();
         this.selectionManager = options.host.createSelectionManager();
+        this.events = options.host.eventService;
+        this.locale = options.host.locale;
+
     }
     private static parseSettings(dataView: DataView): VisualSettings {
         return <VisualSettings>VisualSettings.parse(dataView);
     }
-    
+
     public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
-        this.enumerateObjects = createenumerateObjects(this.visualType, this.barChartData, this.visualSettings, this.defaultXAxisGridlineStrokeWidth(),this.defaultYAxisGridlineStrokeWidth());
-        return this.enumerateObjects.enumerateObjectInstances(options);         
+        this.enumerateObjects = createenumerateObjects(this.visualType, this.barChartData, this.visualSettings, this.defaultXAxisGridlineStrokeWidth(), this.defaultYAxisGridlineStrokeWidth());
+        return this.enumerateObjects.enumerateObjectInstances(options);
     }
     public update(options: VisualUpdateOptions) {
+        //Certification requirement to use rendering API//
+        //-------------------------------------------------------------------------
+        this.events.renderingStarted(options);
+        //-------------------------------------------------------------------------
         this.visualUpdateOptions = options;
         let dataView: DataView = options.dataViews[0];
         this.visualSettings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
-
-        this.container.selectAll('svg').remove();
+        this.chartContainer.selectAll('svg').remove();
+        this.addLegend(options);
         this.width = options.viewport.width;
-        this.height = options.viewport.height;
+        this.height = options.viewport.height - this.legendHeight;
         this.xAxisPosition = 0;
         if (dataView.matrix.rows.levels.length == 0) {
             this.visualType = "static";
             this.barChartData = this.getDataStaticWaterfall(options);
+
             var allData = [];
             allData.push(this.barChartData);
-            this.createWaterfallGraph(options, allData);
+
         } else if (dataView.matrix.rows.levels.length == 1 && dataView.matrix.valueSources.length == 1) {
 
             this.visualType = "staticCategory";
             this.barChartData = this.getDataStaticCategoryWaterfall(options);
+
             var allData = [];
             allData.push(this.barChartData);
-            this.createWaterfallGraph(options, allData);
+
 
         } else if (dataView.matrix.rows.levels.length != 1 && dataView.matrix.valueSources.length == 1) {
             this.visualType = "drillableCategory";
             var allData = this.getDataDrillableCategoryWaterfall(options);
             this.barChartData = this.getDataDrillableCategoryWaterfall(options)[allData.length - 1];
-            this.createWaterfallGraph(options, allData);
+
 
         } else {
             this.visualType = "drillable";
             var allData = this.getDataDrillableWaterfall(options);
             this.barChartData = this.getDataDrillableWaterfall(options)[allData.length - 1];
-            this.createWaterfallGraph(options, allData);
+
 
         }
-    }
+        this.createWaterfallGraph(options, allData);
 
+
+        //Certification requirement to use rendering API//
+        //-------------------------------------------------------------------------
+        this.events.renderingFinished(options);
+        //-------------------------------------------------------------------------
+
+    }
+    private addLegend(options: VisualUpdateOptions) {
+        this.legendContainer.selectAll('svg').remove();
+        if (this.visualSettings.chartOrientation.useSentimentFeatures && this.visualSettings.Legend.show) {
+            //this.legendContainer.attr('width', options.viewport.width);
+            //this.legendContainer.attr('height', 0);
+
+            var circleFavourableSVG = this.legendContainer.append('svg');
+
+            var circleFavourable = circleFavourableSVG.append('circle');
+
+
+            var textFavourableSVG = this.legendContainer.append('svg')
+                .attr('width', 10)
+                .attr('height', 10)
+                .style('margin-left', 2)
+                .style('margin-right', 2);
+            var textFavourable = textFavourableSVG.append('text')
+                .attr("x", 0)
+                .attr("y", "75%")
+                .style('font-size', this.visualSettings.Legend.fontSize)
+                .text(this.visualSettings.Legend.textFavourable)
+                .style('font-family', this.visualSettings.Legend.fontFamily)
+                .style('color', this.visualSettings.Legend.fontColor);
+
+            var textBoxSize;
+            var textBoxSizeHeight;
+            var textBoxSizeWidth;
+            textBoxSize = textFavourable.node().getBoundingClientRect();
+            textBoxSizeHeight = textBoxSize.height;
+            textBoxSizeWidth = textBoxSize.width;
+            circleFavourableSVG
+                .attr('height', textBoxSizeHeight)
+                .attr('width', textBoxSizeHeight)
+                .style("vertical-align", "middle");
+            textFavourableSVG
+                .attr('width', textBoxSizeWidth)
+                .attr('height', textBoxSizeHeight)
+                .style("vertical-align", "middle");
+
+            circleFavourable
+                .attr("r", textBoxSizeHeight / 2)
+                .attr('cx', textBoxSizeHeight / 2)
+                .attr('cy', textBoxSizeHeight / 2)
+                .attr("fill", this.visualSettings.sentimentColor.sentimentColorFavourable);
+
+            var circleAdverseSVG = this.legendContainer.append('svg');
+
+            var circleAdverse = circleAdverseSVG.append('circle');
+
+            var textAdverseSVG = this.legendContainer.append('svg')
+                .attr('width', 10)
+                .attr('height', 10)
+                .style('margin-left', 2)
+                .style('margin-right', 2);
+            var textAdverse = textAdverseSVG.append('text')
+                .attr("x", 0)
+                .attr("y", "75%")   
+                .style('font-size', this.visualSettings.Legend.fontSize)
+                .text(this.visualSettings.Legend.textAdverse)
+                .style('font-family', this.visualSettings.Legend.fontFamily)
+                .style('color', this.visualSettings.Legend.fontColor);
+
+            
+            textBoxSize = textAdverse.node().getBoundingClientRect();
+            textBoxSizeHeight = textBoxSize.height;
+            textBoxSizeWidth = textBoxSize.width;
+            circleAdverseSVG
+                .attr('height', textBoxSizeHeight)
+                .attr('width', textBoxSizeHeight)
+                .style("vertical-align", "middle");
+            textAdverseSVG
+                .attr('width', textBoxSizeWidth)
+                .attr('height', textBoxSizeHeight)
+                .style("vertical-align", "middle");
+
+            circleAdverse
+                .attr("r", textBoxSizeHeight / 2)
+                .attr('cx', textBoxSizeHeight / 2)
+                .attr('cy', textBoxSizeHeight / 2)
+                .attr("fill", this.visualSettings.sentimentColor.sentimentColorAdverse);
+            this.legendContainer
+                //.style('width', options.viewport.width)
+                .style('height', textBoxSizeHeight + "px");
+                this.legendHeight = textBoxSizeHeight + 20 ;
+        }else{
+            this.legendContainer
+                //.style('width', options.viewport.width)
+                .style('height', 0 + "px");
+                this.legendHeight = 0;
+        }
+        
+    }
     private createWaterfallGraph(options, allData) {
 
         if (this.visualSettings.chartOrientation.orientation == "Horizontal") {
@@ -176,9 +296,9 @@ export class Visual implements IVisual {
 
     private createWaterfallGraphVertical(options, allData) {
 
-        this.svgYAxis = this.container
+        this.svgYAxis = this.chartContainer
             .append('svg');
-        this.svg = this.container
+        this.svg = this.chartContainer
             .append('svg');
         this.svg.on('contextmenu', () => {
 
@@ -193,8 +313,8 @@ export class Visual implements IVisual {
         });
         this.visualUpdateOptions = options;
 
-        this.container.attr("width", this.width);
-        this.container.attr("height", this.height);
+        this.chartContainer.attr("width", this.width);
+        this.chartContainer.attr("height", this.height);
         this.svg.attr("height", this.height);
         this.svgYAxis.attr("height", this.height);
 
@@ -229,7 +349,7 @@ export class Visual implements IVisual {
 
     }
     private checkBarWidth(options) {
-        
+
         this.visualUpdateOptions = options;
 
         var xScale = d3.scaleBand()
@@ -254,7 +374,7 @@ export class Visual implements IVisual {
             this.innerWidth = currentBarWidth * this.barChartData.length
                 + (currentBarWidth * xScale.padding());
 
-            this.innerHeight = this.height - this.margin.top - this.margin.bottom - this.scrollbarBreath;
+            this.innerHeight = this.height - this.margin.top - this.margin.bottom - this.scrollbarBreath + this.legendHeight;
             var dragStartPosition = 0;
             var dragScrollBarXStartposition = 0;
             var scrollbarwidth = this.width * this.width / this.innerWidth;
@@ -283,11 +403,11 @@ export class Visual implements IVisual {
                         this.gScrollable.attr('transform', `translate(${(dragScrollBarXStartposition + scrollBarMovement) / (this.width - scrollbarwidth) * (this.innerWidth - this.width) * -1},${0})`);
                     }
                 });
-            var scrollBarVerticalWheel = d3.zoom().on("zoom", () => {            
+            var scrollBarVerticalWheel = d3.zoom().on("zoom", () => {
                 var zoomScrollContainerheight = parseInt(scrollbarContainer.attr('width'));
                 var deltaY = d3.event.sourceEvent.deltaY;
-                
-                
+
+
                 var zoomScrollBarMovement = deltaY / 100 * zoomScrollContainerheight / this.barChartData.length;
                 var zoomScrollBarXStartposition = parseInt(scrollbar.attr('x'));
                 var zoomScrollBarheight = parseInt(scrollbar.attr('width'));
@@ -301,13 +421,13 @@ export class Visual implements IVisual {
                 }
                 scrollbar.attr('x', scrollBarMovement);
                 this.gScrollable.attr('transform', `translate(${(scrollBarMovement) / (this.width - scrollbarwidth) * (this.innerWidth - this.width) * -1},${0})`);
-            });                       
-            
+            });
+
             scrollBarDragBar(this.svg);
-            scrollBarVerticalWheel(this.svg);            
+            scrollBarVerticalWheel(this.svg);
             scrollBarDragBar(scrollbar);
         }
-        
+
     }
 
     private defaultYAxisGridlineStrokeWidth = () => {
@@ -406,15 +526,15 @@ export class Visual implements IVisual {
 
 
             } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Thousands") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_lessThanOne(Math.round(d / 100) / 10) + "k");
+                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1001, d)); //(Math.round(d / 100) / 10) + "k");
             } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Millions") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_lessThanOne(Math.round(d / 100000) / 10) + "M");
+                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1e6, d)); //(Math.round(d / 100000) / 10) + "M");
             } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Billions") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_lessThanOne(Math.round(d / 10000000) / 10) + "B");
+                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1e9, d)); //(Math.round(d / 10000000) / 10) + "B");
             } else {
                 yAxisScale.tickFormat(d => {
                     //y-axis formatting using the formatting of the first measure        
-                    let iValueFormatter = valueFormatter.create({ format: this.barChartData[0].numberFormat });
+                    let iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: this.barChartData[0].numberFormat });
                     return iValueFormatter.format(d);
                 });
             }
@@ -469,15 +589,15 @@ export class Visual implements IVisual {
 
 
             } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Thousands") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_lessThanOne(Math.round(d / 100) / 10) + "k");
+                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1001, d)); //(Math.round(d / 100) / 10) + "k");
             } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Millions") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_lessThanOne(Math.round(d / 100000) / 10) + "M");
+                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1e6, d)); //(Math.round(d / 100000) / 10) + "M");
             } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Billions") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_lessThanOne(Math.round(d / 10000000) / 10) + "B");
+                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1e9, d)); //(Math.round(d / 10000000) / 10) + "B");
             } else {
                 yAxisScale.tickFormat(d => {
                     //y-axis formatting using the formatting of the first measure        
-                    let iValueFormatter = valueFormatter.create({ format: this.barChartData[0].numberFormat });
+                    let iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: this.barChartData[0].numberFormat });
                     return iValueFormatter.format(d);
                 });
             }
@@ -591,6 +711,9 @@ export class Visual implements IVisual {
                     heightAdjustment = nodes[i].getBoundingClientRect().height;
                 }
             })
+            var yScale = d3.scaleLinear()
+                .domain([this.minValue, this.maxValue])
+                .range([this.innerHeight, 0]);
 
             switch (d.customLabelPositioning) {
                 case "Inside end":
@@ -603,6 +726,11 @@ export class Visual implements IVisual {
                     } else {
                         yPosition = this.getYPosition(d, i) + this.getHeight(d, i) + heightAdjustment;
                     }
+
+                    //if the label touches the x-axis then show on top
+                    if (yPosition >= yScale(0)) {
+                        yPosition = this.getYPosition(d, i) - 5;
+                    };
                     break;
                 case "Inside center":
                     yPosition = (this.getYPosition(d, i) + this.getHeight(d, i) / 2) + heightAdjustment / 2;
@@ -617,9 +745,11 @@ export class Visual implements IVisual {
                     break;
                 case "Inside bottom":
                     yPosition = this.getYPosition(d, i) + this.getHeight(d, i) + heightAdjustment;
-
+                    //if the label touches the x-axis then show on top
+                    if (yPosition >= yScale(0)) {
+                        yPosition = this.getYPosition(d, i) - 5;
+                    }
             }
-
             return yPosition;
         }
         var xScale = d3.scaleBand()
@@ -635,8 +765,6 @@ export class Visual implements IVisual {
             var pillarLabels = pillarLabelsg
                 .append('text')
                 .attr('class', 'labels');
-
-
             var labelFormatting = d => {
 
                 return this.formattedValuefromData(d);
@@ -654,21 +782,15 @@ export class Visual implements IVisual {
             pillarLabelsg.attr('transform', (d, i) => `translate(${xScale(d.category)},${yPosition(d, i)})`)
 
         }
-
         g.selectAll(".labels")
             .call(this.labelFitToWidth);
         this.tooltipServiceWrapper.addTooltip(g.selectAll('.labels'),
             (tooltipEvent: TooltipEventArgs<number>) => this.getTooltipData(tooltipEvent.data),
             (tooltipEvent: TooltipEventArgs<number>) => null);
 
-
-
         g.selectAll(".labels")
             .call(this.labelAlignment, xScale.bandwidth());
         g.attr('transform', `translate(${0},${this.margin.top})`);
-
-
-
     }
     private createBars(gParent, data) {
         var g = gParent.append('g').attr('class', 'myBars');
@@ -960,16 +1082,34 @@ export class Visual implements IVisual {
         }
 
     }
-    private myFormat_lessThanOne = d3.format(",.0f"); //2 means number of decimal points
+    private myFormat_customOptions(formatvalue, currValue) {
+        var format = this.barChartData[0].numberFormat;
+        let iValueFormatter = valueFormatter.create({ value: formatvalue, format: format, cultureSelector: this.locale, precision: 0 });
+        return iValueFormatter.format(currValue);
+
+    }
+    private numbeFormatforSpecific(formatvalue, currValue, format) {
+
+        let iValueFormatter = valueFormatter.create({ value: formatvalue, format: format, cultureSelector: this.locale, precision: 0 });
+        return iValueFormatter.format(currValue);
+        //return currValue
+
+    }
+    /*private myFormat_Nodp(currValue){
+        let iValueFormatter = valueFormatter.create({cultureSelector: this.locale, precision: 0, allowFormatBeautification: true });
+        return iValueFormatter.format(currValue);
+        //return d3.format(",.0f"); //2 means number of decimal points
+    }*/
+    //private myFormat_lessThanOne = d3.format(",.0f"); //2 means number of decimal points
     private myFormat_Nodp = d3.format("~s");
     private myFormat_3dp = d3.format(".3s"); //3 means total number of digits in the formatted text
     private myFormatnegative_3dpNegative = d3.format("(.3s"); //3 means total number of digits in the formatted text
     private valueFormatAuto(currValue: any, format: any) {
         let returnValue;
-        let iValueFormatter = valueFormatter.create({ format: format });
+        let iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: format });
         if (this.visualSettings.LabelsFormatting.valueFormat == "Auto") {
             if (Math.abs(currValue) < 1) {
-                returnValue = this.myFormat_lessThanOne(currValue);
+                returnValue = this.numbeFormatforSpecific(0, currValue, format);
             } else {
                 if (this.visualSettings.LabelsFormatting.negativeInBrackets) {
                     returnValue = this.myFormatnegative_3dpNegative(currValue).replace(/G/, "B");
@@ -991,32 +1131,26 @@ export class Visual implements IVisual {
 
     private getDataStaticWaterfall(options: VisualUpdateOptions) {
         let dataView: DataView = options.dataViews[0];
-
         let iValueFormatter;
         var visualData = [];
+        var sortOrderIndex = 0;
         for (let index = 0; index < dataView.matrix.columns.root.children.length; index++) {
-
-
             dataView.matrix.rows.root.children.forEach((x: DataViewMatrixNode) => {
-
                 var checkforZero = false;
                 if (this.visualSettings.LabelsFormatting.HideZeroBlankValues && +x.values[index].value == 0) {
                     checkforZero = true;
                 }
                 if (checkforZero == false) {
                     var data2 = [];
-
                     data2["value"] = +x.values[index].value;
                     data2["numberFormat"] = dataView.matrix.valueSources[index].format;
-                    iValueFormatter = valueFormatter.create({ format: data2["numberFormat"] });
+                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: data2["numberFormat"] });
                     data2["formattedValue"] = this.valueFormatAuto(data2["value"], data2["numberFormat"]);
                     data2["originalFormattedValue"] = iValueFormatter.format(data2["value"]);
                     data2["selectionId"] = this.host.createSelectionIdBuilder()
                         .withMeasure(dataView.matrix.valueSources[index].queryName)
                         .createSelectionId();
-
-
-                    var y =dataView.matrix.valueSources[index];
+                    var y = dataView.matrix.valueSources[index];
                     if (y.objects) {
                         if (y.objects.definePillars) {
                             data2["category"] = dataView.matrix.valueSources[index].displayName;
@@ -1034,8 +1168,8 @@ export class Visual implements IVisual {
                                 data2["displayName"] = dataView.matrix.valueSources[index].displayName;
                             } else {
                                 data2["isPillar"] = 1;
-                                data2["category"] = dataView.matrix.valueSources[index].displayName.substring(1);
-                                data2["displayName"] = dataView.matrix.valueSources[index].displayName.substring(1);
+                                data2["category"] = dataView.matrix.valueSources[index].displayName;
+                                data2["displayName"] = dataView.matrix.valueSources[index].displayName;
                             }
                         }
                         if (y.objects.sentimentColor && !this.visualSettings.chartOrientation.useSentimentFeatures) {
@@ -1070,53 +1204,89 @@ export class Visual implements IVisual {
                             data2["displayName"] = dataView.matrix.valueSources[index].displayName;
                         } else {
                             data2["isPillar"] = 1;
-                            data2["category"] = dataView.matrix.valueSources[index].displayName.substring(1);
-                            data2["displayName"] = dataView.matrix.valueSources[index].displayName.substring(1);
+                            data2["category"] = dataView.matrix.valueSources[index].displayName;
+                            data2["displayName"] = dataView.matrix.valueSources[index].displayName;
                         }
                         data2["customBarColor"] = this.getfillColor(data2["isPillar"], data2["value"]);
                         data2["customFontColor"] = this.getLabelFontColor(data2["isPillar"], data2["value"]);
                         data2["customLabelPositioning"] = this.getLabelPosition(data2["isPillar"], data2["value"]);
                     }
-
                     data2["toolTipValue1Formatted"] = data2["formattedValue"];
                     data2["toolTipDisplayValue1"] = data2["category"];
                     data2["childrenCount"] = 1;
+                    if (data2["isPillar"] == 1) {
+                        sortOrderIndex = sortOrderIndex + 1
+                        data2["sortOrderIndex"] = sortOrderIndex;
+                        sortOrderIndex = sortOrderIndex + 1
+                    } else {
+                        data2["sortOrderIndex"] = sortOrderIndex;
+                    }
                     visualData.push(data2);
                 }
             });
         }
+        visualData = this.sortData(visualData);
         return visualData;
-
+    }
+    private sortData(visualData){
+        visualData.sort((a, b) => {
+            switch (this.visualSettings.chartOrientation.sortData) {
+                case 2:
+                    if (a.sortOrderIndex === b.sortOrderIndex) {
+                        return parseFloat(a.value.toString()) - parseFloat(b.value.toString());
+                    } else {
+                        return a.sortOrderIndex - b.sortOrderIndex;
+                    }
+                    break;
+                case 3:
+                    if (a.sortOrderIndex === b.sortOrderIndex) {
+                        return parseFloat(b.value.toString()) - parseFloat(a.value.toString());
+                    } else {
+                        return a.sortOrderIndex - b.sortOrderIndex;
+                    }
+                    break;
+                default:
+                    return 0;
+                    break;
+            }
+        });
+        return visualData;
     }
     private formattedValuefromData(d: any) {
-        var iValueFormatter = valueFormatter.create({ format: d.numberFormat });
+        var iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: d.numberFormat, precision: 0 });
         var formattedvalue;
         switch (this.visualSettings.LabelsFormatting.valueFormat) {
             case "Auto": {
 
                 if (Math.abs(this.minValue) >= 1000000000 || Math.abs(this.maxValue) >= 1000000000) {
-                    formattedvalue = iValueFormatter.format(Math.round(d.value / 10000000) / 10) + "B";
+                    //formattedvalue = iValueFormatter.format(Math.round(d.value / 10000000) / 10) + "B";
+                    formattedvalue = this.numbeFormatforSpecific(1e9, d.value, d.numberFormat);
                 } else if (Math.abs(this.minValue) >= 1000000 || Math.abs(this.maxValue) >= 1000000) {
-                    formattedvalue = iValueFormatter.format(Math.round(d.value / 100000) / 10) + "M";
+                    //formattedvalue = iValueFormatter.format(Math.round(d.value / 100000) / 10) + "M";
+                    formattedvalue = this.numbeFormatforSpecific(1e6, d.value, d.numberFormat);
                 } else if (Math.abs(this.minValue) >= 1000 || Math.abs(this.maxValue) >= 1000) {
-                    formattedvalue = iValueFormatter.format(Math.round(d.value / 100) / 10) + "k";
+                    //formattedvalue = iValueFormatter.format(Math.round(d.value / 100) / 10) + "k";
+                    formattedvalue = this.numbeFormatforSpecific(1001, d.value, d.numberFormat);
                 } else {
-                    formattedvalue = this.myFormat_lessThanOne(d.value);
+                    formattedvalue = this.myFormat_customOptions(0, d.value);
                 }
 
 
                 break;
             }
             case "Thousands": {
-                formattedvalue = iValueFormatter.format(Math.round(d.value / 100) / 10) + "k";
+                //formattedvalue = iValueFormatter.format(Math.round(d.value / 100) / 10) + "k";
+                formattedvalue = this.numbeFormatforSpecific(1001, d.value, d.numberFormat);
                 break;
             }
             case "Millions": {
-                formattedvalue = iValueFormatter.format(Math.round(d.value / 100000) / 10) + "M";
+                //formattedvalue = iValueFormatter.format(Math.round(d.value / 100000) / 10) + "M";
+                formattedvalue = this.numbeFormatforSpecific(1e6, d.value, d.numberFormat);
                 break;
             }
             case "Billions": {
-                formattedvalue = iValueFormatter.format(Math.round(d.value / 10000000) / 10) + "B";
+                //formattedvalue = iValueFormatter.format(Math.round(d.value / 10000000) / 10) + "B";
+                formattedvalue = this.numbeFormatforSpecific(1e9, d.value, d.numberFormat);
                 break;
             }
             default: {
@@ -1225,16 +1395,30 @@ export class Visual implements IVisual {
         return totalData;
 
     }
+    private formatCategory(value: any, type: any, format: any) {
+        let iValueFormatter_XAxis;
+        iValueFormatter_XAxis = valueFormatter.create({ cultureSelector: this.locale, format: format });
+        var formattedValue = value;
+        if (value == null) {
+            formattedValue = "(blank)";
+        }
+        if (type["dateTime"]) {
+            var currDate = new Date(formattedValue);
+            formattedValue = iValueFormatter_XAxis.format(currDate, format);
+        }
+        return formattedValue;
+    }
     private getDataStaticCategoryWaterfall(options: VisualUpdateOptions) {
         let dataView: DataView = options.dataViews[0];
         let iValueFormatter;
+
         var visualData = [];
         var hasPillar = false;
         //*******************************************************************
         //This will always be zero as it should only have 1 measure
         var measureIndex = 0;
         //*******************************************************************
-
+        var sortOrderIndex = 0;
         dataView.matrix.rows.root.children.forEach((x: DataViewMatrixNode) => {
             var checkforZero = false;
             if (this.visualSettings.LabelsFormatting.HideZeroBlankValues && +x.values[measureIndex].value == 0) {
@@ -1247,19 +1431,15 @@ export class Visual implements IVisual {
 
                 data2["numberFormat"] = dataView.matrix.valueSources[measureIndex].format;
                 data2["formattedValue"] = this.valueFormatAuto(data2["value"], data2["numberFormat"]);
-                iValueFormatter = valueFormatter.create({ format: data2["numberFormat"] });
+                iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: data2["numberFormat"] });
                 data2["originalFormattedValue"] = iValueFormatter.format(data2["value"]);
                 data2["selectionId"] = this.host.createSelectionIdBuilder()
                     .withMatrixNode(x, dataView.matrix.rows.levels)
                     .createSelectionId();
-                if (x.value == null) {
-                    data2["category"] = "(blank)";
-                    data2["displayName"] = "(blank)";
-
-                } else {
-                    data2["category"] = x.value;
-                    data2["displayName"] = x.value;
-                };
+                data2["xAxisFormat"] = dataView.matrix.rows.levels[0].sources[0].format;
+                data2["type"] = dataView.matrix.rows.levels[0].sources[0].type;
+                data2["category"] = this.formatCategory(x.value, data2["type"], data2["xAxisFormat"]);
+                data2["displayName"] = this.formatCategory(x.value, data2["type"], data2["xAxisFormat"]);
                 if (x.objects) {
                     if (x.objects.definePillars) {
                         if (x.objects["definePillars"]["pillars"]) {
@@ -1269,8 +1449,8 @@ export class Visual implements IVisual {
                             data2["isPillar"] = 0;
                         }
                     } else {
-                        data2["category"] = x.value;
-                        data2["displayName"] = x.value;
+                        /* data2["category"] = x.value;
+                        data2["displayName"] = x.value; */
                         data2["isPillar"] = 0;
                     }
                     if (x.objects.sentimentColor && !this.visualSettings.chartOrientation.useSentimentFeatures) {
@@ -1304,18 +1484,25 @@ export class Visual implements IVisual {
                     data2["customFontColor"] = this.getLabelFontColor(data2["isPillar"], data2["value"]);
                     data2["customLabelPositioning"] = this.getLabelPosition(data2["isPillar"], data2["value"]);
                 }
-
                 data2["toolTipValue1Formatted"] = data2["formattedValue"];
                 data2["toolTipDisplayValue1"] = data2["category"];
                 data2["childrenCount"] = 1;
+                if (data2["isPillar"] == 1) {
+                    sortOrderIndex = sortOrderIndex + 1
+                    data2["sortOrderIndex"] = sortOrderIndex;
+                    sortOrderIndex = sortOrderIndex + 1
+                } else {
+                    data2["sortOrderIndex"] = sortOrderIndex;
+                }
+
                 visualData.push(data2);
             }
         });
-        if (!hasPillar) {
+        if (!hasPillar && this.visualSettings.definePillars.Totalpillar) {
             visualData.push(this.addTotalLine(visualData, options));
         }
+        visualData = this.sortData(visualData);
         return visualData;
-
     }
     private getDataDrillableCategoryWaterfall(options: VisualUpdateOptions) {
 
@@ -1330,7 +1517,6 @@ export class Visual implements IVisual {
 
         // calculate the difference between each measure and add them to an array as the step bars and then add the pillar bars [visualData]
         let indexMeasures = 0;
-
         var totalValueofMeasure = 0;
         var toolTipDisplayValue1 = "";
         var Measure1Value: number = null;
@@ -1355,8 +1541,9 @@ export class Visual implements IVisual {
             }
 
         }
-        visualData.push(this.addTotalLine(visualData, options));
-
+        if (this.visualSettings.definePillars.Totalpillar) {
+            visualData.push(this.addTotalLine(visualData, options));
+        }
 
         // add arrays to the main array for additional x-axis for each category
         for (let levelItems = 0; levelItems < dataView.matrix.rows.levels.length - 1; levelItems++) {
@@ -1408,18 +1595,24 @@ export class Visual implements IVisual {
         function getChildLevel(currentNode, parentText: string, indexMeasures) {
             if (currentNode.children.length != undefined) {
                 currentNode.children.forEach(child => {
+                    var format = dataView.matrix.rows.levels[child.level].sources[0].format;
+                    var type = dataView.matrix.rows.levels[child.level].sources[0].type;
                     if (child.children != undefined) {
                         childrenCount = childrenCount + 1
-                        getChildLevel(child, parentText + "|" + child.value, indexMeasures);
+                        getChildLevel(child, parentText + "|" + getFormatCategory.formatCategory(child.value, type, format), indexMeasures);
                     } else {
 
+                        /* data2["xAxisFormat"] = dataView.matrix.rows.levels[0].sources[0].format;
+                        data2["type"] = dataView.matrix.rows.levels[indexMeasures].sources[0].type;
+                        data2["category"] = this.formatCategory(x.value, data2["type"], data2["xAxisFormat"]); */
                         var node = [];
                         node["value"] = child.values[indexMeasures].value;
-                        node["category"] = (parentText + "|" + child.value).replace("null", "(blank)");
+                        node["category"] = (parentText + "|" + getFormatCategory.formatCategory(child.value, type, format)).replace("null", "(blank)");
                         if (child.value == null) {
                             node["displayName"] = "(blank)";
                         } else {
-                            node["displayName"] = child.value;
+                            node["displayName"] = getFormatCategory.formatCategory(child.value, type, format);
+                            //node["displayName"] = this.formatCategory(child.value, node["type"], node["xAxisFormat"]);
                         }
                         /* var selectionId: ISelectionId = host1.createSelectionIdBuilder()
                             .withMatrixNode(child, rows.levels)
@@ -1439,7 +1632,8 @@ export class Visual implements IVisual {
         var root = rows.root;
         var allNodes = [];
         var childrenCount = 0;
-        var host1 = this.host
+        var host1 = this.host;
+        var getFormatCategory = this;
         for (let indexMeasures = 0; indexMeasures < dataView.matrix.valueSources.length; indexMeasures++) {
             var nodes = [];
             getChildLevel(root, "", indexMeasures);
@@ -1485,12 +1679,14 @@ export class Visual implements IVisual {
                 node["childrenCount"] = counter;
 
             }
+            var format = dataView.matrix.rows.levels[num].sources[0].format;
+            var type = dataView.matrix.rows.levels[num].sources[0].type;
             if (child.value == null) {
                 node["category"] = "(blank)";
                 node["displayName"] = "(blank)";
             } else {
-                node["category"] = child.value;
-                node["displayName"] = child.value;
+                node["category"] = getFormatCategory.formatCategory(child.value, type, format);
+                node["displayName"] = getFormatCategory.formatCategory(child.value, type, format);
             }
 
             var selectionId: ISelectionId = host1.createSelectionIdBuilder()
@@ -1514,6 +1710,7 @@ export class Visual implements IVisual {
         var allNodes = [];
         var childrenCount = 0;
         var host1 = this.host
+        var getFormatCategory = this;
         var nodes = [];
         var mainNode = [];
         var dataView = this.visualUpdateOptions.dataViews[0];
@@ -1523,9 +1720,8 @@ export class Visual implements IVisual {
         return mainNode;
 
     }
-    private createXaxis(gParent, options, allDatatemp) {
+    private createXaxis(gParent, options, allDatatemp) {        
         var g = gParent.append('g').attr('class', 'xAxisParentGroup');
-
         var myAxisParentHeight = 0;
         var dataView = this.visualUpdateOptions.dataViews[0];
         var rows = dataView.matrix.rows;
@@ -1592,13 +1788,13 @@ export class Visual implements IVisual {
         g.selectAll('text').each((d, i, nodes) => {
 
             if (this.xAxisPosition <= nodes[i].getBoundingClientRect().bottom) {
-                this.xAxisPosition = nodes[i].getBoundingClientRect().bottom;
+                this.xAxisPosition = nodes[i].getBoundingClientRect().bottom ;
             };
         });
 
-        g.attr('transform', `translate(${0},${this.height - this.xAxisPosition - this.margin.bottom - this.scrollbarBreath})`);
+        g.attr('transform', `translate(${0},${this.height - this.xAxisPosition  - this.margin.bottom - this.scrollbarBreath + this.legendHeight })`);
 
-        this.innerHeight = this.height - this.margin.top - this.margin.bottom - this.xAxisPosition - this.scrollbarBreath;
+        this.innerHeight = this.height - this.margin.top - this.margin.bottom - this.xAxisPosition  - this.scrollbarBreath + this.legendHeight;
     }
     private findBottom;
 
@@ -1625,9 +1821,6 @@ export class Visual implements IVisual {
                 .selectAll('path').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor);
         }
         var xAxislabels = myxAxisParent.selectAll(".tick text").data(currData).text(d => d.displayName);
-
-
-
         if (this.visualType == "drillable" || this.visualType == "staticCategory" || this.visualType == "drillableCategory") {
             xAxislabels.on('click', (d) => {
                 // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)                
@@ -1747,10 +1940,10 @@ export class Visual implements IVisual {
         });
         data2["value"] = totalValue;
         data2["numberFormat"] = data[0]["numberFormat"];
-        iValueFormatter = valueFormatter.create({ format: data2["numberFormat"] });
+        iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: data2["numberFormat"] });
         if (this.visualSettings.LabelsFormatting.valueFormat == "Auto") {
             if (Math.abs(data2["value"]) < 1) {
-                data2["formattedValue"] = this.myFormat_lessThanOne(data2["value"]);
+                data2["formattedValue"] = this.numbeFormatforSpecific(0, data2["value"], data2["numberFormat"]);
             } else {
                 if (this.visualSettings.LabelsFormatting.negativeInBrackets) {
                     data2["formattedValue"] = this.myFormatnegative_3dpNegative(data2["value"]).replace(/G/, "B");
@@ -1821,10 +2014,10 @@ export class Visual implements IVisual {
         var data2 = [];
         data2["value"] = value;
         data2["numberFormat"] = numberFormat;
-        iValueFormatter = valueFormatter.create({ format: data2["numberFormat"] });
+        iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: data2["numberFormat"] });
         if (this.visualSettings.LabelsFormatting.valueFormat == "Auto") {
             if (Math.abs(data2["value"]) < 1) {
-                data2["formattedValue"] = this.myFormat_lessThanOne(data2["value"]);
+                data2["formattedValue"] = this.numbeFormatforSpecific(0, data2["value"], data2["numberFormat"]);
             } else {
                 if (this.visualSettings.LabelsFormatting.negativeInBrackets) {
                     data2["formattedValue"] = this.myFormatnegative_3dpNegative(data2["value"]).replace(/G/, "B");
@@ -1970,9 +2163,9 @@ export class Visual implements IVisual {
     private createWaterfallGraphHorizontal(options, allData) {
 
 
-        this.svg = this.container
+        this.svg = this.chartContainer
             .append('svg');
-        this.svgYAxis = this.container
+        this.svgYAxis = this.chartContainer
             .append('svg');
         this.svg.on('contextmenu', () => {
 
@@ -1987,8 +2180,8 @@ export class Visual implements IVisual {
         });
         this.visualUpdateOptions = options;
 
-        this.container.attr("width", this.width);
-        this.container.attr("height", this.height);
+        this.chartContainer.attr("width", this.width);
+        this.chartContainer.attr("height", this.height);
         this.svg.attr("height", this.height);
         this.svgYAxis.attr("height", this.height);
 
@@ -2659,15 +2852,16 @@ export class Visual implements IVisual {
 
 
             } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Thousands") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_lessThanOne(Math.round(d / 100) / 10) + "k");
+                //yAxisScale.tickFormat((d: any) => this.myFormat_lessThanOne(Math.round(d / 100) / 10) + "k");/
+                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(0, d)); //(Math.round(d / 100) / 10) + "k");
             } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Millions") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_lessThanOne(Math.round(d / 100000) / 10) + "M");
+                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1e6, d)); //(Math.round(d / 100000) / 10) + "M");
             } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Billions") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_lessThanOne(Math.round(d / 10000000) / 10) + "B");
+                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1e9, d)); //(Math.round(d / 10000000) / 10) + "B");
             } else {
                 yAxisScale.tickFormat(d => {
                     //y-axis formatting using the formatting of the first measure        
-                    let iValueFormatter = valueFormatter.create({ format: this.barChartData[0].numberFormat });
+                    let iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: this.barChartData[0].numberFormat });
                     return iValueFormatter.format(d);
                 });
             }
@@ -2715,15 +2909,15 @@ export class Visual implements IVisual {
 
 
             } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Thousands") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_lessThanOne(Math.round(d / 100) / 10) + "k");
+                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(0, d)); //(Math.round(d / 100) / 10) + "k");
             } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Millions") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_lessThanOne(Math.round(d / 100000) / 10) + "M");
+                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1e6, d)); //(Math.round(d / 100000) / 10) + "M");
             } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Billions") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_lessThanOne(Math.round(d / 10000000) / 10) + "B");
+                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1e9, d)); //(Math.round(d / 10000000) / 10) + "B");
             } else {
                 yAxisScale.tickFormat(d => {
                     //y-axis formatting using the formatting of the first measure        
-                    let iValueFormatter = valueFormatter.create({ format: this.barChartData[0].numberFormat });
+                    let iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: this.barChartData[0].numberFormat });
                     return iValueFormatter.format(d);
                 });
             }
@@ -2784,5 +2978,5 @@ export class Visual implements IVisual {
             }
         });
 
-    }    
+    }
 }

@@ -33,13 +33,27 @@ export class VisualSettings extends DataViewObjectsParser {
   public chartOrientation: chartOrientation = new chartOrientation();
   public sentimentColor: sentimentColor = new sentimentColor();
   public margins: margins = new margins();
+  public definePillars: definePillars = new definePillars();
   public xAxisFormatting: xAxisFormatting = new xAxisFormatting();  
   public yAxisFormatting: yAxisFormatting = new yAxisFormatting();  
   public LabelsFormatting: LabelsFormatting = new LabelsFormatting();
+  public Legend: Legend = new Legend();
 }
 export class chartOrientation {
   public orientation: string = "Vertical";
   public useSentimentFeatures: boolean = true;  
+  public sortData: number = 1;
+}
+export class definePillars {
+  public Totalpillar: boolean = true;
+}
+export class Legend {
+  public show: boolean = false;
+  public fontSize: number = 11;
+  public fontColor: string = "#777777";
+  public fontFamily: string = "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif";
+  public textFavourable: string = "Favourable";
+  public textAdverse: string = "Adverse";
 }
 export class sentimentColor {
   public sentimentColorTotal: string = "#0000ff";

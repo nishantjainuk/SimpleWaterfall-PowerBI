@@ -28,31 +28,31 @@ export interface IEnumerateObjects {
 }
 export function createenumerateObjects(
     visualType: String,
-        barChartData: barChartDataPoint[],
-        visualSettings: VisualSettings,
-        defaultXAxisGridlineStrokeWidth: PrimitiveValue,
-        defaultYAxisGridlineStrokeWidth: PrimitiveValue
+    barChartData: barChartDataPoint[],
+    visualSettings: VisualSettings,
+    defaultXAxisGridlineStrokeWidth: PrimitiveValue,
+    defaultYAxisGridlineStrokeWidth: PrimitiveValue
 ): IEnumerateObjects {
-    return new enumerateObjects(            
-        visualType,         
+    return new enumerateObjects(
+        visualType,
         barChartData,
         visualSettings,
-         defaultXAxisGridlineStrokeWidth,
+        defaultXAxisGridlineStrokeWidth,
         defaultYAxisGridlineStrokeWidth);
 }
-class enumerateObjects implements IEnumerateObjects{
+class enumerateObjects implements IEnumerateObjects {
     private visualType: String;
     private barChartData: barChartDataPoint[];
     private visualSettings: VisualSettings;
     private defaultXAxisGridlineStrokeWidth: PrimitiveValue;
     private defaultYAxisGridlineStrokeWidth: PrimitiveValue;
-    
-    constructor(visualType: String,barchartData: barChartDataPoint[],visualSettings: VisualSettings,defaultXAxisGridlineStrokeWidth: PrimitiveValue,defaultYAxisGridlineStrokeWidth: PrimitiveValue) {
+
+    constructor(visualType: String, barchartData: barChartDataPoint[], visualSettings: VisualSettings, defaultXAxisGridlineStrokeWidth: PrimitiveValue, defaultYAxisGridlineStrokeWidth: PrimitiveValue) {
         this.visualType = visualType;
         this.barChartData = barchartData;
         this.visualSettings = visualSettings;
-        this.defaultXAxisGridlineStrokeWidth = defaultXAxisGridlineStrokeWidth;        
-        this.defaultYAxisGridlineStrokeWidth = defaultYAxisGridlineStrokeWidth;        
+        this.defaultXAxisGridlineStrokeWidth = defaultXAxisGridlineStrokeWidth;
+        this.defaultYAxisGridlineStrokeWidth = defaultYAxisGridlineStrokeWidth;
     }
     public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
         let objectName: string = options.objectName;
@@ -64,6 +64,9 @@ class enumerateObjects implements IEnumerateObjects{
                 break;
             case 'definePillars':
                 this.propertiesDefinePillars(objectName, objectEnumeration);
+                break;
+            case 'Legend':
+                this.propertiesLegend(objectName, objectEnumeration);
                 break;
             case 'sentimentColor':
                 this.propertiesSentimentColor(objectName, objectEnumeration);
@@ -90,7 +93,7 @@ class enumerateObjects implements IEnumerateObjects{
             switch (objectName) {
                 case 'definePillars':
                     var isPillarBoolean: boolean;
-                    
+
                     for (var index = 0; index < this.barChartData.length; index++) {
                         if (this.barChartData[index].isPillar) {
                             isPillarBoolean = true;
@@ -109,25 +112,69 @@ class enumerateObjects implements IEnumerateObjects{
             }
         }
         if (this.visualType == "staticCategory") {
+            var hasPillar: boolean = false;
             switch (objectName) {
                 case 'definePillars':
                     var isPillarBoolean: boolean;
                     for (var index = 0; index < this.barChartData.length; index++) {
                         if (this.barChartData[index].isPillar) {
+                            // if the last pillar is the only pillar than treat it as no pillar
                             isPillarBoolean = true;
+                            if (index != this.barChartData.length - 1) {
+                                hasPillar = true;
+                            }
                         } else {
                             isPillarBoolean = false;
                         }
+                        if (!hasPillar && index == this.barChartData.length - 1 && this.visualSettings.definePillars.Totalpillar) {
+                        } else {
+                            objectEnumeration.push({
+                                objectName: "objectName",
+                                displayName: this.barChartData[index].category,
+                                properties: {
+                                    pillars: isPillarBoolean
+                                },
+                                selector: this.barChartData[index].selectionId.getSelector()
+                            });
+                        }
+                    }
+                    if (!hasPillar) {
                         objectEnumeration.push({
                             objectName: "objectName",
-                            displayName: this.barChartData[index].category,
                             properties: {
-                                pillars: isPillarBoolean
+                                Totalpillar: this.visualSettings.definePillars.Totalpillar
                             },
-                            selector: this.barChartData[index].selectionId.getSelector()
+                            selector: null
                         });
                     }
             }
+
+        }
+        if (this.visualType == "drillableCategory") {
+            objectEnumeration.push({
+                objectName: "objectName",
+                properties: {
+                    Totalpillar: this.visualSettings.definePillars.Totalpillar
+                },
+                selector: null
+            });
+        }
+    }
+    
+    private propertiesLegend(objectName: string, objectEnumeration: VisualObjectInstance[]) {
+        if(this.visualSettings.chartOrientation.useSentimentFeatures){
+            objectEnumeration.push({
+                objectName: "objectName",
+                properties: {
+                    show: this.visualSettings.Legend.show,
+                    textFavourable: this.visualSettings.Legend.textFavourable,
+                    textAdverse: this.visualSettings.Legend.textAdverse,
+                    fontSize: this.visualSettings.Legend.fontSize,
+                    fontColor: this.visualSettings.Legend.fontColor,
+                    fontFamily: this.visualSettings.Legend.fontFamily
+                },
+                selector: null
+            });
         }
     }
     private propertiesSentimentColor(objectName: string, objectEnumeration: VisualObjectInstance[]) {
@@ -178,7 +225,8 @@ class enumerateObjects implements IEnumerateObjects{
                 objectName: "objectName",
                 properties: {
                     orientation: this.visualSettings.chartOrientation.orientation,
-                    useSentimentFeatures: this.visualSettings.chartOrientation.useSentimentFeatures
+                    useSentimentFeatures: this.visualSettings.chartOrientation.useSentimentFeatures,
+                    sortData: this.visualSettings.chartOrientation.sortData
                 },
                 selector: null
             });
@@ -190,7 +238,11 @@ class enumerateObjects implements IEnumerateObjects{
                 },
                 selector: null
             });
+
         }
+
+
+
     }
     private propertiesXaxis(objectName: string, objectEnumeration: VisualObjectInstance[]) {
         objectEnumeration.push({
@@ -262,7 +314,7 @@ class enumerateObjects implements IEnumerateObjects{
             selector: null
         });
 
-        
+
         objectEnumeration.push({
             objectName: "objectName",
             properties: {
@@ -445,5 +497,5 @@ class enumerateObjects implements IEnumerateObjects{
             rightMargin: { numberRange: { min: 0, max: 100 } }
         };
     }
-    
+
 }

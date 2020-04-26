@@ -2,9 +2,9 @@
     "visual": {
         "name": "Simple Waterfall",
         "displayName": "Simple Waterfall",
-        "guid": "SimpleWaterfall",
+        "guid": "SimpleWaterfall_dev",
         "visualClassName": "Visual",
-        "version": "2.0.9",
+        "version": "2.0.10.0",
         "description": "A simple waterfall allowing users to create multi step waterfall",
         "supportUrl": "https://nishantjain.co.uk/simple-waterfall-support/",
         "gitHubUrl": ""

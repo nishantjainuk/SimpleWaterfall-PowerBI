@@ -10,7 +10,7 @@
     "@types/d3": "5.5.0",
     "core-js": "^3.0.0",
     "d3": "5.5.0",
-    "powerbi-visuals-api": "~2.6.0",
+    "powerbi-visuals-api": "^2.6.2",
     "powerbi-visuals-tools": "^3.1.12",
     "powerbi-visuals-utils-dataviewutils": "^2.2.1",
     "powerbi-visuals-utils-formattingutils": "^4.5.0",

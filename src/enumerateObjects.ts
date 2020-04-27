@@ -6,7 +6,7 @@ import ISelectionId = powerbi.visuals.ISelectionId;
 import { VisualSettings, yAxisFormatting, chartOrientation } from "./settings";
 import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInstancesOptions;
 import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
-
+import DataView = powerbi.DataView;
 interface barChartDataPoint {
     value: PrimitiveValue;
     numberFormat: string;
@@ -31,14 +31,16 @@ export function createenumerateObjects(
     barChartData: barChartDataPoint[],
     visualSettings: VisualSettings,
     defaultXAxisGridlineStrokeWidth: PrimitiveValue,
-    defaultYAxisGridlineStrokeWidth: PrimitiveValue
+    defaultYAxisGridlineStrokeWidth: PrimitiveValue,
+    dataView: DataView
 ): IEnumerateObjects {
     return new enumerateObjects(
         visualType,
         barChartData,
         visualSettings,
         defaultXAxisGridlineStrokeWidth,
-        defaultYAxisGridlineStrokeWidth);
+        defaultYAxisGridlineStrokeWidth,
+        dataView);
 }
 class enumerateObjects implements IEnumerateObjects {
     private visualType: String;
@@ -46,13 +48,16 @@ class enumerateObjects implements IEnumerateObjects {
     private visualSettings: VisualSettings;
     private defaultXAxisGridlineStrokeWidth: PrimitiveValue;
     private defaultYAxisGridlineStrokeWidth: PrimitiveValue;
+    private dataView: DataView;
 
-    constructor(visualType: String, barchartData: barChartDataPoint[], visualSettings: VisualSettings, defaultXAxisGridlineStrokeWidth: PrimitiveValue, defaultYAxisGridlineStrokeWidth: PrimitiveValue) {
+    constructor(visualType: String, barchartData: barChartDataPoint[], visualSettings: VisualSettings, defaultXAxisGridlineStrokeWidth: PrimitiveValue, defaultYAxisGridlineStrokeWidth: PrimitiveValue, dataView: DataView) {
         this.visualType = visualType;
         this.barChartData = barchartData;
         this.visualSettings = visualSettings;
         this.defaultXAxisGridlineStrokeWidth = defaultXAxisGridlineStrokeWidth;
         this.defaultYAxisGridlineStrokeWidth = defaultYAxisGridlineStrokeWidth;
+        this.dataView = dataView;
+
     }
     public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
         let objectName: string = options.objectName;
@@ -160,9 +165,9 @@ class enumerateObjects implements IEnumerateObjects {
             });
         }
     }
-    
+
     private propertiesLegend(objectName: string, objectEnumeration: VisualObjectInstance[]) {
-        if(this.visualSettings.chartOrientation.useSentimentFeatures){
+        if (this.visualSettings.chartOrientation.useSentimentFeatures) {
             objectEnumeration.push({
                 objectName: "objectName",
                 properties: {
@@ -219,7 +224,7 @@ class enumerateObjects implements IEnumerateObjects {
             });
         }
     }
-    private propertiesChartOrientation(objectName: string, objectEnumeration: VisualObjectInstance[]) {
+    private propertiesChartOrientation(objectName: string, objectEnumeration: VisualObjectInstance[]) {        
         if (this.visualType == "static" || this.visualType == "staticCategory") {
             objectEnumeration.push({
                 objectName: "objectName",
@@ -230,7 +235,16 @@ class enumerateObjects implements IEnumerateObjects {
                 },
                 selector: null
             });
-        } else {
+        } else if  (this.dataView.matrix.rows.levels.length===1 && this.visualType == "drillable"){
+            objectEnumeration.push({
+                objectName: "objectName",
+                properties: {
+                    orientation: this.visualSettings.chartOrientation.orientation,
+                    sortData: this.visualSettings.chartOrientation.sortData
+                },
+                selector: null
+            });
+        }else {
             objectEnumeration.push({
                 objectName: "objectName",
                 properties: {
@@ -251,24 +265,25 @@ class enumerateObjects implements IEnumerateObjects {
                 fontSize: this.visualSettings.xAxisFormatting.fontSize,
                 fontColor: this.visualSettings.xAxisFormatting.fontColor,
                 fontFamily: this.visualSettings.xAxisFormatting.fontFamily,
-                //fitToWidth: this.visualSettings.xAxisFormatting.fitToWidth,
+                fitToWidth: this.visualSettings.xAxisFormatting.fitToWidth,
                 labelWrapText: this.visualSettings.xAxisFormatting.labelWrapText
             },
             selector: null
         });
+        if (!this.visualSettings.xAxisFormatting.fitToWidth) {
+            objectEnumeration.push({
+                objectName: "objectName",
+                properties: {
+                    barWidth: this.visualSettings.xAxisFormatting.barWidth
+                },
+                selector: null
+            });
 
-        objectEnumeration.push({
-            objectName: "objectName",
-            properties: {
-                barWidth: this.visualSettings.xAxisFormatting.barWidth
-            },
-            selector: null
-        });
+            objectEnumeration[1].validValues = {
+                barWidth: { numberRange: { min: 10, max: 100 } }
 
-        objectEnumeration[1].validValues = {
-            barWidth: { numberRange: { min: 10, max: 100 } }
-
-        };
+            };
+        }
 
 
         objectEnumeration.push({

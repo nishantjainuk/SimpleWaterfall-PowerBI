@@ -137,8 +137,8 @@ export class Visual implements IVisual {
         return <VisualSettings>VisualSettings.parse(dataView);
     }
 
-    public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
-        this.enumerateObjects = createenumerateObjects(this.visualType, this.barChartData, this.visualSettings, this.defaultXAxisGridlineStrokeWidth(), this.defaultYAxisGridlineStrokeWidth());
+    public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {        
+        this.enumerateObjects = createenumerateObjects(this.visualType, this.barChartData, this.visualSettings, this.defaultXAxisGridlineStrokeWidth(), this.defaultYAxisGridlineStrokeWidth(),this.visualUpdateOptions.dataViews[0]);
         return this.enumerateObjects.enumerateObjectInstances(options);
     }
     public update(options: VisualUpdateOptions) {
@@ -152,7 +152,7 @@ export class Visual implements IVisual {
         this.chartContainer.selectAll('svg').remove();
         this.addLegend(options);
         this.width = options.viewport.width;
-        this.height = options.viewport.height - this.legendHeight;
+        this.height = options.viewport.height  - this.legendHeight;
         this.xAxisPosition = 0;
         if (dataView.matrix.rows.levels.length == 0) {
             this.visualType = "static";
@@ -224,12 +224,12 @@ export class Visual implements IVisual {
             textBoxSizeWidth = textBoxSize.width;
             circleFavourableSVG
                 .attr('height', textBoxSizeHeight)
-                .attr('width', textBoxSizeHeight)
-                .style("vertical-align", "middle");
+                .attr('width', textBoxSizeHeight);
+                /* .style("vertical-align", "middle"); */
             textFavourableSVG
                 .attr('width', textBoxSizeWidth)
-                .attr('height', textBoxSizeHeight)
-                .style("vertical-align", "middle");
+                .attr('height', textBoxSizeHeight);
+                /* .style("vertical-align", "middle"); */
 
             circleFavourable
                 .attr("r", textBoxSizeHeight / 2)
@@ -248,24 +248,24 @@ export class Visual implements IVisual {
                 .style('margin-right', 2);
             var textAdverse = textAdverseSVG.append('text')
                 .attr("x", 0)
-                .attr("y", "75%")   
+                .attr("y", "75%")
                 .style('font-size', this.visualSettings.Legend.fontSize)
                 .text(this.visualSettings.Legend.textAdverse)
                 .style('font-family', this.visualSettings.Legend.fontFamily)
                 .style('color', this.visualSettings.Legend.fontColor);
 
-            
+
             textBoxSize = textAdverse.node().getBoundingClientRect();
             textBoxSizeHeight = textBoxSize.height;
             textBoxSizeWidth = textBoxSize.width;
             circleAdverseSVG
                 .attr('height', textBoxSizeHeight)
-                .attr('width', textBoxSizeHeight)
-                .style("vertical-align", "middle");
+                .attr('width', textBoxSizeHeight);
+                /* .style("vertical-align", "middle"); */
             textAdverseSVG
                 .attr('width', textBoxSizeWidth)
-                .attr('height', textBoxSizeHeight)
-                .style("vertical-align", "middle");
+                .attr('height', textBoxSizeHeight);
+                /* .style("vertical-align", "middle"); */
 
             circleAdverse
                 .attr("r", textBoxSizeHeight / 2)
@@ -275,14 +275,14 @@ export class Visual implements IVisual {
             this.legendContainer
                 //.style('width', options.viewport.width)
                 .style('height', textBoxSizeHeight + "px");
-                this.legendHeight = textBoxSizeHeight + 20 ;
-        }else{
+            this.legendHeight = textBoxSizeHeight;
+        } else {
             this.legendContainer
                 //.style('width', options.viewport.width)
                 .style('height', 0 + "px");
-                this.legendHeight = 0;
+            this.legendHeight = 0;
         }
-        
+
     }
     private createWaterfallGraph(options, allData) {
 
@@ -325,7 +325,7 @@ export class Visual implements IVisual {
             left: this.visualSettings.margins.leftMargin
         };
         this.innerWidth = this.width - this.margin.left - this.margin.right;
-        this.innerHeight = this.height - this.margin.top - this.margin.bottom;
+        this.innerHeight = this.height - this.margin.top - this.margin.bottom ;
         this.adjustmentConstant = this.findXaxisAdjustment(this.barChartData);
 
 
@@ -349,83 +349,84 @@ export class Visual implements IVisual {
 
     }
     private checkBarWidth(options) {
+        if (!this.visualSettings.xAxisFormatting.fitToWidth) {
+            this.visualUpdateOptions = options;
 
-        this.visualUpdateOptions = options;
+            var xScale = d3.scaleBand()
+                .domain(this.barChartData.map(this.xValue))
+                .range([0, this.innerWidth])
+                .padding(0.2);
 
-        var xScale = d3.scaleBand()
-            .domain(this.barChartData.map(this.xValue))
-            .range([0, this.innerWidth])
-            .padding(0.2);
+            var currentBarWidth = xScale.step();
+            if (currentBarWidth < this.visualSettings.xAxisFormatting.barWidth) {
+                currentBarWidth = this.visualSettings.xAxisFormatting.barWidth;
 
-        var currentBarWidth = xScale.step();
-        if (currentBarWidth < this.visualSettings.xAxisFormatting.barWidth) {
-            currentBarWidth = this.visualSettings.xAxisFormatting.barWidth;
+                var scrollBarGroup = this.svg.append('g');
+                var scrollbarContainer = scrollBarGroup.append('rect')
+                    .attr('width', this.width)
+                    .attr('height', this.scrollbarBreath)
+                    .attr('x', 0)
+                    .attr('y', this.height - this.scrollbarBreath)
+                    .attr('fill', '#e1e1e1')
+                    .attr('opacity', 0.5)
+                    .attr('rx', 4)
+                    .attr('ry', 4);
+                this.innerWidth = currentBarWidth * this.barChartData.length
+                    + (currentBarWidth * xScale.padding());
 
-            var scrollBarGroup = this.svg.append('g');
-            var scrollbarContainer = scrollBarGroup.append('rect')
-                .attr('width', this.width)
-                .attr('height', this.scrollbarBreath)
-                .attr('x', 0)
-                .attr('y', this.height - this.scrollbarBreath)
-                .attr('fill', '#e1e1e1')
-                .attr('opacity', 0.5)
-                .attr('rx', 4)
-                .attr('ry', 4);
-            this.innerWidth = currentBarWidth * this.barChartData.length
-                + (currentBarWidth * xScale.padding());
+                this.innerHeight = this.height - this.margin.top - this.margin.bottom - this.scrollbarBreath;;
+                var dragStartPosition = 0;
+                var dragScrollBarXStartposition = 0;
+                var scrollbarwidth = this.width * this.width / this.innerWidth;
 
-            this.innerHeight = this.height - this.margin.top - this.margin.bottom - this.scrollbarBreath + this.legendHeight;
-            var dragStartPosition = 0;
-            var dragScrollBarXStartposition = 0;
-            var scrollbarwidth = this.width * this.width / this.innerWidth;
+                var scrollbar = scrollBarGroup.append('rect')
+                    .attr('width', scrollbarwidth)
+                    .attr('height', this.scrollbarBreath)
+                    .attr('x', 0)
+                    .attr('y', this.height - this.scrollbarBreath)
+                    .attr('fill', '#000')
+                    .attr('opacity', 0.24)
+                    .attr('rx', 4)
+                    .attr('ry', 4);
 
-            var scrollbar = scrollBarGroup.append('rect')
-                .attr('width', scrollbarwidth)
-                .attr('height', this.scrollbarBreath)
-                .attr('x', 0)
-                .attr('y', this.height - this.scrollbarBreath)
-                .attr('fill', '#000')
-                .attr('opacity', 0.24)
-                .attr('rx', 4)
-                .attr('ry', 4);
+                var scrollBarDragBar = d3.drag()
+                    .on("start", () => {
+                        dragStartPosition = d3.event.x;
+                        dragScrollBarXStartposition = parseInt(scrollbar.attr('x'));
 
-            var scrollBarDragBar = d3.drag()
-                .on("start", () => {
-                    dragStartPosition = d3.event.x;
-                    dragScrollBarXStartposition = parseInt(scrollbar.attr('x'));
+                    })
+                    .on("drag", () => {
+                        var scrollBarMovement = d3.event.x - dragStartPosition;
+                        //do not move the scroll bar beyond the x axis or after the end of the scroll bar
+                        if (dragScrollBarXStartposition + scrollBarMovement >= 0 && (dragScrollBarXStartposition + scrollBarMovement + scrollbarwidth <= this.width)) {
+                            scrollbar.attr('x', dragScrollBarXStartposition + scrollBarMovement);
+                            this.gScrollable.attr('transform', `translate(${(dragScrollBarXStartposition + scrollBarMovement) / (this.width - scrollbarwidth) * (this.innerWidth - this.width) * -1},${0})`);
+                        }
+                    });
+                var scrollBarVerticalWheel = d3.zoom().on("zoom", () => {
+                    var zoomScrollContainerheight = parseInt(scrollbarContainer.attr('width'));
+                    var deltaY = d3.event.sourceEvent.deltaY;
 
-                })
-                .on("drag", () => {
-                    var scrollBarMovement = d3.event.x - dragStartPosition;
-                    //do not move the scroll bar beyond the x axis or after the end of the scroll bar
-                    if (dragScrollBarXStartposition + scrollBarMovement >= 0 && (dragScrollBarXStartposition + scrollBarMovement + scrollbarwidth <= this.width)) {
-                        scrollbar.attr('x', dragScrollBarXStartposition + scrollBarMovement);
-                        this.gScrollable.attr('transform', `translate(${(dragScrollBarXStartposition + scrollBarMovement) / (this.width - scrollbarwidth) * (this.innerWidth - this.width) * -1},${0})`);
+
+                    var zoomScrollBarMovement = deltaY / 100 * zoomScrollContainerheight / this.barChartData.length;
+                    var zoomScrollBarXStartposition = parseInt(scrollbar.attr('x'));
+                    var zoomScrollBarheight = parseInt(scrollbar.attr('width'));
+
+                    var scrollBarMovement = zoomScrollBarXStartposition + zoomScrollBarMovement;
+                    if (scrollBarMovement < 0) {
+                        scrollBarMovement = 0;
                     }
+                    if (scrollBarMovement + zoomScrollBarheight > zoomScrollContainerheight) {
+                        scrollBarMovement = zoomScrollContainerheight - zoomScrollBarheight
+                    }
+                    scrollbar.attr('x', scrollBarMovement);
+                    this.gScrollable.attr('transform', `translate(${(scrollBarMovement) / (this.width - scrollbarwidth) * (this.innerWidth - this.width) * -1},${0})`);
                 });
-            var scrollBarVerticalWheel = d3.zoom().on("zoom", () => {
-                var zoomScrollContainerheight = parseInt(scrollbarContainer.attr('width'));
-                var deltaY = d3.event.sourceEvent.deltaY;
 
-
-                var zoomScrollBarMovement = deltaY / 100 * zoomScrollContainerheight / this.barChartData.length;
-                var zoomScrollBarXStartposition = parseInt(scrollbar.attr('x'));
-                var zoomScrollBarheight = parseInt(scrollbar.attr('width'));
-
-                var scrollBarMovement = zoomScrollBarXStartposition + zoomScrollBarMovement;
-                if (scrollBarMovement < 0) {
-                    scrollBarMovement = 0;
-                }
-                if (scrollBarMovement + zoomScrollBarheight > zoomScrollContainerheight) {
-                    scrollBarMovement = zoomScrollContainerheight - zoomScrollBarheight
-                }
-                scrollbar.attr('x', scrollBarMovement);
-                this.gScrollable.attr('transform', `translate(${(scrollBarMovement) / (this.width - scrollbarwidth) * (this.innerWidth - this.width) * -1},${0})`);
-            });
-
-            scrollBarDragBar(this.svg);
-            scrollBarVerticalWheel(this.svg);
-            scrollBarDragBar(scrollbar);
+                scrollBarDragBar(this.svg);
+                scrollBarVerticalWheel(this.svg);
+                scrollBarDragBar(scrollbar);
+            }
         }
 
     }
@@ -766,8 +767,8 @@ export class Visual implements IVisual {
                 .append('text')
                 .attr('class', 'labels');
             var labelFormatting = d => {
-
-                return this.formattedValuefromData(d);
+                return d.formattedValue;
+                //return this.formattedValuefromData(d);
             }
 
             var pillarLabelsText = pillarLabels
@@ -1084,7 +1085,7 @@ export class Visual implements IVisual {
     }
     private myFormat_customOptions(formatvalue, currValue) {
         var format = this.barChartData[0].numberFormat;
-        let iValueFormatter = valueFormatter.create({ value: formatvalue, format: format, cultureSelector: this.locale, precision: 0 });
+        let iValueFormatter = valueFormatter.create({ value: formatvalue, format: format, cultureSelector: this.locale});
         return iValueFormatter.format(currValue);
 
     }
@@ -1228,17 +1229,17 @@ export class Visual implements IVisual {
         visualData = this.sortData(visualData);
         return visualData;
     }
-    private sortData(visualData){
+    private sortData(visualData) {
         visualData.sort((a, b) => {
             switch (this.visualSettings.chartOrientation.sortData) {
-                case 2:
+                case 3:
                     if (a.sortOrderIndex === b.sortOrderIndex) {
                         return parseFloat(a.value.toString()) - parseFloat(b.value.toString());
                     } else {
                         return a.sortOrderIndex - b.sortOrderIndex;
                     }
                     break;
-                case 3:
+                case 2:
                     if (a.sortOrderIndex === b.sortOrderIndex) {
                         return parseFloat(b.value.toString()) - parseFloat(a.value.toString());
                     } else {
@@ -1247,6 +1248,30 @@ export class Visual implements IVisual {
                     break;
                 default:
                     return 0;
+                    break;
+            }
+        });
+        return visualData;
+    }
+    private sortDataDrillable(visualData) {
+        visualData.sort((a, b) => {
+            switch (this.visualSettings.chartOrientation.sortData) {
+                case 3:
+                    if (a.isPillar != 1 ) {
+                        return parseFloat(a.value.toString()) - parseFloat(b.value.toString());
+                    } else {
+                        return a.sortOrder - b.sortOrder;
+                    }
+                    break;
+                case 2:
+                    if (a.isPillar != 1 ) {
+                        return parseFloat(b.value.toString()) - parseFloat(a.value.toString());
+                    } else {
+                        return a.sortOrder - b.sortOrder;
+                    }
+                    break;
+                default:
+                    return a.sortOrder - b.sortOrder;
                     break;
             }
         });
@@ -1346,9 +1371,14 @@ export class Visual implements IVisual {
             visualData.push(dataPillar);
         }
         // Sort the [visualData] in order of the display
-        visualData.sort((a, b) => {
-            return a.sortOrder - b.sortOrder;
-        });
+        if(dataView.matrix.rows.levels.length===1){
+            this.sortDataDrillable(visualData);            
+        }else{
+            visualData.sort((a, b) => {
+                return a.sortOrder - b.sortOrder;
+            });
+        }
+        
 
         // add arrays to the main array for additional x-axis for each category
         for (let levelItems = 0; levelItems < dataView.matrix.rows.levels.length - 1; levelItems++) {
@@ -1720,7 +1750,7 @@ export class Visual implements IVisual {
         return mainNode;
 
     }
-    private createXaxis(gParent, options, allDatatemp) {        
+    private createXaxis(gParent, options, allDatatemp) {
         var g = gParent.append('g').attr('class', 'xAxisParentGroup');
         var myAxisParentHeight = 0;
         var dataView = this.visualUpdateOptions.dataViews[0];
@@ -1788,13 +1818,13 @@ export class Visual implements IVisual {
         g.selectAll('text').each((d, i, nodes) => {
 
             if (this.xAxisPosition <= nodes[i].getBoundingClientRect().bottom) {
-                this.xAxisPosition = nodes[i].getBoundingClientRect().bottom ;
+                this.xAxisPosition = nodes[i].getBoundingClientRect().bottom;
             };
         });
 
-        g.attr('transform', `translate(${0},${this.height - this.xAxisPosition  - this.margin.bottom - this.scrollbarBreath + this.legendHeight })`);
+        g.attr('transform', `translate(${0},${this.height - this.xAxisPosition - this.margin.bottom - this.scrollbarBreath + this.legendHeight })`);
 
-        this.innerHeight = this.height - this.margin.top - this.margin.bottom - this.xAxisPosition  - this.scrollbarBreath + this.legendHeight;
+        this.innerHeight = this.height - this.margin.top - this.margin.bottom - this.xAxisPosition - this.scrollbarBreath+ this.legendHeight;
     }
     private findBottom;
 
@@ -1878,7 +1908,7 @@ export class Visual implements IVisual {
 
         myxAxisParent.selectAll("text").each((d, i, nodes) => {
             if (this.findBottom <= nodes[i].getBoundingClientRect().bottom) {
-                this.findBottom = nodes[i].getBoundingClientRect().bottom;
+                this.findBottom = nodes[i].getBoundingClientRect().bottom - this.legendHeight;
             };
         });
         this.currentAxisGridlines(myxAxisParent, currData, allDataIndex, levels, xScale, xAxisrange);

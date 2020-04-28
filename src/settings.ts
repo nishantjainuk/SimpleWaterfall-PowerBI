@@ -92,6 +92,7 @@ export class yAxisFormatting {
   public showGridLine: boolean = true;
   public gridLineStrokeWidth: number = 1;
   public gridLineColor: string = "#777777";
+  public decimalPlaces: number = 0;
 }
 export class LabelsFormatting {
   public show: boolean = true;
@@ -110,5 +111,6 @@ export class LabelsFormatting {
   public labelPositionAdverse: string = "Outside end";
   public negativeInBrackets: boolean = false;
   public HideZeroBlankValues: boolean = false;
+  public decimalPlaces: number = 0;
 }
 

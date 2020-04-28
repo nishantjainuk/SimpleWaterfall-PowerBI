@@ -336,10 +336,15 @@ class enumerateObjects implements IEnumerateObjects {
                 fontSize: this.visualSettings.yAxisFormatting.fontSize,
                 fontColor: this.visualSettings.yAxisFormatting.fontColor,
                 YAxisValueFormatOption: this.visualSettings.yAxisFormatting.YAxisValueFormatOption,
+                decimalPlaces: this.visualSettings.yAxisFormatting.decimalPlaces,
                 showGridLine: this.visualSettings.yAxisFormatting.showGridLine
             },
             selector: null
         });
+        objectEnumeration[objectEnumeration.length - 1].validValues = {
+            decimalPlaces: { numberRange: { min: 0, max: 15 } }
+
+        };
         if (this.visualSettings.yAxisFormatting.showGridLine) {
             objectEnumeration.push({
                 objectName: "objectName",
@@ -394,10 +399,15 @@ class enumerateObjects implements IEnumerateObjects {
             objectEnumeration.push({
                 objectName: "objectName",
                 properties: {
-                    valueFormat: this.visualSettings.LabelsFormatting.valueFormat
+                    valueFormat: this.visualSettings.LabelsFormatting.valueFormat,
+                    decimalPlaces: this.visualSettings.LabelsFormatting.decimalPlaces
                 },
                 selector: null
             });
+            objectEnumeration[objectEnumeration.length - 1].validValues = {
+                decimalPlaces: { numberRange: { min: 0, max: 15 } }
+    
+            };
             objectEnumeration.push({
                 objectName: "objectName",
                 properties: {

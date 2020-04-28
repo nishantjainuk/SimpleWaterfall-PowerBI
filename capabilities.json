@@ -706,6 +706,13 @@
                         ]
                     }
                 },
+                "decimalPlaces": {
+                    "displayName": "Value decimal places",
+                    "description": "Value decimal places",
+                    "type": {
+                        "integer": true
+                    }
+                },
                 "showGridLine": {
                     "displayName": "Show / Hide Gridlines",
                     "description": "Show / Hide Gridlines",
@@ -937,6 +944,13 @@
                                 "value": "Billions"
                             }
                         ]
+                    }
+                },
+                "decimalPlaces": {
+                    "displayName": "Value decimal places",
+                    "description": "Value decimal places",
+                    "type": {
+                        "integer": true
                     }
                 },
                 "useDefaultLabelPositioning": {

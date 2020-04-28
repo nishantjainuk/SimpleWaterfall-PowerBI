@@ -137,8 +137,8 @@ export class Visual implements IVisual {
         return <VisualSettings>VisualSettings.parse(dataView);
     }
 
-    public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {        
-        this.enumerateObjects = createenumerateObjects(this.visualType, this.barChartData, this.visualSettings, this.defaultXAxisGridlineStrokeWidth(), this.defaultYAxisGridlineStrokeWidth(),this.visualUpdateOptions.dataViews[0]);
+    public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
+        this.enumerateObjects = createenumerateObjects(this.visualType, this.barChartData, this.visualSettings, this.defaultXAxisGridlineStrokeWidth(), this.defaultYAxisGridlineStrokeWidth(), this.visualUpdateOptions.dataViews[0]);
         return this.enumerateObjects.enumerateObjectInstances(options);
     }
     public update(options: VisualUpdateOptions) {
@@ -152,7 +152,7 @@ export class Visual implements IVisual {
         this.chartContainer.selectAll('svg').remove();
         this.addLegend(options);
         this.width = options.viewport.width;
-        this.height = options.viewport.height  - this.legendHeight;
+        this.height = options.viewport.height - this.legendHeight;
         this.xAxisPosition = 0;
         if (dataView.matrix.rows.levels.length == 0) {
             this.visualType = "static";
@@ -225,11 +225,11 @@ export class Visual implements IVisual {
             circleFavourableSVG
                 .attr('height', textBoxSizeHeight)
                 .attr('width', textBoxSizeHeight);
-                /* .style("vertical-align", "middle"); */
+            /* .style("vertical-align", "middle"); */
             textFavourableSVG
                 .attr('width', textBoxSizeWidth)
                 .attr('height', textBoxSizeHeight);
-                /* .style("vertical-align", "middle"); */
+            /* .style("vertical-align", "middle"); */
 
             circleFavourable
                 .attr("r", textBoxSizeHeight / 2)
@@ -261,11 +261,11 @@ export class Visual implements IVisual {
             circleAdverseSVG
                 .attr('height', textBoxSizeHeight)
                 .attr('width', textBoxSizeHeight);
-                /* .style("vertical-align", "middle"); */
+            /* .style("vertical-align", "middle"); */
             textAdverseSVG
                 .attr('width', textBoxSizeWidth)
                 .attr('height', textBoxSizeHeight);
-                /* .style("vertical-align", "middle"); */
+            /* .style("vertical-align", "middle"); */
 
             circleAdverse
                 .attr("r", textBoxSizeHeight / 2)
@@ -325,7 +325,7 @@ export class Visual implements IVisual {
             left: this.visualSettings.margins.leftMargin
         };
         this.innerWidth = this.width - this.margin.left - this.margin.right;
-        this.innerHeight = this.height - this.margin.top - this.margin.bottom ;
+        this.innerHeight = this.height - this.margin.top - this.margin.bottom;
         this.adjustmentConstant = this.findXaxisAdjustment(this.barChartData);
 
 
@@ -521,24 +521,7 @@ export class Visual implements IVisual {
                 .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
                 .style("color", this.visualSettings.yAxisFormatting.fontColor)
                 .attr('class', 'myYaxis');
-
-            if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Auto") {
-                yAxisScale.tickFormat(d => this.myFormat_Nodp(d).replace(/G/, "B"));
-
-
-            } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Thousands") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1001, d)); //(Math.round(d / 100) / 10) + "k");
-            } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Millions") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1e6, d)); //(Math.round(d / 100000) / 10) + "M");
-            } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Billions") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1e9, d)); //(Math.round(d / 10000000) / 10) + "B");
-            } else {
-                yAxisScale.tickFormat(d => {
-                    //y-axis formatting using the formatting of the first measure        
-                    let iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: this.barChartData[0].numberFormat });
-                    return iValueFormatter.format(d);
-                });
-            }
+            yAxisScale.tickFormat(d => this.formatValueforYAxis(d));
 
 
 
@@ -585,29 +568,9 @@ export class Visual implements IVisual {
                 .style("color", this.visualSettings.yAxisFormatting.fontColor)
                 .attr('class', 'myYaxis');
 
-            if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Auto") {
-                yAxisScale.tickFormat(d => this.myFormat_Nodp(d).replace(/G/, "B"));
-
-
-            } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Thousands") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1001, d)); //(Math.round(d / 100) / 10) + "k");
-            } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Millions") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1e6, d)); //(Math.round(d / 100000) / 10) + "M");
-            } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Billions") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1e9, d)); //(Math.round(d / 10000000) / 10) + "B");
-            } else {
-                yAxisScale.tickFormat(d => {
-                    //y-axis formatting using the formatting of the first measure        
-                    let iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: this.barChartData[0].numberFormat });
-                    return iValueFormatter.format(d);
-                });
-            }
-
-
+            yAxisScale.tickFormat(d => this.formatValueforYAxis(d));
 
             yAxis.call(yAxisScale);
-
-
 
             yAxis.selectAll('path').style('fill', 'none').style('stroke', 'black').style('stroke-width', "0px");
             if (this.visualSettings.yAxisFormatting.showGridLine) {
@@ -767,7 +730,7 @@ export class Visual implements IVisual {
                 .append('text')
                 .attr('class', 'labels');
             var labelFormatting = d => {
-                return d.formattedValue;
+                return this.formatValueforLabels(d);
                 //return this.formattedValuefromData(d);
             }
 
@@ -1083,56 +1046,9 @@ export class Visual implements IVisual {
         }
 
     }
-    private myFormat_customOptions(formatvalue, currValue) {
-        var format = this.barChartData[0].numberFormat;
-        let iValueFormatter = valueFormatter.create({ value: formatvalue, format: format, cultureSelector: this.locale});
-        return iValueFormatter.format(currValue);
-
-    }
-    private numbeFormatforSpecific(formatvalue, currValue, format) {
-
-        let iValueFormatter = valueFormatter.create({ value: formatvalue, format: format, cultureSelector: this.locale, precision: 0 });
-        return iValueFormatter.format(currValue);
-        //return currValue
-
-    }
-    /*private myFormat_Nodp(currValue){
-        let iValueFormatter = valueFormatter.create({cultureSelector: this.locale, precision: 0, allowFormatBeautification: true });
-        return iValueFormatter.format(currValue);
-        //return d3.format(",.0f"); //2 means number of decimal points
-    }*/
-    //private myFormat_lessThanOne = d3.format(",.0f"); //2 means number of decimal points
-    private myFormat_Nodp = d3.format("~s");
-    private myFormat_3dp = d3.format(".3s"); //3 means total number of digits in the formatted text
-    private myFormatnegative_3dpNegative = d3.format("(.3s"); //3 means total number of digits in the formatted text
-    private valueFormatAuto(currValue: any, format: any) {
-        let returnValue;
-        let iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: format });
-        if (this.visualSettings.LabelsFormatting.valueFormat == "Auto") {
-            if (Math.abs(currValue) < 1) {
-                returnValue = this.numbeFormatforSpecific(0, currValue, format);
-            } else {
-                if (this.visualSettings.LabelsFormatting.negativeInBrackets) {
-                    returnValue = this.myFormatnegative_3dpNegative(currValue).replace(/G/, "B");
-                } else {
-                    returnValue = this.myFormat_3dp(currValue).replace(/G/, "B");
-                }
-            }
-        } else if (this.visualSettings.LabelsFormatting.valueFormat == "Thousands") {
-            returnValue = iValueFormatter.format(Math.round(currValue / 100) / 10) + "k";
-        } else if (this.visualSettings.LabelsFormatting.valueFormat == "Millions") {
-            returnValue = iValueFormatter.format(Math.round(currValue / 100000) / 10) + "M";
-        } else if (this.visualSettings.LabelsFormatting.valueFormat == "Billions") {
-            returnValue = iValueFormatter.format(Math.round(currValue / 10000000) / 10) + "B";
-        } else {
-            returnValue = iValueFormatter.format(currValue);
-        }
-        return returnValue;
-    }
-
     private getDataStaticWaterfall(options: VisualUpdateOptions) {
         let dataView: DataView = options.dataViews[0];
-        let iValueFormatter;
+
         var visualData = [];
         var sortOrderIndex = 0;
         for (let index = 0; index < dataView.matrix.columns.root.children.length; index++) {
@@ -1145,9 +1061,6 @@ export class Visual implements IVisual {
                     var data2 = [];
                     data2["value"] = +x.values[index].value;
                     data2["numberFormat"] = dataView.matrix.valueSources[index].format;
-                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: data2["numberFormat"] });
-                    data2["formattedValue"] = this.valueFormatAuto(data2["value"], data2["numberFormat"]);
-                    data2["originalFormattedValue"] = iValueFormatter.format(data2["value"]);
                     data2["selectionId"] = this.host.createSelectionIdBuilder()
                         .withMeasure(dataView.matrix.valueSources[index].queryName)
                         .createSelectionId();
@@ -1212,7 +1125,7 @@ export class Visual implements IVisual {
                         data2["customFontColor"] = this.getLabelFontColor(data2["isPillar"], data2["value"]);
                         data2["customLabelPositioning"] = this.getLabelPosition(data2["isPillar"], data2["value"]);
                     }
-                    data2["toolTipValue1Formatted"] = data2["formattedValue"];
+                    data2["toolTipValue1Formatted"] = this.formatValueforLabels(data2);
                     data2["toolTipDisplayValue1"] = data2["category"];
                     data2["childrenCount"] = 1;
                     if (data2["isPillar"] == 1) {
@@ -1257,14 +1170,14 @@ export class Visual implements IVisual {
         visualData.sort((a, b) => {
             switch (this.visualSettings.chartOrientation.sortData) {
                 case 3:
-                    if (a.isPillar != 1 ) {
+                    if (a.isPillar != 1) {
                         return parseFloat(a.value.toString()) - parseFloat(b.value.toString());
                     } else {
                         return a.sortOrder - b.sortOrder;
                     }
                     break;
                 case 2:
-                    if (a.isPillar != 1 ) {
+                    if (a.isPillar != 1) {
                         return parseFloat(b.value.toString()) - parseFloat(a.value.toString());
                     } else {
                         return a.sortOrder - b.sortOrder;
@@ -1277,50 +1190,7 @@ export class Visual implements IVisual {
         });
         return visualData;
     }
-    private formattedValuefromData(d: any) {
-        var iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: d.numberFormat, precision: 0 });
-        var formattedvalue;
-        switch (this.visualSettings.LabelsFormatting.valueFormat) {
-            case "Auto": {
 
-                if (Math.abs(this.minValue) >= 1000000000 || Math.abs(this.maxValue) >= 1000000000) {
-                    //formattedvalue = iValueFormatter.format(Math.round(d.value / 10000000) / 10) + "B";
-                    formattedvalue = this.numbeFormatforSpecific(1e9, d.value, d.numberFormat);
-                } else if (Math.abs(this.minValue) >= 1000000 || Math.abs(this.maxValue) >= 1000000) {
-                    //formattedvalue = iValueFormatter.format(Math.round(d.value / 100000) / 10) + "M";
-                    formattedvalue = this.numbeFormatforSpecific(1e6, d.value, d.numberFormat);
-                } else if (Math.abs(this.minValue) >= 1000 || Math.abs(this.maxValue) >= 1000) {
-                    //formattedvalue = iValueFormatter.format(Math.round(d.value / 100) / 10) + "k";
-                    formattedvalue = this.numbeFormatforSpecific(1001, d.value, d.numberFormat);
-                } else {
-                    formattedvalue = this.myFormat_customOptions(0, d.value);
-                }
-
-
-                break;
-            }
-            case "Thousands": {
-                //formattedvalue = iValueFormatter.format(Math.round(d.value / 100) / 10) + "k";
-                formattedvalue = this.numbeFormatforSpecific(1001, d.value, d.numberFormat);
-                break;
-            }
-            case "Millions": {
-                //formattedvalue = iValueFormatter.format(Math.round(d.value / 100000) / 10) + "M";
-                formattedvalue = this.numbeFormatforSpecific(1e6, d.value, d.numberFormat);
-                break;
-            }
-            case "Billions": {
-                //formattedvalue = iValueFormatter.format(Math.round(d.value / 10000000) / 10) + "B";
-                formattedvalue = this.numbeFormatforSpecific(1e9, d.value, d.numberFormat);
-                break;
-            }
-            default: {
-                formattedvalue = iValueFormatter.format(d.value);
-                break;
-            }
-        }
-        return formattedvalue;
-    }
     private getDataDrillableWaterfall(options: VisualUpdateOptions) {
         let dataView: DataView = options.dataViews[0];
         var totalData = [];
@@ -1371,14 +1241,14 @@ export class Visual implements IVisual {
             visualData.push(dataPillar);
         }
         // Sort the [visualData] in order of the display
-        if(dataView.matrix.rows.levels.length===1){
-            this.sortDataDrillable(visualData);            
-        }else{
+        if (dataView.matrix.rows.levels.length === 1) {
+            this.sortDataDrillable(visualData);
+        } else {
             visualData.sort((a, b) => {
                 return a.sortOrder - b.sortOrder;
             });
         }
-        
+
 
         // add arrays to the main array for additional x-axis for each category
         for (let levelItems = 0; levelItems < dataView.matrix.rows.levels.length - 1; levelItems++) {
@@ -1425,22 +1295,9 @@ export class Visual implements IVisual {
         return totalData;
 
     }
-    private formatCategory(value: any, type: any, format: any) {
-        let iValueFormatter_XAxis;
-        iValueFormatter_XAxis = valueFormatter.create({ cultureSelector: this.locale, format: format });
-        var formattedValue = value;
-        if (value == null) {
-            formattedValue = "(blank)";
-        }
-        if (type["dateTime"]) {
-            var currDate = new Date(formattedValue);
-            formattedValue = iValueFormatter_XAxis.format(currDate, format);
-        }
-        return formattedValue;
-    }
+
     private getDataStaticCategoryWaterfall(options: VisualUpdateOptions) {
         let dataView: DataView = options.dataViews[0];
-        let iValueFormatter;
 
         var visualData = [];
         var hasPillar = false;
@@ -1460,9 +1317,6 @@ export class Visual implements IVisual {
                 data2["value"] = +x.values[measureIndex].value;
 
                 data2["numberFormat"] = dataView.matrix.valueSources[measureIndex].format;
-                data2["formattedValue"] = this.valueFormatAuto(data2["value"], data2["numberFormat"]);
-                iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: data2["numberFormat"] });
-                data2["originalFormattedValue"] = iValueFormatter.format(data2["value"]);
                 data2["selectionId"] = this.host.createSelectionIdBuilder()
                     .withMatrixNode(x, dataView.matrix.rows.levels)
                     .createSelectionId();
@@ -1514,7 +1368,7 @@ export class Visual implements IVisual {
                     data2["customFontColor"] = this.getLabelFontColor(data2["isPillar"], data2["value"]);
                     data2["customLabelPositioning"] = this.getLabelPosition(data2["isPillar"], data2["value"]);
                 }
-                data2["toolTipValue1Formatted"] = data2["formattedValue"];
+                data2["toolTipValue1Formatted"] = this.formatValueforLabels(data2);
                 data2["toolTipDisplayValue1"] = data2["category"];
                 data2["childrenCount"] = 1;
                 if (data2["isPillar"] == 1) {
@@ -1822,9 +1676,9 @@ export class Visual implements IVisual {
             };
         });
 
-        g.attr('transform', `translate(${0},${this.height - this.xAxisPosition - this.margin.bottom - this.scrollbarBreath + this.legendHeight })`);
+        g.attr('transform', `translate(${0},${this.height - this.xAxisPosition - this.margin.bottom - this.scrollbarBreath + this.legendHeight})`);
 
-        this.innerHeight = this.height - this.margin.top - this.margin.bottom - this.xAxisPosition - this.scrollbarBreath+ this.legendHeight;
+        this.innerHeight = this.height - this.margin.top - this.margin.bottom - this.xAxisPosition - this.scrollbarBreath + this.legendHeight;
     }
     private findBottom;
 
@@ -1959,7 +1813,6 @@ export class Visual implements IVisual {
         let dataView: DataView = options.dataViews[0];
         var data2 = [];
         var totalValue = 0;
-        let iValueFormatter;
         var d3formatnegative = d3.format("(.3s");
         //*******************************************************************
         //This will always be zero as it should only have 1 measure
@@ -1970,28 +1823,6 @@ export class Visual implements IVisual {
         });
         data2["value"] = totalValue;
         data2["numberFormat"] = data[0]["numberFormat"];
-        iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: data2["numberFormat"] });
-        if (this.visualSettings.LabelsFormatting.valueFormat == "Auto") {
-            if (Math.abs(data2["value"]) < 1) {
-                data2["formattedValue"] = this.numbeFormatforSpecific(0, data2["value"], data2["numberFormat"]);
-            } else {
-                if (this.visualSettings.LabelsFormatting.negativeInBrackets) {
-                    data2["formattedValue"] = this.myFormatnegative_3dpNegative(data2["value"]).replace(/G/, "B");
-                } else {
-                    data2["formattedValue"] = this.myFormat_3dp(data2["value"]).replace(/G/, "B");
-                }
-            }
-
-        } else if (this.visualSettings.LabelsFormatting.valueFormat == "Thousands") {
-            data2["formattedValue"] = iValueFormatter.format(Math.round(data2["value"] / 100) / 10) + "k";
-        } else if (this.visualSettings.LabelsFormatting.valueFormat == "Millions") {
-            data2["formattedValue"] = iValueFormatter.format(Math.round(data2["value"] / 100000) / 10) + "M";
-        } else if (this.visualSettings.LabelsFormatting.valueFormat == "Billions") {
-            data2["formattedValue"] = iValueFormatter.format(Math.round(data2["value"] / 10000000) / 10) + "B";
-        } else {
-            data2["formattedValue"] = iValueFormatter.format(data2["value"]);
-        }
-        data2["originalFormattedValue"] = iValueFormatter.format(data2["value"]);
         data2["isPillar"] = 1;
         data2["category"] = dataView.matrix.valueSources[0].displayName;
         data2["displayName"] = dataView.matrix.valueSources[0].displayName;
@@ -2033,39 +1864,16 @@ export class Visual implements IVisual {
             data2["customLabelPositioning"] = this.getLabelPosition(data2["isPillar"], data2["value"]);
         }
 
-        data2["toolTipValue1Formatted"] = data2["formattedValue"];
+        data2["toolTipValue1Formatted"] = this.formatValueforLabels(data2);
         data2["toolTipDisplayValue1"] = data2["category"];
         data2["childrenCount"] = 1;
         return data2;
     }
     private getDataForCategory(value: number, numberFormat: string, displayName: any, displayID: any, isPillar: number, selectionId: any, sortOrder: number, childrenCount: number, toolTipDisplayValue1: string, toolTipDisplayValue2: string, Measure1Value: number, Measure2Value: number) {
 
-        let iValueFormatter;
         var data2 = [];
         data2["value"] = value;
         data2["numberFormat"] = numberFormat;
-        iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: data2["numberFormat"] });
-        if (this.visualSettings.LabelsFormatting.valueFormat == "Auto") {
-            if (Math.abs(data2["value"]) < 1) {
-                data2["formattedValue"] = this.numbeFormatforSpecific(0, data2["value"], data2["numberFormat"]);
-            } else {
-                if (this.visualSettings.LabelsFormatting.negativeInBrackets) {
-                    data2["formattedValue"] = this.myFormatnegative_3dpNegative(data2["value"]).replace(/G/, "B");
-                } else {
-                    data2["formattedValue"] = this.myFormat_3dp(data2["value"]).replace(/G/, "B");
-                }
-            }
-
-        } else if (this.visualSettings.LabelsFormatting.valueFormat == "Thousands") {
-            data2["formattedValue"] = iValueFormatter.format(Math.round(data2["value"] / 100) / 10) + "k";
-        } else if (this.visualSettings.LabelsFormatting.valueFormat == "Millions") {
-            data2["formattedValue"] = iValueFormatter.format(Math.round(data2["value"] / 100000) / 10) + "M";
-        } else if (this.visualSettings.LabelsFormatting.valueFormat == "Billions") {
-            data2["formattedValue"] = iValueFormatter.format(Math.round(data2["value"] / 10000000) / 10) + "B";
-        } else {
-            data2["formattedValue"] = iValueFormatter.format(data2["value"]);
-        }
-        data2["originalFormattedValue"] = iValueFormatter.format(data2["value"]);
         data2["isPillar"] = isPillar;
         data2["category"] = displayID;
         data2["displayName"] = displayName;
@@ -2074,8 +1882,8 @@ export class Visual implements IVisual {
         data2["childrenCount"] = childrenCount;
         data2["Measure1Value"] = Measure1Value;
         data2["Measure2Value"] = Measure2Value;
-        data2["toolTipValue1Formatted"] = iValueFormatter.format(Measure1Value);
-        data2["toolTipValue2Formatted"] = iValueFormatter.format(Measure2Value);
+        data2["toolTipValue1Formatted"] = this.formatValueforvalues(Measure1Value,numberFormat );
+        data2["toolTipValue2Formatted"] = this.formatValueforvalues(Measure2Value, numberFormat);
         data2["toolTipDisplayValue1"] = toolTipDisplayValue1;
         data2["toolTipDisplayValue2"] = toolTipDisplayValue2;
         data2["customBarColor"] = this.getfillColor(data2["isPillar"], data2["value"]);
@@ -2449,8 +2257,8 @@ export class Visual implements IVisual {
                 .attr('class', 'labels');
 
             var labelFormatting = d => {
-
-                return this.formattedValuefromData(d);
+                return this.formatValueforLabels(d);
+                //return this.formattedValuefromData(d);
             }
 
             var pillarLabelsText = pillarLabels
@@ -2876,27 +2684,8 @@ export class Visual implements IVisual {
                 .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
                 .style("color", this.visualSettings.yAxisFormatting.fontColor)
                 .attr('class', 'myYaxis');
-
-            if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Auto") {
-                yAxisScale.tickFormat(d => this.myFormat_Nodp(d).replace(/G/, "B"));
-
-
-            } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Thousands") {
-                //yAxisScale.tickFormat((d: any) => this.myFormat_lessThanOne(Math.round(d / 100) / 10) + "k");/
-                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(0, d)); //(Math.round(d / 100) / 10) + "k");
-            } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Millions") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1e6, d)); //(Math.round(d / 100000) / 10) + "M");
-            } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Billions") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1e9, d)); //(Math.round(d / 10000000) / 10) + "B");
-            } else {
-                yAxisScale.tickFormat(d => {
-                    //y-axis formatting using the formatting of the first measure        
-                    let iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: this.barChartData[0].numberFormat });
-                    return iValueFormatter.format(d);
-                });
-            }
-
-
+                
+            yAxisScale.tickFormat(d => this.formatValueforYAxis(d));
 
             yAxis.call(yAxisScale);
 
@@ -2934,25 +2723,7 @@ export class Visual implements IVisual {
                 .style("color", this.visualSettings.yAxisFormatting.fontColor)
                 .attr('class', 'myYaxis');
 
-            if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Auto") {
-                yAxisScale.tickFormat(d => this.myFormat_Nodp(d).replace(/G/, "B"));
-
-
-            } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Thousands") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(0, d)); //(Math.round(d / 100) / 10) + "k");
-            } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Millions") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1e6, d)); //(Math.round(d / 100000) / 10) + "M");
-            } else if (this.visualSettings.yAxisFormatting.YAxisValueFormatOption == "Billions") {
-                yAxisScale.tickFormat((d: any) => this.myFormat_customOptions(1e9, d)); //(Math.round(d / 10000000) / 10) + "B");
-            } else {
-                yAxisScale.tickFormat(d => {
-                    //y-axis formatting using the formatting of the first measure        
-                    let iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: this.barChartData[0].numberFormat });
-                    return iValueFormatter.format(d);
-                });
-            }
-
-
+            yAxisScale.tickFormat(d => this.formatValueforYAxis(d));
 
             yAxis.call(yAxisScale);
 
@@ -3008,5 +2779,168 @@ export class Visual implements IVisual {
             }
         });
 
+    }
+    private formatValueforLabels(d: any) {
+        var iValueFormatter;
+        var decimalPlaces = this.visualSettings.LabelsFormatting.decimalPlaces;
+        var formattedvalue;
+        switch (this.visualSettings.LabelsFormatting.valueFormat) {
+
+            case "Auto": {
+
+
+                if (Math.abs(d.value) >= 1000000000) {
+                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 1e9, precision: decimalPlaces })
+                    formattedvalue = iValueFormatter.format(d.value);
+                } else if (Math.abs(d.value) >= 1000000) {
+                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 1e6, precision: decimalPlaces })
+                    formattedvalue = iValueFormatter.format(d.value);
+                } else if (Math.abs(d.value) >= 1000) {
+                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 1001, precision: decimalPlaces })
+                    formattedvalue = iValueFormatter.format(d.value);
+                } else if (Math.abs(d.value) >= 1) {
+                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 0, precision: decimalPlaces })
+                    formattedvalue = iValueFormatter.format(d.value);
+                } else {
+                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, precision: 2 })
+                    formattedvalue = iValueFormatter.format(d.value);
+                }
+                break;
+            }
+            case "Thousands": {
+                iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: d.numberFormat, value: 1e3, precision: decimalPlaces });
+                formattedvalue = iValueFormatter.format(d.value);
+                break;
+            }
+            case "Millions": {
+                iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: d.numberFormat, value: 1e6, precision: decimalPlaces });
+                formattedvalue = iValueFormatter.format(d.value);
+                break;
+            }
+            case "Billions": {
+                iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: d.numberFormat, value: 1e9, precision: decimalPlaces });
+                formattedvalue = iValueFormatter.format(d.value);
+                break;
+            }
+            default: {
+                iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: d.numberFormat });
+                formattedvalue = iValueFormatter.format(d.value);
+                break;
+            }
+        }
+        return formattedvalue;
+    }
+    private formatValueforvalues(value, numberFormat) {
+        var iValueFormatter;
+        var decimalPlaces = this.visualSettings.LabelsFormatting.decimalPlaces;
+        var formattedvalue;
+        switch (this.visualSettings.LabelsFormatting.valueFormat) {
+
+            case "Auto": {
+
+
+                if (Math.abs(value) >= 1000000000) {
+                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 1e9, precision: decimalPlaces })
+                    formattedvalue = iValueFormatter.format(value);
+                } else if (Math.abs(value) >= 1000000) {
+                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 1e6, precision: decimalPlaces })
+                    formattedvalue = iValueFormatter.format(value);
+                } else if (Math.abs(value) >= 1000) {
+                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 1001, precision: decimalPlaces })
+                    formattedvalue = iValueFormatter.format(value);
+                } else if (Math.abs(value) >= 1) {
+                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 0, precision: decimalPlaces })
+                    formattedvalue = iValueFormatter.format(value);
+                } else {
+                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, precision: 2 })
+                    formattedvalue = iValueFormatter.format(value);
+                }
+                break;
+            }
+            case "Thousands": {
+                iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: numberFormat, value: 1e3, precision: decimalPlaces });
+                formattedvalue = iValueFormatter.format(value);
+                break;
+            }
+            case "Millions": {
+                iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: numberFormat, value: 1e6, precision: decimalPlaces });
+                formattedvalue = iValueFormatter.format(value);
+                break;
+            }
+            case "Billions": {
+                iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: numberFormat, value: 1e9, precision: decimalPlaces });
+                formattedvalue = iValueFormatter.format(value);
+                break;
+            }
+            default: {
+                iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: numberFormat });
+                formattedvalue = iValueFormatter.format(value);
+                break;
+            }
+        }
+        return formattedvalue;
+    }
+
+    private formatValueforYAxis(d: any) {
+        var iValueFormatter;
+        var decimalPlaces = this.visualSettings.yAxisFormatting.decimalPlaces;
+        var formattedvalue;
+        switch (this.visualSettings.yAxisFormatting.YAxisValueFormatOption) {
+
+            case "Auto": {
+
+                if (Math.abs(this.minValue) >= 1000000000 || Math.abs(this.maxValue) >= 1000000000) {
+                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 1e9, precision: decimalPlaces })
+                    formattedvalue = iValueFormatter.format(d);
+                } else if (Math.abs(d.value) >= 1000000 || Math.abs(this.maxValue) >= 1000000) {
+                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 1e6, precision: decimalPlaces })
+                    formattedvalue = iValueFormatter.format(d);
+                } else if (Math.abs(d.value) >= 1000 || Math.abs(this.maxValue) >= 1000) {
+                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 1001, precision: decimalPlaces })
+                    formattedvalue = iValueFormatter.format(d);
+                } else if (Math.abs(d.value) >= 1) {
+                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, precision: decimalPlaces })
+                    formattedvalue = iValueFormatter.format(d);
+                } else {
+                    iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, precision: 2 })
+                    formattedvalue = iValueFormatter.format(d);
+                }
+                break;
+            }
+            case "Thousands": {
+                iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 1e3, format: this.barChartData[0].numberFormat, precision: decimalPlaces });
+                formattedvalue = iValueFormatter.format(d);
+                break;
+            }
+            case "Millions": {
+                iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 1e6, format: this.barChartData[0].numberFormat, precision: decimalPlaces });
+                formattedvalue = iValueFormatter.format(d);
+                break;
+            }
+            case "Billions": {
+                iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 1e9, format: this.barChartData[0].numberFormat, precision: decimalPlaces });
+                formattedvalue = iValueFormatter.format(d);
+                break;
+            }
+            default: {
+                iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, format: this.barChartData[0].numberFormat });
+                formattedvalue = iValueFormatter.format(d);
+                break;
+            }
+        }
+        return formattedvalue;
+    }
+    private formatCategory(value: any, type: any, format: any) {
+        let iValueFormatter_XAxis;
+        iValueFormatter_XAxis = valueFormatter.create({ cultureSelector: this.locale, format: format });
+        var formattedValue = value;
+        if (value == null) {
+            formattedValue = "(blank)";
+        }
+        if (type["dateTime"]) {
+            var currDate = new Date(formattedValue);
+            formattedValue = iValueFormatter_XAxis.format(currDate, format);
+        }
+        return formattedValue;
     }
 }

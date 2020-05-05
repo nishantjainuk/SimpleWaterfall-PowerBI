@@ -214,7 +214,7 @@ export class Visual implements IVisual {
                 .style('font-size', this.visualSettings.Legend.fontSize)
                 .text(this.visualSettings.Legend.textFavourable)
                 .style('font-family', this.visualSettings.Legend.fontFamily)
-                .style('color', this.visualSettings.Legend.fontColor);
+                .style('fill', this.visualSettings.Legend.fontColor);
 
             var textBoxSize;
             var textBoxSizeHeight;
@@ -252,7 +252,7 @@ export class Visual implements IVisual {
                 .style('font-size', this.visualSettings.Legend.fontSize)
                 .text(this.visualSettings.Legend.textAdverse)
                 .style('font-family', this.visualSettings.Legend.fontFamily)
-                .style('color', this.visualSettings.Legend.fontColor);
+                .style('fill', this.visualSettings.Legend.fontColor);
 
 
             textBoxSize = textAdverse.node().getBoundingClientRect();
@@ -678,8 +678,8 @@ export class Visual implements IVisual {
             var yScale = d3.scaleLinear()
                 .domain([this.minValue, this.maxValue])
                 .range([this.innerHeight, 0]);
-
             switch (d.customLabelPositioning) {
+                
                 case "Inside end":
                     yPosition = this.getYPosition(d, i) + heightAdjustment;
                     break;
@@ -691,7 +691,7 @@ export class Visual implements IVisual {
                         yPosition = this.getYPosition(d, i) + this.getHeight(d, i) + heightAdjustment;
                     }
 
-                    //if the label touches the x-axis then show on top
+                    //if the label touches the x-axis then show on top                    
                     if (yPosition >= yScale(0)) {
                         yPosition = this.getYPosition(d, i) - 5;
                     };
@@ -708,11 +708,15 @@ export class Visual implements IVisual {
 
                     break;
                 case "Inside bottom":
+                    
                     yPosition = this.getYPosition(d, i) + this.getHeight(d, i) + heightAdjustment;
                     //if the label touches the x-axis then show on top
-                    if (yPosition >= yScale(0)) {
-                        yPosition = this.getYPosition(d, i) - 5;
+                    if(this.minValue>=0 && this.maxValue >=0){
+                        if (yPosition >= yScale(0)) {
+                            yPosition = this.getYPosition(d, i) - 5;
+                        }
                     }
+                    break;
             }
             return yPosition;
         }
@@ -2892,13 +2896,13 @@ export class Visual implements IVisual {
                 if (Math.abs(this.minValue) >= 1000000000 || Math.abs(this.maxValue) >= 1000000000) {
                     iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 1e9, precision: decimalPlaces })
                     formattedvalue = iValueFormatter.format(d);
-                } else if (Math.abs(d.value) >= 1000000 || Math.abs(this.maxValue) >= 1000000) {
+                } else if (Math.abs(this.minValue) >= 1000000 || Math.abs(this.maxValue) >= 1000000) {
                     iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 1e6, precision: decimalPlaces })
                     formattedvalue = iValueFormatter.format(d);
-                } else if (Math.abs(d.value) >= 1000 || Math.abs(this.maxValue) >= 1000) {
+                } else if (Math.abs(this.minValue) >= 1000 || Math.abs(this.maxValue) >= 1000) {
                     iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, value: 1001, precision: decimalPlaces })
                     formattedvalue = iValueFormatter.format(d);
-                } else if (Math.abs(d.value) >= 1) {
+                } else if (Math.abs(this.minValue) >= 1) {
                     iValueFormatter = valueFormatter.create({ cultureSelector: this.locale, precision: decimalPlaces })
                     formattedvalue = iValueFormatter.format(d);
                 } else {

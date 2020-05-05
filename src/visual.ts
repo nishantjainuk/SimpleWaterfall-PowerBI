@@ -225,11 +225,11 @@ export class Visual implements IVisual {
             circleFavourableSVG
                 .attr('height', textBoxSizeHeight)
                 .attr('width', textBoxSizeHeight);
-            /* .style("vertical-align", "middle"); */
+            
             textFavourableSVG
                 .attr('width', textBoxSizeWidth)
                 .attr('height', textBoxSizeHeight);
-            /* .style("vertical-align", "middle"); */
+            
 
             circleFavourable
                 .attr("r", textBoxSizeHeight / 2)
@@ -261,11 +261,11 @@ export class Visual implements IVisual {
             circleAdverseSVG
                 .attr('height', textBoxSizeHeight)
                 .attr('width', textBoxSizeHeight);
-            /* .style("vertical-align", "middle"); */
+            
             textAdverseSVG
                 .attr('width', textBoxSizeWidth)
                 .attr('height', textBoxSizeHeight);
-            /* .style("vertical-align", "middle"); */
+            
 
             circleAdverse
                 .attr("r", textBoxSizeHeight / 2)
@@ -1200,13 +1200,9 @@ export class Visual implements IVisual {
         var totalData = [];
         var visualData = [];
         var allMeasureValues = [];
-
         // find all values and aggregate them in an array of array with each child in an array of a measure
-
         allMeasureValues = this.findLowestLevels();
-
         var sortOrderPrecision = Math.pow(10, allMeasureValues.length * allMeasureValues[0].length.toString().length);
-
         // calculate the difference between each measure and add them to an array as the step bars and then add the pillar bars [visualData]
         for (let indexMeasures = 0; indexMeasures < allMeasureValues.length; indexMeasures++) {
             var totalValueofMeasure = 0;

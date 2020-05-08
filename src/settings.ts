@@ -49,7 +49,7 @@ export class definePillars {
 }
 export class Legend {
   public show: boolean = false;
-  public fontSize: number = 11;
+  public fontSize: number = 9;
   public fontColor: string = "#777777";
   public fontFamily: string = "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif";
   public textFavourable: string = "Favourable";
@@ -69,7 +69,7 @@ export class margins {
 }
 
 export class xAxisFormatting {
-  public fontSize: number = 10;
+  public fontSize: number = 9;
   public fontColor: string = "#777777";
   public fontFamily: string = "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif";
   public labelWrapText: boolean = true;
@@ -85,7 +85,7 @@ export class yAxisFormatting {
   public YAxisDataPointOption: string = "Auto";
   public YAxisDataPointRangeStart: number = 0;
   public YAxisDataPointRangeEnd: number = 0;
-  public fontSize: number = 10;
+  public fontSize: number = 9;
   public fontColor: string = "#777777";
   public fontFamily: string = "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif";
   public YAxisValueFormatOption: string = "Auto";
@@ -96,7 +96,7 @@ export class yAxisFormatting {
 }
 export class LabelsFormatting {
   public show: boolean = true;
-  public fontSize: number = 10;
+  public fontSize: number = 9;
   public useDefaultFontColor: boolean = true;
   public fontColor: string = "#777777";
   public sentimentFontColorTotal: string = "#777777";

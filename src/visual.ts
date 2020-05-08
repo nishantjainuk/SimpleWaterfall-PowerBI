@@ -204,14 +204,14 @@ export class Visual implements IVisual {
 
 
             var textFavourableSVG = this.legendContainer.append('svg')
-                .attr('width', 10)
-                .attr('height', 10)
-                .style('margin-left', 2)
-                .style('margin-right', 2);
+                /* .attr('width', 10 + "pt")
+                .attr('height', 10 + "pt") */
+                /* .style('margin-left', 2 + "pt")
+                .style('margin-right', 2 + "pt") */;
             var textFavourable = textFavourableSVG.append('text')
                 .attr("x", 0)
                 .attr("y", "75%")
-                .style('font-size', this.visualSettings.Legend.fontSize)
+                .style('font-size', this.visualSettings.Legend.fontSize + "pt")
                 .text(this.visualSettings.Legend.textFavourable)
                 .style('font-family', this.visualSettings.Legend.fontFamily)
                 .style('fill', this.visualSettings.Legend.fontColor);
@@ -232,7 +232,7 @@ export class Visual implements IVisual {
             
 
             circleFavourable
-                .attr("r", textBoxSizeHeight / 2)
+                .attr("r", textBoxSizeHeight / 2 * .6)
                 .attr('cx', textBoxSizeHeight / 2)
                 .attr('cy', textBoxSizeHeight / 2)
                 .attr("fill", this.visualSettings.sentimentColor.sentimentColorFavourable);
@@ -242,14 +242,14 @@ export class Visual implements IVisual {
             var circleAdverse = circleAdverseSVG.append('circle');
 
             var textAdverseSVG = this.legendContainer.append('svg')
-                .attr('width', 10)
-                .attr('height', 10)
-                .style('margin-left', 2)
-                .style('margin-right', 2);
+                /* .attr('width', 10)
+                .attr('height', 10) */
+                /* .style('margin-left', 2 + "pt")
+                .style('margin-right', 2+ "pt") */;
             var textAdverse = textAdverseSVG.append('text')
                 .attr("x", 0)
                 .attr("y", "75%")
-                .style('font-size', this.visualSettings.Legend.fontSize)
+                .style('font-size', this.visualSettings.Legend.fontSize + "pt")
                 .text(this.visualSettings.Legend.textAdverse)
                 .style('font-family', this.visualSettings.Legend.fontFamily)
                 .style('fill', this.visualSettings.Legend.fontColor);
@@ -268,18 +268,18 @@ export class Visual implements IVisual {
             
 
             circleAdverse
-                .attr("r", textBoxSizeHeight / 2)
+                .attr("r", textBoxSizeHeight / 2 * .6)
                 .attr('cx', textBoxSizeHeight / 2)
                 .attr('cy', textBoxSizeHeight / 2)
                 .attr("fill", this.visualSettings.sentimentColor.sentimentColorAdverse);
             this.legendContainer
                 //.style('width', options.viewport.width)
-                .style('height', textBoxSizeHeight + "px");
+                .style('height', textBoxSizeHeight + "pt");
             this.legendHeight = textBoxSizeHeight;
         } else {
             this.legendContainer
                 //.style('width', options.viewport.width)
-                .style('height', 0 + "px");
+                .style('height', 0 + "pt");
             this.legendHeight = 0;
         }
 
@@ -517,7 +517,7 @@ export class Visual implements IVisual {
 
         if (this.visualSettings.yAxisFormatting.show) {
             var yAxis = g.append('g')
-                .style("font", this.visualSettings.yAxisFormatting.fontSize + "px times")
+                .style("font", this.visualSettings.yAxisFormatting.fontSize + "pt times")
                 .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
                 .style("color", this.visualSettings.yAxisFormatting.fontColor)
                 .attr('class', 'myYaxis');
@@ -529,11 +529,11 @@ export class Visual implements IVisual {
 
 
 
-            yAxis.selectAll('path').style('fill', 'none').style('stroke', 'black').style('stroke-width', "0px");
+            yAxis.selectAll('path').style('fill', 'none').style('stroke', 'black').style('stroke-width', "0pt");
             if (this.visualSettings.yAxisFormatting.showGridLine) {
-                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "px");
+                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
             } else {
-                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0px");
+                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
             }
 
             // adjust the left margin of the chart area according to the width of yaxis             
@@ -563,7 +563,7 @@ export class Visual implements IVisual {
 
         if (this.visualSettings.yAxisFormatting.show) {
             var yAxis = g.append('g')
-                .style("font", this.visualSettings.yAxisFormatting.fontSize + "px times")
+                .style("font", this.visualSettings.yAxisFormatting.fontSize + "pt times")
                 .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
                 .style("color", this.visualSettings.yAxisFormatting.fontColor)
                 .attr('class', 'myYaxis');
@@ -572,12 +572,12 @@ export class Visual implements IVisual {
 
             yAxis.call(yAxisScale);
 
-            yAxis.selectAll('path').style('fill', 'none').style('stroke', 'black').style('stroke-width', "0px");
+            yAxis.selectAll('path').style('fill', 'none').style('stroke', 'black').style('stroke-width', "0pt");
             if (this.visualSettings.yAxisFormatting.showGridLine) {
 
-                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "px");
+                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
             } else {
-                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0px");
+                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
             }
 
             // adjust the left margin of the chart area according to the width of yaxis             
@@ -741,7 +741,7 @@ export class Visual implements IVisual {
             var pillarLabelsText = pillarLabels
                 .text(d => labelFormatting(d));
 
-            pillarLabelsText.style('font-size', this.visualSettings.LabelsFormatting.fontSize)
+            pillarLabelsText.style('font-size', this.visualSettings.LabelsFormatting.fontSize + "pt")
                 .style("font-family", this.visualSettings.LabelsFormatting.fontFamily)
                 .style('fill', (d) => {
                     return d.customFontColor;
@@ -847,9 +847,9 @@ export class Visual implements IVisual {
         });
     };
     private lineWidth(d, i) {
-        var defaultwidth = this.defaultXAxisGridlineStrokeWidth() / 10 + "px";
+        var defaultwidth = this.defaultXAxisGridlineStrokeWidth() / 10 + "pt";
         if (d.displayName == "" || i == 0) {
-            defaultwidth = "0" + "px";
+            defaultwidth = "0" + "pt";
         }
         return defaultwidth;
 
@@ -1686,7 +1686,7 @@ export class Visual implements IVisual {
         var myxAxisParentx = d3.axisBottom(xScale).tickSize(0);
         myxAxisParentx.tickSizeOuter(0);
         myxAxisParent = g.append('g')
-            .style("font", this.visualSettings.xAxisFormatting.fontSize + "px times")
+            .style("font", this.visualSettings.xAxisFormatting.fontSize + "pt times")
             .style("font-family", this.visualSettings.xAxisFormatting.fontFamily)
             .style("color", this.visualSettings.xAxisFormatting.fontColor)
             .attr('class', 'myXaxis')
@@ -1774,7 +1774,7 @@ export class Visual implements IVisual {
             myxAxisParent.selectAll('path')
                 .style('fill', 'none')
                 .style('stroke', this.visualSettings.xAxisFormatting.gridLineColor)
-                .style('stroke-width', this.defaultXAxisGridlineStrokeWidth() / 10 + "px");
+                .style('stroke-width', this.defaultXAxisGridlineStrokeWidth() / 8 + "pt");
             var myAxisTop = myxAxisParent.select("path").node().getBoundingClientRect().top
             myxAxisParent.selectAll(".text").data(currData)
                 .enter()
@@ -1806,7 +1806,7 @@ export class Visual implements IVisual {
             myxAxisParent.selectAll('path')
                 .style('fill', 'none')
                 .style('stroke', this.visualSettings.xAxisFormatting.gridLineColor)
-                .style('stroke-width', "0px");
+                .style('stroke-width', "0pt");
         }
     }
     private addTotalLine(data: any, options: VisualUpdateOptions) {
@@ -2267,7 +2267,7 @@ export class Visual implements IVisual {
 
 
 
-            pillarLabelsText.style('font-size', this.visualSettings.LabelsFormatting.fontSize)
+            pillarLabelsText.style('font-size', this.visualSettings.LabelsFormatting.fontSize + "pt")
                 .style("font-family", this.visualSettings.LabelsFormatting.fontFamily)
                 .style('fill', (d) => {
                     return d.customFontColor;
@@ -2524,7 +2524,7 @@ export class Visual implements IVisual {
 
         myxAxisParentx.tickSizeOuter(0);
         myxAxisParent = g.append('g')
-            .style("font", this.visualSettings.xAxisFormatting.fontSize + "px times")
+            .style("font", this.visualSettings.xAxisFormatting.fontSize + "pt times")
             .style("font-family", this.visualSettings.xAxisFormatting.fontFamily)
             .style("color", this.visualSettings.xAxisFormatting.fontColor)
             .attr('class', 'myXaxis')
@@ -2617,7 +2617,7 @@ export class Visual implements IVisual {
             myxAxisParent.selectAll('path')
                 .style('fill', 'none')
                 .style('stroke', this.visualSettings.xAxisFormatting.gridLineColor)
-                .style('stroke-width', this.defaultXAxisGridlineStrokeWidth() / 10 + "px");
+                .style('stroke-width', this.defaultXAxisGridlineStrokeWidth() / 10 + "pt");
             var myAxisTop = myxAxisParent.select("path").node().getBoundingClientRect().top
 
             myxAxisParent.selectAll(".text").data(currData)
@@ -2649,7 +2649,7 @@ export class Visual implements IVisual {
             myxAxisParent.selectAll('path')
                 .style('fill', 'none')
                 .style('stroke', this.visualSettings.xAxisFormatting.gridLineColor)
-                .style('stroke-width', "0px");
+                .style('stroke-width', "0pt");
         }
     }
     private xAxislabelAlignmentHorizontal(tspan, width) {
@@ -2680,7 +2680,7 @@ export class Visual implements IVisual {
 
         if (this.visualSettings.yAxisFormatting.show) {
             var yAxis = g.append('g')
-                .style("font", this.visualSettings.yAxisFormatting.fontSize + "px times")
+                .style("font", this.visualSettings.yAxisFormatting.fontSize + "pt times")
                 .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
                 .style("color", this.visualSettings.yAxisFormatting.fontColor)
                 .attr('class', 'myYaxis');
@@ -2691,11 +2691,11 @@ export class Visual implements IVisual {
 
 
 
-            yAxis.selectAll('path').style('fill', 'none').style('stroke', 'black').style('stroke-width', "0px");
+            yAxis.selectAll('path').style('fill', 'none').style('stroke', 'black').style('stroke-width', "0pt");
             if (this.visualSettings.yAxisFormatting.showGridLine) {
-                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "px");
+                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
             } else {
-                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0px");
+                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
             }
             yAxis.selectAll('line').attr('y2', -this.innerHeight);
         }
@@ -2718,7 +2718,7 @@ export class Visual implements IVisual {
 
         if (this.visualSettings.yAxisFormatting.show) {
             var yAxis = g.append('g')
-                .style("font", this.visualSettings.yAxisFormatting.fontSize + "px times")
+                .style("font", this.visualSettings.yAxisFormatting.fontSize + "pt times")
                 .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
                 .style("color", this.visualSettings.yAxisFormatting.fontColor)
                 .attr('class', 'myYaxis');
@@ -2729,12 +2729,12 @@ export class Visual implements IVisual {
 
 
 
-            yAxis.selectAll('path').style('fill', 'none').style('stroke', 'black').style('stroke-width', "0px");
+            yAxis.selectAll('path').style('fill', 'none').style('stroke', 'black').style('stroke-width', "0pt");
             if (this.visualSettings.yAxisFormatting.showGridLine) {
 
-                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "px");
+                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
             } else {
-                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0px");
+                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
             }
 
             // adjust the left margin of the chart area according to the width of yaxis             

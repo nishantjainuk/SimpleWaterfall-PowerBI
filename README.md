@@ -2,9 +2,9 @@
 
 ## Live Version: 2.0.3
 
-## Under Review (Microsoft): 2.0.6
+## Under Review (Microsoft): 2.0.9
 
-## Development Version: 2.0.7
+## Development Version: 2.0.10
 
 Simple Waterfall provides an easy to use interface to create a waterfall chart. You can define pillars based on categories or measures and choose between vertical or horizontal chart type. You can format all elements of the waterfall chart including individual bar colours, label colour and a lot more. 
 
@@ -37,7 +37,8 @@ Simple Waterfall provides an easy to use interface to create a waterfall chart. 
 | -------------------  | ------------------- | --------------- | ------------- |  
 | None |	Any |	Measures |	No |
 | 1 |	1 |	Category | No |
+| More than 1 |	1 |	Category |	Yes|
 | 1 |	More than 1	| Default (Measures = Pillars  Categories = Steps) | No |
 | More than 1 |	More than 1 |	Default (Measures = Pillars Categories = Steps) |	Yes |
-| More than 1 |	1 |	Category |	Yes|
+
 

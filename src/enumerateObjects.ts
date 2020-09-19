@@ -338,6 +338,7 @@ class enumerateObjects implements IEnumerateObjects {
                 YAxisValueFormatOption: this.visualSettings.yAxisFormatting.YAxisValueFormatOption,
                 decimalPlaces: this.visualSettings.yAxisFormatting.decimalPlaces,
                 showGridLine: this.visualSettings.yAxisFormatting.showGridLine
+                
             },
             selector: null
         });
@@ -345,7 +346,16 @@ class enumerateObjects implements IEnumerateObjects {
             decimalPlaces: { numberRange: { min: 0, max: 15 } }
 
         };
-        if (this.visualSettings.yAxisFormatting.showGridLine) {
+        if (!this.visualSettings.yAxisFormatting.showGridLine) {
+            objectEnumeration.push({
+                objectName: "objectName",
+                properties: {
+                    showZeroAxisGridLine: this.visualSettings.yAxisFormatting.showZeroAxisGridLine
+                },
+                selector: null
+            });
+        }
+        if (this.visualSettings.yAxisFormatting.showGridLine || this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
             objectEnumeration.push({
                 objectName: "objectName",
                 properties: {

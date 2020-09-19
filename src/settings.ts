@@ -90,6 +90,7 @@ export class yAxisFormatting {
   public fontFamily: string = "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif";
   public YAxisValueFormatOption: string = "Auto";
   public showGridLine: boolean = true;
+  public showZeroAxisGridLine: boolean = false;
   public gridLineStrokeWidth: number = 1;
   public gridLineColor: string = "#777777";
   public decimalPlaces: number = 0;

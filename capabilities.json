@@ -10,6 +10,12 @@
             "name": "measure",
             "displayNameKey": "Visual_Values",
             "kind": "Measure"
+        },
+        {
+            "displayName": "tooltips",
+            "name": "tooltips",
+            "displayNameKey": "Visual_ToolTip",
+            "kind": "Measure"
         }
     ],
     "drilldown": {
@@ -19,6 +25,15 @@
     },
     "sorting": {
         "default": {}
+    },
+    "tooltips": {
+        "supportedTypes": {
+            "default": true,
+            "canvas": true
+        },
+        "roles": [
+            "tooltips"
+        ]
     },
     "dataViewMappings": [{
 
@@ -82,6 +97,19 @@
                                 "value": "2"
                             }
                         ]
+                    }
+                },
+                "limitBreakdown": {
+                    "displayName": "Limit Steps",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "maxBreakdown": {
+                    "displayName": "Max Steps",
+                    "description": "Set the limit for number of steps",
+                    "type": {
+                        "integer": true
                     }
                 }
             }
@@ -181,6 +209,17 @@
                         }
                     }
                 },
+                "sentimentColorOther": {
+                    "displayName": "Other",
+                    "description": "The fill color for the other",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
                 "fill1": {
                     "displayName": "Use individual bar colors",
                     "type": {
@@ -235,106 +274,11 @@
                     }
                 },
                 "fontFamily": {
-                    "displayName": "Font family",
+                    "displayName": "Font Family",
                     "type": {
-                        "enumeration": [{
-                                "displayName": "Default",
-                                "description": "helvetica, arial, sans-serif",
-                                "value": "helvetica, arial, sans-serif"
-                            },
-                            {
-                                "displayName": "Arial",
-                                "value": "Arial"
-                            },
-                            {
-                                "displayName": "Arial Black",
-                                "value": "\"Arial Black\""
-                            },
-                            {
-                                "displayName": "Arial Unicode MS",
-                                "value": "\"Arial Unicode MS\""
-                            },
-                            {
-                                "displayName": "Calibri",
-                                "value": "Calibri"
-                            },
-                            {
-                                "displayName": "Cambria",
-                                "value": "Cambria"
-                            },
-                            {
-                                "displayName": "Cambria Math",
-                                "value": "\"Cambria Math\""
-                            },
-                            {
-                                "displayName": "Candara",
-                                "value": "Candara"
-                            },
-                            {
-                                "displayName": "Comic Sans MS",
-                                "value": "\"Comic Sans MS\""
-                            },
-                            {
-                                "displayName": "Consolas",
-                                "value": "Consolas"
-                            },
-                            {
-                                "displayName": "Constantia",
-                                "value": "Constantia"
-                            },
-                            {
-                                "displayName": "Corbel",
-                                "value": "Corbel"
-                            },
-                            {
-                                "displayName": "Courier New",
-                                "value": "\"Courier New\""
-                            },
-                            {
-                                "displayName": "Georgia",
-                                "value": "Georgia"
-                            },
-                            {
-                                "displayName": "Lucida Sans Unicode",
-                                "value": "\"Lucida Sans Unicode\""
-                            },
-                            {
-                                "displayName": "Segoe (Bold)",
-                                "value": "\"Segoe UI Bold\", wf_segoe-ui_bold, helvetica, arial, sans-serif"
-                            },
-                            {
-                                "displayName": "Segoe UI",
-                                "value": "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif"
-                            },
-                            {
-                                "displayName": "Segoe UI Light",
-                                "value": "\"Segoe UI Light\", wf_segoe-ui_bold, helvetica, arial, sans-serif"
-                            },
-                            {
-                                "displayName": "Symbol",
-                                "value": "Symbol"
-                            },
-                            {
-                                "displayName": "Tahoma",
-                                "value": "Tahoma"
-                            },
-                            {
-                                "displayName": "Times New Roman",
-                                "value": "\"Times New Roman\""
-                            },
-                            {
-                                "displayName": "Trebuchet MS",
-                                "value": "\"Trebuchet MS\""
-                            },
-                            {
-                                "displayName": "Verdana",
-                                "value": "Verdana"
-                            },
-                            {
-                                "displayName": "Wingdings",
-                                "value": "Wingdings"
-                            }
-                        ]
+                        "formatting": {
+                            "fontFamily": true
+                        }
                     }
                 }
             }
@@ -363,106 +307,11 @@
                     }
                 },
                 "fontFamily": {
-                    "displayName": "Font family",
+                    "displayName": "Font Family",
                     "type": {
-                        "enumeration": [{
-                                "displayName": "Default",
-                                "description": "helvetica, arial, sans-serif",
-                                "value": "helvetica, arial, sans-serif"
-                            },
-                            {
-                                "displayName": "Arial",
-                                "value": "Arial"
-                            },
-                            {
-                                "displayName": "Arial Black",
-                                "value": "\"Arial Black\""
-                            },
-                            {
-                                "displayName": "Arial Unicode MS",
-                                "value": "\"Arial Unicode MS\""
-                            },
-                            {
-                                "displayName": "Calibri",
-                                "value": "Calibri"
-                            },
-                            {
-                                "displayName": "Cambria",
-                                "value": "Cambria"
-                            },
-                            {
-                                "displayName": "Cambria Math",
-                                "value": "\"Cambria Math\""
-                            },
-                            {
-                                "displayName": "Candara",
-                                "value": "Candara"
-                            },
-                            {
-                                "displayName": "Comic Sans MS",
-                                "value": "\"Comic Sans MS\""
-                            },
-                            {
-                                "displayName": "Consolas",
-                                "value": "Consolas"
-                            },
-                            {
-                                "displayName": "Constantia",
-                                "value": "Constantia"
-                            },
-                            {
-                                "displayName": "Corbel",
-                                "value": "Corbel"
-                            },
-                            {
-                                "displayName": "Courier New",
-                                "value": "\"Courier New\""
-                            },
-                            {
-                                "displayName": "Georgia",
-                                "value": "Georgia"
-                            },
-                            {
-                                "displayName": "Lucida Sans Unicode",
-                                "value": "\"Lucida Sans Unicode\""
-                            },
-                            {
-                                "displayName": "Segoe (Bold)",
-                                "value": "\"Segoe UI Bold\", wf_segoe-ui_bold, helvetica, arial, sans-serif"
-                            },
-                            {
-                                "displayName": "Segoe UI",
-                                "value": "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif"
-                            },
-                            {
-                                "displayName": "Segoe UI Light",
-                                "value": "\"Segoe UI Light\", wf_segoe-ui_bold, helvetica, arial, sans-serif"
-                            },
-                            {
-                                "displayName": "Symbol",
-                                "value": "Symbol"
-                            },
-                            {
-                                "displayName": "Tahoma",
-                                "value": "Tahoma"
-                            },
-                            {
-                                "displayName": "Times New Roman",
-                                "value": "\"Times New Roman\""
-                            },
-                            {
-                                "displayName": "Trebuchet MS",
-                                "value": "\"Trebuchet MS\""
-                            },
-                            {
-                                "displayName": "Verdana",
-                                "value": "Verdana"
-                            },
-                            {
-                                "displayName": "Wingdings",
-                                "value": "Wingdings"
-                            }
-                        ]
+                        "formatting": {
+                            "fontFamily": true
+                        }
                     }
                 },
                 "labelWrapText": {
@@ -578,106 +427,11 @@
                     }
                 },
                 "fontFamily": {
-                    "displayName": "Font family",
+                    "displayName": "Font Family",
                     "type": {
-                        "enumeration": [{
-                                "displayName": "Default",
-                                "description": "helvetica, arial, sans-serif",
-                                "value": "helvetica, arial, sans-serif"
-                            },
-                            {
-                                "displayName": "Arial",
-                                "value": "Arial"
-                            },
-                            {
-                                "displayName": "Arial Black",
-                                "value": "\"Arial Black\""
-                            },
-                            {
-                                "displayName": "Arial Unicode MS",
-                                "value": "\"Arial Unicode MS\""
-                            },
-                            {
-                                "displayName": "Calibri",
-                                "value": "Calibri"
-                            },
-                            {
-                                "displayName": "Cambria",
-                                "value": "Cambria"
-                            },
-                            {
-                                "displayName": "Cambria Math",
-                                "value": "\"Cambria Math\""
-                            },
-                            {
-                                "displayName": "Candara",
-                                "value": "Candara"
-                            },
-                            {
-                                "displayName": "Comic Sans MS",
-                                "value": "\"Comic Sans MS\""
-                            },
-                            {
-                                "displayName": "Consolas",
-                                "value": "Consolas"
-                            },
-                            {
-                                "displayName": "Constantia",
-                                "value": "Constantia"
-                            },
-                            {
-                                "displayName": "Corbel",
-                                "value": "Corbel"
-                            },
-                            {
-                                "displayName": "Courier New",
-                                "value": "\"Courier New\""
-                            },
-                            {
-                                "displayName": "Georgia",
-                                "value": "Georgia"
-                            },
-                            {
-                                "displayName": "Lucida Sans Unicode",
-                                "value": "\"Lucida Sans Unicode\""
-                            },
-                            {
-                                "displayName": "Segoe (Bold)",
-                                "value": "\"Segoe UI Bold\", wf_segoe-ui_bold, helvetica, arial, sans-serif"
-                            },
-                            {
-                                "displayName": "Segoe UI",
-                                "value": "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif"
-                            },
-                            {
-                                "displayName": "Segoe UI Light",
-                                "value": "\"Segoe UI Light\", wf_segoe-ui_bold, helvetica, arial, sans-serif"
-                            },
-                            {
-                                "displayName": "Symbol",
-                                "value": "Symbol"
-                            },
-                            {
-                                "displayName": "Tahoma",
-                                "value": "Tahoma"
-                            },
-                            {
-                                "displayName": "Times New Roman",
-                                "value": "\"Times New Roman\""
-                            },
-                            {
-                                "displayName": "Trebuchet MS",
-                                "value": "\"Trebuchet MS\""
-                            },
-                            {
-                                "displayName": "Verdana",
-                                "value": "Verdana"
-                            },
-                            {
-                                "displayName": "Wingdings",
-                                "value": "Wingdings"
-                            }
-                        ]
+                        "formatting": {
+                            "fontFamily": true
+                        }
                     }
                 },
                 "YAxisValueFormatOption": {
@@ -720,6 +474,13 @@
                         "bool": true
                     }
                 },
+                "showZeroAxisGridLine": {
+                    "displayName": "Show Zero Line",
+                    "description": "Show Zero Line",
+                    "type": {
+                        "bool": true
+                    }
+                },
                 "gridLineStrokeWidth": {
                     "displayName": "Stroke Width",
                     "description": "Stroke Width (min: 1; max: 50)",
@@ -730,6 +491,31 @@
                 "gridLineColor": {
                     "displayName": "Gridlines Color",
                     "description": "Gridlines color",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "joinBars": {
+                    "displayName": "Join Bars",
+                    "description": "Join Bars",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "joinBarsStrokeWidth": {
+                    "displayName": "Join Bar - Stroke Width",
+                    "description": "Join Bar - Stroke Width (min: 1; max: 50)",
+                    "type": {
+                        "integer": true
+                    }
+                },
+                "joinBarsColor": {
+                    "displayName": "Join Bar - Color",
+                    "description": "Join Bar - color",
                     "type": {
                         "fill": {
                             "solid": {
@@ -775,7 +561,7 @@
                     }
                 },
                 "sentimentFontColorTotal": {
-                    "displayName": "Font Color - Total",
+                    "displayName": "Total",
                     "description": "The Font color for the Total",
                     "type": {
                         "fill": {
@@ -786,7 +572,7 @@
                     }
                 },
                 "sentimentFontColorFavourable": {
-                    "displayName": "Font Color - Favourable",
+                    "displayName": "Favourable",
                     "description": "The Font color for Favourable",
                     "type": {
                         "fill": {
@@ -797,7 +583,18 @@
                     }
                 },
                 "sentimentFontColorAdverse": {
-                    "displayName": "Font Color -  Adverse",
+                    "displayName": "Adverse",
+                    "description": "The Font color for Adverse",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "sentimentFontColorOther": {
+                    "displayName": "Other",
                     "description": "The Font color for Adverse",
                     "type": {
                         "fill": {
@@ -818,106 +615,11 @@
                     }
                 },
                 "fontFamily": {
-                    "displayName": "Font family",
+                    "displayName": "Font Family",
                     "type": {
-                        "enumeration": [{
-                                "displayName": "Default",
-                                "description": "helvetica, arial, sans-serif",
-                                "value": "helvetica, arial, sans-serif"
-                            },
-                            {
-                                "displayName": "Arial",
-                                "value": "Arial"
-                            },
-                            {
-                                "displayName": "Arial Black",
-                                "value": "\"Arial Black\""
-                            },
-                            {
-                                "displayName": "Arial Unicode MS",
-                                "value": "\"Arial Unicode MS\""
-                            },
-                            {
-                                "displayName": "Calibri",
-                                "value": "Calibri"
-                            },
-                            {
-                                "displayName": "Cambria",
-                                "value": "Cambria"
-                            },
-                            {
-                                "displayName": "Cambria Math",
-                                "value": "\"Cambria Math\""
-                            },
-                            {
-                                "displayName": "Candara",
-                                "value": "Candara"
-                            },
-                            {
-                                "displayName": "Comic Sans MS",
-                                "value": "\"Comic Sans MS\""
-                            },
-                            {
-                                "displayName": "Consolas",
-                                "value": "Consolas"
-                            },
-                            {
-                                "displayName": "Constantia",
-                                "value": "Constantia"
-                            },
-                            {
-                                "displayName": "Corbel",
-                                "value": "Corbel"
-                            },
-                            {
-                                "displayName": "Courier New",
-                                "value": "\"Courier New\""
-                            },
-                            {
-                                "displayName": "Georgia",
-                                "value": "Georgia"
-                            },
-                            {
-                                "displayName": "Lucida Sans Unicode",
-                                "value": "\"Lucida Sans Unicode\""
-                            },
-                            {
-                                "displayName": "Segoe (Bold)",
-                                "value": "\"Segoe UI Bold\", wf_segoe-ui_bold, helvetica, arial, sans-serif"
-                            },
-                            {
-                                "displayName": "Segoe UI",
-                                "value": "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif"
-                            },
-                            {
-                                "displayName": "Segoe UI Light",
-                                "value": "\"Segoe UI Light\", wf_segoe-ui_bold, helvetica, arial, sans-serif"
-                            },
-                            {
-                                "displayName": "Symbol",
-                                "value": "Symbol"
-                            },
-                            {
-                                "displayName": "Tahoma",
-                                "value": "Tahoma"
-                            },
-                            {
-                                "displayName": "Times New Roman",
-                                "value": "\"Times New Roman\""
-                            },
-                            {
-                                "displayName": "Trebuchet MS",
-                                "value": "\"Trebuchet MS\""
-                            },
-                            {
-                                "displayName": "Verdana",
-                                "value": "Verdana"
-                            },
-                            {
-                                "displayName": "Wingdings",
-                                "value": "Wingdings"
-                            }
-                        ]
+                        "formatting": {
+                            "fontFamily": true
+                        }
                     }
                 },
                 "valueFormat": {
@@ -991,7 +693,7 @@
                     }
                 },
                 "labelPositionTotal": {
-                    "displayName": "Position - Totals",
+                    "displayName": "Totals",
                     "type": {
                         "enumeration": [{
                                 "displayName": "Inside end",
@@ -1021,7 +723,7 @@
                     }
                 },
                 "labelPositionFavourable": {
-                    "displayName": "Position - Favourable",
+                    "displayName": "Favourable",
                     "type": {
                         "enumeration": [{
                                 "displayName": "Inside end",
@@ -1051,7 +753,37 @@
                     }
                 },
                 "labelPositionAdverse": {
-                    "displayName": "Position - Adverse",
+                    "displayName": "Adverse",
+                    "type": {
+                        "enumeration": [{
+                                "displayName": "Inside end",
+                                "value": "Inside end"
+                            },
+                            {
+                                "displayName": "Outside end",
+                                "value": "Outside end"
+                            },
+                            {
+                                "displayName": "Inside center",
+                                "value": "Inside center"
+                            },
+                            {
+                                "displayName": "Inside base",
+                                "value": "Inside base"
+                            },
+                            {
+                                "displayName": "Always top/right",
+                                "value": "Outside top"
+                            },
+                            {
+                                "displayName": "Always bottom/left",
+                                "value": "Inside bottom"
+                            }
+                        ]
+                    }
+                },
+                "labelPositionOther": {
+                    "displayName": "Other",
                     "type": {
                         "enumeration": [{
                                 "displayName": "Inside end",
@@ -1096,14 +828,5 @@
                 }
             }
         }
-    },
-    "tooltips": {
-        "supportedTypes": {
-            "default": true,
-            "canvas": true
-        },
-        "roles": [
-            "tooltips"
-        ]
     }
 }

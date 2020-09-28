@@ -38,18 +38,23 @@ export class VisualSettings extends DataViewObjectsParser {
   public yAxisFormatting: yAxisFormatting = new yAxisFormatting();  
   public LabelsFormatting: LabelsFormatting = new LabelsFormatting();
   public Legend: Legend = new Legend();
+  
 }
 export class chartOrientation {
   public orientation: string = "Vertical";
   public useSentimentFeatures: boolean = true;  
   public sortData: number = 1;
+  public limitBreakdown: boolean = false;
+  public maxBreakdown: number = 5;
+  
 }
 export class definePillars {
   public Totalpillar: boolean = true;
+
 }
 export class Legend {
   public show: boolean = false;
-  public fontSize: number = 11;
+  public fontSize: number = 9;
   public fontColor: string = "#777777";
   public fontFamily: string = "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif";
   public textFavourable: string = "Favourable";
@@ -59,6 +64,7 @@ export class sentimentColor {
   public sentimentColorTotal: string = "#0000ff";
   public sentimentColorFavourable: string = "#00b050";
   public sentimentColorAdverse: string = "#ff0000";
+  public sentimentColorOther: string = "#F2C811";
 }
 export class margins {
   public topMargin: number = 0;
@@ -69,7 +75,7 @@ export class margins {
 }
 
 export class xAxisFormatting {
-  public fontSize: number = 10;
+  public fontSize: number = 9;
   public fontColor: string = "#777777";
   public fontFamily: string = "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif";
   public labelWrapText: boolean = true;
@@ -85,23 +91,29 @@ export class yAxisFormatting {
   public YAxisDataPointOption: string = "Auto";
   public YAxisDataPointRangeStart: number = 0;
   public YAxisDataPointRangeEnd: number = 0;
-  public fontSize: number = 10;
+  public fontSize: number = 9;
   public fontColor: string = "#777777";
   public fontFamily: string = "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif";
   public YAxisValueFormatOption: string = "Auto";
   public showGridLine: boolean = true;
+  public showZeroAxisGridLine: boolean = false;
   public gridLineStrokeWidth: number = 1;
   public gridLineColor: string = "#777777";
+  public joinBars: boolean = false;
+  public joinBarsStrokeWidth: number = 1;
+  public joinBarsColor: string = "#777777";  
   public decimalPlaces: number = 0;
+  
 }
 export class LabelsFormatting {
   public show: boolean = true;
-  public fontSize: number = 10;
+  public fontSize: number = 9;
   public useDefaultFontColor: boolean = true;
   public fontColor: string = "#777777";
   public sentimentFontColorTotal: string = "#777777";
   public sentimentFontColorFavourable: string = "#777777";
   public sentimentFontColorAdverse: string = "#777777";
+  public sentimentFontColorOther: string = "#777777";
   public fontFamily: string = "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif";
   public valueFormat: string = "Auto";
   public useDefaultLabelPositioning: boolean = true;
@@ -109,8 +121,10 @@ export class LabelsFormatting {
   public labelPositionTotal: string = "Outside end";
   public labelPositionFavourable: string = "Outside end";
   public labelPositionAdverse: string = "Outside end";
+  public labelPositionOther: string = "Outside end";  
   public negativeInBrackets: boolean = false;
   public HideZeroBlankValues: boolean = false;
   public decimalPlaces: number = 0;
 }
+
 

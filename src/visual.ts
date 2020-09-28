@@ -75,6 +75,7 @@ interface BarChartDataPoint {
     selectionId: ISelectionId;
     childrenCount: number;
     sortOrderIndex: number;
+    displayName: string;
 }
 export class Visual implements IVisual {
 
@@ -96,6 +97,7 @@ export class Visual implements IVisual {
     private innerWidth: number;
     private innerHeight: number;
     private barChartData: BarChartDataPoint[];
+    private barChartDataAll = [];
     private margin;
     private legendHeight;
     private host: IVisualHost;
@@ -138,7 +140,7 @@ export class Visual implements IVisual {
     }
 
     public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
-        this.enumerateObjects = createenumerateObjects(this.visualType, this.barChartData, this.visualSettings, this.defaultXAxisGridlineStrokeWidth(), this.defaultYAxisGridlineStrokeWidth(), this.visualUpdateOptions.dataViews[0]);
+        this.enumerateObjects = createenumerateObjects(this.visualType, this.barChartData,this.barChartDataAll, this.visualSettings, this.defaultXAxisGridlineStrokeWidth(), this.defaultYAxisGridlineStrokeWidth(), this.visualUpdateOptions.dataViews[0]);
         return this.enumerateObjects.enumerateObjectInstances(options);
     }
     public update(options: VisualUpdateOptions) {
@@ -161,10 +163,15 @@ export class Visual implements IVisual {
             var allData = [];
             allData.push(this.barChartData);
 
-        } else if (dataView.matrix.rows.levels.length == 1 && dataView.matrix.valueSources.length == 1) {
-
+        } else if (dataView.matrix.rows.levels.length == 1 && dataView.matrix.valueSources.length == 1) {            
             this.visualType = "staticCategory";
-            this.barChartData = this.getDataStaticCategoryWaterfall(options);
+            //this.barChartData = this.getDataStaticCategoryWaterfall(options);
+            if (this.visualSettings.chartOrientation.limitBreakdown) {
+                this.barChartData = this.limitBreakdownsteps(options, this.getDataStaticCategoryWaterfall(options));
+            } else {
+                this.barChartData = this.getDataStaticCategoryWaterfall(options);
+            }
+
 
             var allData = [];
             allData.push(this.barChartData);
@@ -173,12 +180,14 @@ export class Visual implements IVisual {
         } else if (dataView.matrix.rows.levels.length != 1 && dataView.matrix.valueSources.length == 1) {
             this.visualType = "drillableCategory";
             var allData = this.getDataDrillableCategoryWaterfall(options);
+            this.barChartDataAll = this.getDataDrillableCategoryWaterfall(options);
             this.barChartData = this.getDataDrillableCategoryWaterfall(options)[allData.length - 1];
 
 
         } else {
             this.visualType = "drillable";
             var allData = this.getDataDrillableWaterfall(options);
+            this.barChartDataAll = this.getDataDrillableWaterfall(options);
             this.barChartData = this.getDataDrillableWaterfall(options)[allData.length - 1];
 
 
@@ -640,7 +649,7 @@ export class Visual implements IVisual {
         } else {
             Yposition = yScale(d.value) - this.yBreakdown(d, i);
         }
-        return Yposition;
+        return parseFloat(Yposition.toFixed(2)); //Math.round(Yposition,2);
     }
     private getHeight(d, i) {
         var yScale = d3.scaleLinear()
@@ -783,6 +792,38 @@ export class Visual implements IVisual {
             .attr('width', xScale.bandwidth())
             .attr('height', (d, i) => this.getHeight(d, i))
             .attr('fill', d => d.customBarColor);
+
+
+        //line joinning the bars
+        if (this.visualSettings.yAxisFormatting.joinBars) {
+            this.bars.each((d, i, nodes) => {
+                if (i != 0) {
+                    g.append('line')
+                        .style("stroke", this.visualSettings.yAxisFormatting.joinBarsColor)
+                        .style("stroke-width", this.visualSettings.yAxisFormatting.joinBarsStrokeWidth + "pt")
+                        .attr("x1", parseFloat(d3.select(nodes[i - 1]).attr('x')) + xScale.bandwidth())
+                        .attr("y1", () => {
+                            var y1;
+                            if ((d.value < 0 && !d.isPillar) || (d.value > 0 && d.isPillar)) {
+                                y1 = parseFloat(d3.select(nodes[i]).attr('y'));
+                            } else {
+                                y1 = parseFloat(d3.select(nodes[i]).attr('y')) + this.getHeight(d, i);
+                            }
+                            return y1;
+                        })
+                        .attr("x2", parseFloat(d3.select(nodes[i]).attr('x')))
+                        .attr("y2", () => {
+                            var y2;
+                            if ((d.value < 0 && !d.isPillar) || (d.value > 0 && d.isPillar)) {
+                                y2 = parseFloat(d3.select(nodes[i]).attr('y'));
+                            } else {
+                                y2 = parseFloat(d3.select(nodes[i]).attr('y')) + this.getHeight(d, i);
+                            }
+                            return y2;
+                        });
+                }
+            });
+        }
 
         // Clear selection when clicking outside a bar
         this.svg.on('click', (d) => {
@@ -1187,17 +1228,14 @@ export class Visual implements IVisual {
                     } else {
                         return a.sortOrder - b.sortOrder;
                     }
-                    break;
                 case 2:
                     if (a.isPillar != 1) {
                         return parseFloat(b.value.toString()) - parseFloat(a.value.toString());
                     } else {
                         return a.sortOrder - b.sortOrder;
                     }
-                    break;
                 default:
                     return a.sortOrder - b.sortOrder;
-                    break;
             }
         });
         return visualData;
@@ -1314,6 +1352,7 @@ export class Visual implements IVisual {
         var measureIndex = 0;
         //*******************************************************************
         var sortOrderIndex = 0;
+        var orderIndex = 0;
         dataView.matrix.rows.root.children.forEach((x: DataViewMatrixNode) => {
             var checkforZero = false;
             if (this.visualSettings.LabelsFormatting.HideZeroBlankValues && +x.values[measureIndex].value == 0) {
@@ -1386,15 +1425,122 @@ export class Visual implements IVisual {
                 } else {
                     data2["sortOrderIndex"] = sortOrderIndex;
                 }
-
+                orderIndex++;
+                data2["orderIndex"] = orderIndex;
                 visualData.push(data2);
             }
         });
         if (!hasPillar && this.visualSettings.definePillars.Totalpillar) {
             visualData.push(this.addTotalLine(visualData, options));
         }
-        visualData = this.sortData(visualData);
+
         return visualData;
+    }
+    private limitBreakdownsteps(options: VisualUpdateOptions, currData) {
+        //var currData = []
+
+        //currData = this.getDataStaticCategoryWaterfall(options);
+        currData.sort((a, b) => {
+            if (a.sortOrderIndex === b.sortOrderIndex) {
+                return parseFloat(Math.abs(b.value).toString()) - parseFloat(Math.abs(a.value).toString());
+            } else {
+                return a.sortOrderIndex - b.sortOrderIndex;
+            }
+        });
+        var limit = this.visualSettings.chartOrientation.maxBreakdown;
+        var limitcounter = 0;
+        var newOther = [];
+        var otherTotalValue = 0;
+        var othersortOrderIndex = 0;
+        for (let index = 0; index < currData.length; index++) {
+            /*currData[index]["showbreakdownstep"] = false;
+            otherTotalValue = otherTotalValue + currData[index].value
+            othersortOrderIndex*/
+            if (currData[index].isPillar == 1) {
+                currData[index]["showbreakdownstep"] = true;
+                limitcounter = 0;
+                if (otherTotalValue != 0) {
+                    newOther.push(this.addOtherBreakdownStep(options, otherTotalValue, othersortOrderIndex));
+                }
+                otherTotalValue = 0
+                othersortOrderIndex = 0;
+
+            } else if (limitcounter < limit) {
+                limitcounter++;
+                currData[index]["showbreakdownstep"] = true;
+            }
+            else if (
+                (index != currData.length - 1 && currData[index].sortOrderIndex == currData[index + 1].sortOrderIndex && limitcounter < limit)
+                || (index != 0 && currData[index].sortOrderIndex == currData[index - 1].sortOrderIndex && limitcounter < limit)
+            ) {
+                limitcounter++;
+                currData[index]["showbreakdownstep"] = true;
+            } else {
+                currData[index]["showbreakdownstep"] = false;
+                otherTotalValue = otherTotalValue + currData[index].value;
+                othersortOrderIndex = currData[index].sortOrderIndex;
+            }
+        }
+        newOther.forEach(node => {
+            currData.push(node);
+        });
+
+        for (let index = 0; index < currData.length; index++) {
+            const element = currData[index];
+            if (currData[index].showbreakdownstep == false) {
+                currData.splice(index, 1);
+                index--;
+            }
+
+        }
+        currData.sort((a, b) => {
+            if (a.sortOrderIndex === b.sortOrderIndex) {
+                //return parseFloat(Math.abs(b.value).toString()) - parseFloat(Math.abs(a.value).toString());
+                return a.orderIndex - b.orderIndex;
+            } else {
+                return a.sortOrderIndex - b.sortOrderIndex;
+            }
+        });
+
+        currData = this.sortData(currData);
+        return currData;
+    }
+    private addOtherBreakdownStep(options: VisualUpdateOptions, value, sortOrderIndex) {
+        //*******************Add "Other" breakdown item *********************
+        let dataView: DataView = options.dataViews[0];
+        //*******************************************************************
+        //This will always be zero as it should only have 1 measure
+        var measureIndex = 0;
+        //
+        var data2 = [];
+
+        data2["value"] = value;
+
+        data2["numberFormat"] = dataView.matrix.valueSources[measureIndex].format;
+        data2["selectionId"] = null;
+        data2["xAxisFormat"] = dataView.matrix.rows.levels[0].sources[0].format;
+        data2["type"] = dataView.matrix.rows.levels[0].sources[0].type;
+        data2["category"] = "defaultBreakdownStepOther";
+        data2["displayName"] = "Other";
+        data2["customBarColor"] = this.visualSettings.sentimentColor.sentimentColorOther;
+        if (this.visualSettings.LabelsFormatting.useDefaultFontColor) {
+            data2["customFontColor"] = this.visualSettings.LabelsFormatting.fontColor
+        } else {
+            data2["customFontColor"] = this.visualSettings.LabelsFormatting.sentimentFontColorOther;
+        }
+        if (this.visualSettings.LabelsFormatting.useDefaultLabelPositioning) {
+            data2["customLabelPositioning"] = this.visualSettings.LabelsFormatting.labelPosition
+        } else {
+            data2["customLabelPositioning"] = this.visualSettings.LabelsFormatting.labelPositionOther;
+        }
+        data2["isPillar"] = 0;
+        data2["toolTipValue1Formatted"] = this.formatValueforLabels(data2);
+        data2["toolTipDisplayValue1"] = data2["category"];
+        data2["childrenCount"] = 1;
+        data2["sortOrderIndex"] = sortOrderIndex;
+        data2["showbreakdownstep"] = true;
+        return data2;
+
     }
     private getDataDrillableCategoryWaterfall(options: VisualUpdateOptions) {
 
@@ -1517,7 +1663,7 @@ export class Visual implements IVisual {
                             node["displayName"] = getFormatCategory.formatCategory(child.value, type, format);
                             //node["displayName"] = this.formatCategory(child.value, node["type"], node["xAxisFormat"]);
                         }
-                        
+
                         var selectionbuilder = host1.createSelectionIdBuilder();
                         var selectionnode;
                         if (parentNodes.length > 0) {
@@ -1837,6 +1983,7 @@ export class Visual implements IVisual {
         let dataView: DataView = options.dataViews[0];
         var data2 = [];
         var totalValue = 0;
+        var orderIndex = 0;
         var d3formatnegative = d3.format("(.3s");
         //*******************************************************************
         //This will always be zero as it should only have 1 measure
@@ -1844,8 +1991,12 @@ export class Visual implements IVisual {
         //*******************************************************************
         data.forEach(element => {
             totalValue = totalValue + element["value"];
+            if (orderIndex < element["orderIndex"]) {
+                orderIndex = element["orderIndex"];
+            }
         });
         data2["value"] = totalValue;
+        data2["orderIndex"] = orderIndex;
         data2["numberFormat"] = data[0]["numberFormat"];
         data2["isPillar"] = 1;
         data2["category"] = dataView.matrix.valueSources[0].displayName;
@@ -1891,6 +2042,7 @@ export class Visual implements IVisual {
         data2["toolTipValue1Formatted"] = this.formatValueforLabels(data2);
         data2["toolTipDisplayValue1"] = data2["category"];
         data2["childrenCount"] = 1;
+        data2["sortOrderIndex"] = 1;
         return data2;
     }
     private getDataForCategory(value: number, numberFormat: string, displayName: any, displayID: any, isPillar: number, selectionId: any, sortOrder: number, childrenCount: number, toolTipDisplayValue1: string, toolTipDisplayValue2: string, Measure1Value: number, Measure2Value: number) {
@@ -2099,6 +2251,38 @@ export class Visual implements IVisual {
             .attr('height', xScale.bandwidth())
             .attr('fill', d => d.customBarColor);
 
+        //line joinning the bars
+        if (this.visualSettings.yAxisFormatting.joinBars) {
+            this.bars.each((d, i, nodes) => {
+                if (i != 0) {
+                    g.append('line')
+                        .style("stroke", this.visualSettings.yAxisFormatting.joinBarsColor)
+                        .style("stroke-width", this.visualSettings.yAxisFormatting.joinBarsStrokeWidth + "pt")
+                        .attr("x1", () => {
+                            var x1;
+                            if ((d.value < 0 && !d.isPillar) || (d.value > 0 && d.isPillar)) {
+                                x1 = parseFloat(d3.select(nodes[i]).attr('x')) +  this.getWidthHorizontal(d, i);
+                            } else {
+                                x1 = parseFloat(d3.select(nodes[i]).attr('x'));
+                            }
+                            
+                            return x1;
+                        })
+                        .attr("y1", parseFloat(d3.select(nodes[i-1]).attr('y')) + xScale.bandwidth())
+                        .attr("x2", () => {
+                            var x1;
+                            if ((d.value < 0 && !d.isPillar) || (d.value > 0 && d.isPillar)) {
+                                x1 = parseFloat(d3.select(nodes[i]).attr('x')) +  this.getWidthHorizontal(d, i);
+                            } else {
+                                x1 = parseFloat(d3.select(nodes[i]).attr('x'));
+                            }
+                            
+                            return x1;
+                        })
+                        .attr("y2",parseFloat(d3.select(nodes[i]).attr('y')));
+                }
+            });
+        }
         // Clear selection when clicking outside a bar
         this.svg.on('click', (d) => {
             if (this.host.allowInteractions) {

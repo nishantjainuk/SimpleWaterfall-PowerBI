@@ -20,6 +20,7 @@ interface barChartDataPoint {
     customLabelPositioning: string;
     selectionId: ISelectionId;
     childrenCount: number;
+    displayName: string;
 }
 
 export interface IEnumerateObjects {
@@ -29,6 +30,7 @@ export interface IEnumerateObjects {
 export function createenumerateObjects(
     visualType: String,
     barChartData: barChartDataPoint[],
+    barChartDataAll,
     visualSettings: VisualSettings,
     defaultXAxisGridlineStrokeWidth: PrimitiveValue,
     defaultYAxisGridlineStrokeWidth: PrimitiveValue,
@@ -37,6 +39,7 @@ export function createenumerateObjects(
     return new enumerateObjects(
         visualType,
         barChartData,
+        barChartDataAll,
         visualSettings,
         defaultXAxisGridlineStrokeWidth,
         defaultYAxisGridlineStrokeWidth,
@@ -45,14 +48,16 @@ export function createenumerateObjects(
 class enumerateObjects implements IEnumerateObjects {
     private visualType: String;
     private barChartData: barChartDataPoint[];
+    private barChartDataAll;
     private visualSettings: VisualSettings;
     private defaultXAxisGridlineStrokeWidth: PrimitiveValue;
     private defaultYAxisGridlineStrokeWidth: PrimitiveValue;
     private dataView: DataView;
 
-    constructor(visualType: String, barchartData: barChartDataPoint[], visualSettings: VisualSettings, defaultXAxisGridlineStrokeWidth: PrimitiveValue, defaultYAxisGridlineStrokeWidth: PrimitiveValue, dataView: DataView) {
+    constructor(visualType: String, barchartData: barChartDataPoint[],barchartDataAll, visualSettings: VisualSettings, defaultXAxisGridlineStrokeWidth: PrimitiveValue, defaultYAxisGridlineStrokeWidth: PrimitiveValue, dataView: DataView) {
         this.visualType = visualType;
         this.barChartData = barchartData;
+        this.barChartDataAll = barchartDataAll;
         this.visualSettings = visualSettings;
         this.defaultXAxisGridlineStrokeWidth = defaultXAxisGridlineStrokeWidth;
         this.defaultYAxisGridlineStrokeWidth = defaultYAxisGridlineStrokeWidth;
@@ -100,19 +105,21 @@ class enumerateObjects implements IEnumerateObjects {
                     var isPillarBoolean: boolean;
 
                     for (var index = 0; index < this.barChartData.length; index++) {
-                        if (this.barChartData[index].isPillar) {
-                            isPillarBoolean = true;
-                        } else {
-                            isPillarBoolean = false;
+                        if (this.barChartData[index].category != "defaultBreakdownStepOther") {
+                            if (this.barChartData[index].isPillar) {
+                                isPillarBoolean = true;
+                            } else {
+                                isPillarBoolean = false;
+                            }
+                            objectEnumeration.push({
+                                objectName: "objectName",
+                                displayName: this.barChartData[index].category,
+                                properties: {
+                                    pillars: isPillarBoolean
+                                },
+                                selector: this.barChartData[index].selectionId.getSelector()
+                            });
                         }
-                        objectEnumeration.push({
-                            objectName: "objectName",
-                            displayName: this.barChartData[index].category,
-                            properties: {
-                                pillars: isPillarBoolean
-                            },
-                            selector: this.barChartData[index].selectionId.getSelector()
-                        });
                     }
             }
         }
@@ -122,25 +129,27 @@ class enumerateObjects implements IEnumerateObjects {
                 case 'definePillars':
                     var isPillarBoolean: boolean;
                     for (var index = 0; index < this.barChartData.length; index++) {
-                        if (this.barChartData[index].isPillar) {
-                            // if the last pillar is the only pillar than treat it as no pillar
-                            isPillarBoolean = true;
-                            if (index != this.barChartData.length - 1) {
-                                hasPillar = true;
+                        if (this.barChartData[index].category != "defaultBreakdownStepOther") {
+                            if (this.barChartData[index].isPillar) {
+                                // if the last pillar is the only pillar than treat it as no pillar
+                                isPillarBoolean = true;
+                                if (index != this.barChartData.length && !this.visualSettings.definePillars.Totalpillar) {
+                                    hasPillar = true;
+                                }
+                                //hasPillar = true;
+                            } else {
+                                isPillarBoolean = false;
                             }
-                        } else {
-                            isPillarBoolean = false;
-                        }
-                        if (!hasPillar && index == this.barChartData.length - 1 && this.visualSettings.definePillars.Totalpillar) {
-                        } else {
-                            objectEnumeration.push({
-                                objectName: "objectName",
-                                displayName: this.barChartData[index].category,
-                                properties: {
-                                    pillars: isPillarBoolean
-                                },
-                                selector: this.barChartData[index].selectionId.getSelector()
-                            });
+                            if (!this.visualSettings.definePillars.Totalpillar) {
+                                objectEnumeration.push({
+                                    objectName: "objectName",
+                                    displayName: this.barChartData[index].category,
+                                    properties: {
+                                        pillars: isPillarBoolean
+                                    },
+                                    selector: this.barChartData[index].selectionId.getSelector()
+                                });
+                            }
                         }
                     }
                     if (!hasPillar) {
@@ -153,7 +162,6 @@ class enumerateObjects implements IEnumerateObjects {
                         });
                     }
             }
-
         }
         if (this.visualType == "drillableCategory") {
             objectEnumeration.push({
@@ -162,7 +170,7 @@ class enumerateObjects implements IEnumerateObjects {
                     Totalpillar: this.visualSettings.definePillars.Totalpillar
                 },
                 selector: null
-            });
+            });            
         }
     }
 
@@ -191,25 +199,36 @@ class enumerateObjects implements IEnumerateObjects {
                     properties: {
                         sentimentColorTotal: this.visualSettings.sentimentColor.sentimentColorTotal,
                         sentimentColorFavourable: this.visualSettings.sentimentColor.sentimentColorFavourable,
-                        sentimentColorAdverse: this.visualSettings.sentimentColor.sentimentColorAdverse
+                        sentimentColorAdverse: this.visualSettings.sentimentColor.sentimentColorAdverse,
+                        sentimentColorOther: this.visualSettings.sentimentColor.sentimentColorOther
                     },
                     selector: null
                 });
             } else {
                 for (var index = 0; index < this.barChartData.length; index++) {
-                    objectEnumeration.push({
-                        objectName: "objectName",
-                        displayName: this.barChartData[index].category,
-                        properties: {
-                            fill1: {
-                                solid: {
-                                    color: this.barChartData[index].customBarColor
+                    if (this.barChartData[index].category != "defaultBreakdownStepOther") {
+                        objectEnumeration.push({
+                            objectName: "objectName",
+                            displayName: this.barChartData[index].category,
+                            properties: {
+                                fill1: {
+                                    solid: {
+                                        color: this.barChartData[index].customBarColor
+                                    }
                                 }
-                            }
-                        },
-                        selector: this.barChartData[index].selectionId.getSelector()
-                    });
-
+                            },
+                            selector: this.barChartData[index].selectionId.getSelector()
+                        });
+                    } else {
+                        objectEnumeration.push({
+                            objectName: "objectName",
+                            //displayName: this.barChartData[index].category,
+                            properties: {
+                                sentimentColorOther: this.visualSettings.sentimentColor.sentimentColorOther
+                            },
+                            selector: null
+                        });
+                    }
                 }
             }
         } else {
@@ -218,13 +237,14 @@ class enumerateObjects implements IEnumerateObjects {
                 properties: {
                     sentimentColorTotal: this.visualSettings.sentimentColor.sentimentColorTotal,
                     sentimentColorFavourable: this.visualSettings.sentimentColor.sentimentColorFavourable,
-                    sentimentColorAdverse: this.visualSettings.sentimentColor.sentimentColorAdverse
+                    sentimentColorAdverse: this.visualSettings.sentimentColor.sentimentColorAdverse,
+                    sentimentColorOther: this.visualSettings.sentimentColor.sentimentColorOther
                 },
                 selector: null
             });
         }
     }
-    private propertiesChartOrientation(objectName: string, objectEnumeration: VisualObjectInstance[]) {        
+    private propertiesChartOrientation(objectName: string, objectEnumeration: VisualObjectInstance[]) {
         if (this.visualType == "static" || this.visualType == "staticCategory") {
             objectEnumeration.push({
                 objectName: "objectName",
@@ -235,7 +255,28 @@ class enumerateObjects implements IEnumerateObjects {
                 },
                 selector: null
             });
-        } else if  (this.dataView.matrix.rows.levels.length===1 && this.visualType == "drillable"){
+            if (this.visualType == "staticCategory") {
+                objectEnumeration.push({
+                    objectName: "objectName",
+                    properties: {
+                        limitBreakdown: this.visualSettings.chartOrientation.limitBreakdown
+                    },
+                    selector: null
+                });
+                if (this.visualSettings.chartOrientation.limitBreakdown) {
+                    objectEnumeration.push({
+                        objectName: "objectName",
+                        properties: {
+                            maxBreakdown: this.visualSettings.chartOrientation.maxBreakdown
+                        },
+                        selector: null
+                    });
+                    objectEnumeration[2].validValues = {
+                        maxBreakdown: { numberRange: { min: 1, max: 100 } }
+                    };
+                }
+            }
+        } else if (this.dataView.matrix.rows.levels.length === 1 && this.visualType == "drillable") {
             objectEnumeration.push({
                 objectName: "objectName",
                 properties: {
@@ -244,7 +285,7 @@ class enumerateObjects implements IEnumerateObjects {
                 },
                 selector: null
             });
-        }else {
+        } else {
             objectEnumeration.push({
                 objectName: "objectName",
                 properties: {
@@ -338,7 +379,7 @@ class enumerateObjects implements IEnumerateObjects {
                 YAxisValueFormatOption: this.visualSettings.yAxisFormatting.YAxisValueFormatOption,
                 decimalPlaces: this.visualSettings.yAxisFormatting.decimalPlaces,
                 showGridLine: this.visualSettings.yAxisFormatting.showGridLine
-                
+
             },
             selector: null
         });
@@ -370,6 +411,27 @@ class enumerateObjects implements IEnumerateObjects {
             });
             objectEnumeration[objectEnumeration.length - 1].validValues = {
                 gridLineStrokeWidth: { numberRange: { min: 1, max: 50 } }
+
+            };
+        }
+        objectEnumeration.push({
+            objectName: "objectName",
+            properties: {
+                joinBars: this.visualSettings.yAxisFormatting.joinBars
+            },
+            selector: null
+        });
+        if (this.visualSettings.yAxisFormatting.joinBars) {
+            objectEnumeration.push({
+                objectName: "objectName",
+                properties: {
+                    joinBarsStrokeWidth: this.visualSettings.yAxisFormatting.joinBarsStrokeWidth,
+                    joinBarsColor: this.visualSettings.yAxisFormatting.joinBarsColor
+                },
+                selector: null
+            });
+            objectEnumeration[objectEnumeration.length - 1].validValues = {
+                joinBarsStrokeWidth: { numberRange: { min: 1, max: 50 } }
 
             };
         }
@@ -416,7 +478,7 @@ class enumerateObjects implements IEnumerateObjects {
             });
             objectEnumeration[objectEnumeration.length - 1].validValues = {
                 decimalPlaces: { numberRange: { min: 0, max: 15 } }
-    
+
             };
             objectEnumeration.push({
                 objectName: "objectName",
@@ -452,21 +514,33 @@ class enumerateObjects implements IEnumerateObjects {
                     properties: {
                         labelPositionTotal: this.visualSettings.LabelsFormatting.labelPositionTotal,
                         labelPositionFavourable: this.visualSettings.LabelsFormatting.labelPositionFavourable,
-                        labelPositionAdverse: this.visualSettings.LabelsFormatting.labelPositionAdverse
+                        labelPositionAdverse: this.visualSettings.LabelsFormatting.labelPositionAdverse,
+                        labelPositionOther: this.visualSettings.LabelsFormatting.labelPositionOther
                     },
                     selector: null
                 });
             } else {
                 if (this.visualType == "static" || this.visualType == "staticCategory") {
                     for (var index = 0; index < this.barChartData.length; index++) {
-                        objectEnumeration.push({
-                            objectName: "objectName",
-                            displayName: this.barChartData[index].category,
-                            properties: {
-                                labelPosition: this.barChartData[index].customLabelPositioning
-                            },
-                            selector: this.barChartData[index].selectionId.getSelector()
-                        });
+                        if (this.barChartData[index].category != "defaultBreakdownStepOther") {
+                            objectEnumeration.push({
+                                objectName: "objectName",
+                                displayName: this.barChartData[index].category,
+                                properties: {
+                                    labelPosition: this.barChartData[index].customLabelPositioning
+                                },
+                                selector: this.barChartData[index].selectionId.getSelector()
+                            });
+                        } else {
+                            objectEnumeration.push({
+                                objectName: "objectName",
+                                displayName: this.barChartData[index].displayName,
+                                properties: {
+                                    labelPositionOther: this.visualSettings.LabelsFormatting.labelPositionOther
+                                },
+                                selector: null
+                            });
+                        }
                     }
                 }
             }
@@ -489,25 +563,37 @@ class enumerateObjects implements IEnumerateObjects {
                     properties: {
                         sentimentFontColorTotal: this.visualSettings.LabelsFormatting.sentimentFontColorTotal,
                         sentimentFontColorFavourable: this.visualSettings.LabelsFormatting.sentimentFontColorFavourable,
-                        sentimentFontColorAdverse: this.visualSettings.LabelsFormatting.sentimentFontColorAdverse
+                        sentimentFontColorAdverse: this.visualSettings.LabelsFormatting.sentimentFontColorAdverse,
+                        sentimentFontColorOther: this.visualSettings.LabelsFormatting.sentimentFontColorOther
                     },
                     selector: null
                 });
             } else {
                 if (this.visualType == "static" || this.visualType == "staticCategory") {
                     for (var index = 0; index < this.barChartData.length; index++) {
-                        objectEnumeration.push({
-                            objectName: "objectName",
-                            displayName: this.barChartData[index].category,
-                            properties: {
-                                fill1: {
-                                    solid: {
-                                        color: this.barChartData[index].customFontColor
+                        if (this.barChartData[index].category != "defaultBreakdownStepOther") {
+                            objectEnumeration.push({
+                                objectName: "objectName",
+                                displayName: this.barChartData[index].category,
+                                properties: {
+                                    fill1: {
+                                        solid: {
+                                            color: this.barChartData[index].customFontColor
+                                        }
                                     }
-                                }
-                            },
-                            selector: this.barChartData[index].selectionId.getSelector()
-                        });
+                                },
+                                selector: this.barChartData[index].selectionId.getSelector()
+                            });
+                        } else {
+                            objectEnumeration.push({
+                                objectName: "objectName",
+                                displayName: this.barChartData[index].displayName,
+                                properties: {
+                                    sentimentFontColorOther: this.visualSettings.LabelsFormatting.sentimentFontColorOther
+                                },
+                                selector: null
+                            });
+                        }
                     }
                 }
             }
@@ -532,5 +618,4 @@ class enumerateObjects implements IEnumerateObjects {
             rightMargin: { numberRange: { min: 0, max: 100 } }
         };
     }
-
 }

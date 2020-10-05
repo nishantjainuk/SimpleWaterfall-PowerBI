@@ -10,12 +10,6 @@
             "name": "measure",
             "displayNameKey": "Visual_Values",
             "kind": "Measure"
-        },
-        {
-            "displayName": "tooltips",
-            "name": "tooltips",
-            "displayNameKey": "Visual_ToolTip",
-            "kind": "Measure"
         }
     ],
     "drilldown": {
@@ -406,6 +400,13 @@
                         "numeric": true
                     }
                 },
+                "showYAxisValues": {
+                    "displayName": "Show / Hide Values",
+                    "description": "Show / Hide Values",
+                    "type": {
+                        "bool": true
+                    }
+                },
                 "fontSize": {
                     "displayName": "Font Size",
                     "description": "Font Size",
@@ -474,13 +475,6 @@
                         "bool": true
                     }
                 },
-                "showZeroAxisGridLine": {
-                    "displayName": "Show Zero Line",
-                    "description": "Show Zero Line",
-                    "type": {
-                        "bool": true
-                    }
-                },
                 "gridLineStrokeWidth": {
                     "displayName": "Stroke Width",
                     "description": "Stroke Width (min: 1; max: 50)",
@@ -491,6 +485,31 @@
                 "gridLineColor": {
                     "displayName": "Gridlines Color",
                     "description": "Gridlines color",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "showZeroAxisGridLine": {
+                    "displayName": "Show Zero Line",
+                    "description": "Show Zero Line",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "zeroLineStrokeWidth": {
+                    "displayName": "Zero Line Width",
+                    "description": "Zero Line Width (min: 1; max: 50)",
+                    "type": {
+                        "integer": true
+                    }
+                },
+                "zeroLineColor": {
+                    "displayName": "Zero Line Color",
+                    "description": "Zero Line Color",
                     "type": {
                         "fill": {
                             "solid": {

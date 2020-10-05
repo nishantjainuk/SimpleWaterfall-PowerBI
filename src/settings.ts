@@ -91,14 +91,18 @@ export class yAxisFormatting {
   public YAxisDataPointOption: string = "Auto";
   public YAxisDataPointRangeStart: number = 0;
   public YAxisDataPointRangeEnd: number = 0;
+  public showYAxisValues: boolean = true;  
   public fontSize: number = 9;
   public fontColor: string = "#777777";
   public fontFamily: string = "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif";
   public YAxisValueFormatOption: string = "Auto";
   public showGridLine: boolean = true;
-  public showZeroAxisGridLine: boolean = false;
+  
   public gridLineStrokeWidth: number = 1;
   public gridLineColor: string = "#777777";
+  public showZeroAxisGridLine: boolean = false;
+  public zeroLineStrokeWidth: number = 1;
+  public zeroLineColor: string = "#777777";
   public joinBars: boolean = false;
   public joinBarsStrokeWidth: number = 1;
   public joinBarsColor: string = "#777777";  

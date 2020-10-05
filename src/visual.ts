@@ -75,6 +75,7 @@ interface BarChartDataPoint {
     selectionId: ISelectionId;
     childrenCount: number;
     sortOrderIndex: number;
+    sortOrderIndexforLimitBreakdown: number;
     displayName: string;
 }
 export class Visual implements IVisual {
@@ -140,7 +141,7 @@ export class Visual implements IVisual {
     }
 
     public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
-        this.enumerateObjects = createenumerateObjects(this.visualType, this.barChartData,this.barChartDataAll, this.visualSettings, this.defaultXAxisGridlineStrokeWidth(), this.defaultYAxisGridlineStrokeWidth(), this.visualUpdateOptions.dataViews[0]);
+        this.enumerateObjects = createenumerateObjects(this.visualType, this.barChartData, this.barChartDataAll, this.visualSettings, this.defaultXAxisGridlineStrokeWidth(), this.defaultYAxisGridlineStrokeWidth(), this.visualUpdateOptions.dataViews[0]);
         return this.enumerateObjects.enumerateObjectInstances(options);
     }
     public update(options: VisualUpdateOptions) {
@@ -156,6 +157,9 @@ export class Visual implements IVisual {
         this.width = options.viewport.width;
         this.height = options.viewport.height - this.legendHeight;
         this.xAxisPosition = 0;
+        if (dataView.matrix.rows.levels.length != 1){
+            this.visualSettings.chartOrientation.limitBreakdown=false;
+        }
         if (dataView.matrix.rows.levels.length == 0) {
             this.visualType = "static";
             this.barChartData = this.getDataStaticWaterfall(options);
@@ -163,15 +167,15 @@ export class Visual implements IVisual {
             var allData = [];
             allData.push(this.barChartData);
 
-        } else if (dataView.matrix.rows.levels.length == 1 && dataView.matrix.valueSources.length == 1) {            
+        } else if (dataView.matrix.rows.levels.length == 1 && dataView.matrix.valueSources.length == 1) {
             this.visualType = "staticCategory";
             //this.barChartData = this.getDataStaticCategoryWaterfall(options);
-            if (this.visualSettings.chartOrientation.limitBreakdown) {
+            /*if (this.visualSettings.chartOrientation.limitBreakdown) {
                 this.barChartData = this.limitBreakdownsteps(options, this.getDataStaticCategoryWaterfall(options));
             } else {
-                this.barChartData = this.getDataStaticCategoryWaterfall(options);
-            }
-
+                
+            }*/
+            this.barChartData = this.getDataStaticCategoryWaterfall(options);
 
             var allData = [];
             allData.push(this.barChartData);
@@ -184,11 +188,19 @@ export class Visual implements IVisual {
             this.barChartData = this.getDataDrillableCategoryWaterfall(options)[allData.length - 1];
 
 
+
+
         } else {
             this.visualType = "drillable";
             var allData = this.getDataDrillableWaterfall(options);
             this.barChartDataAll = this.getDataDrillableWaterfall(options);
+            /*if (this.visualSettings.chartOrientation.limitBreakdown) {
+                this.barChartData = this.limitBreakdownsteps(options, this.barChartData = this.getDataDrillableWaterfall(options)[allData.length - 1]);
+            } else {
+                
+            }*/
             this.barChartData = this.getDataDrillableWaterfall(options)[allData.length - 1];
+            
 
 
         }
@@ -535,9 +547,41 @@ export class Visual implements IVisual {
             yAxisScale.tickFormat(d => this.formatValueforYAxis(d));
 
             yAxis.call(yAxisScale);
-
+            if (!this.visualSettings.yAxisFormatting.showYAxisValues) {
+                yAxis.selectAll('text').style('visibility', 'hidden');
+            }
             yAxis.selectAll('path').style('fill', 'none').style('stroke', 'black').style('stroke-width', "0pt");
+            /*if (this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
+                yAxis.selectAll('line').each((d, i, nodes) => {
+
+                    if (d == 0) {
+                        d3.select(nodes[i]).style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.zeroLineColor).style('stroke-width', this.visualSettings.yAxisFormatting.zeroLineStrokeWidth + "pt");
+                    } else if (this.visualSettings.yAxisFormatting.showGridLine) {
+                        yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
+                    }else {
+                        yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
+                    }
+                });
+            } else if (this.visualSettings.yAxisFormatting.showGridLine) {
+                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
+            }else {
+                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
+            }*/
+
             if (this.visualSettings.yAxisFormatting.showGridLine) {
+                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
+            } else {
+                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
+            }
+            if (this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
+                yAxis.selectAll('line').each((d, i, nodes) => {
+                    if (d == 0) {
+                        d3.select(nodes[i]).style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.zeroLineColor).style('stroke-width', this.visualSettings.yAxisFormatting.zeroLineStrokeWidth / 10 + "pt");
+                    }
+                });
+            }
+
+            /*if (this.visualSettings.yAxisFormatting.showGridLine) {
                 yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
             } else if (this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
                 yAxis.selectAll('line').each((d, i, nodes) => {
@@ -550,7 +594,7 @@ export class Visual implements IVisual {
                 });
             } else {
                 yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
-            }
+            }*/
 
 
             // adjust the left margin of the chart area according to the width of yaxis             
@@ -800,7 +844,7 @@ export class Visual implements IVisual {
                 if (i != 0) {
                     g.append('line')
                         .style("stroke", this.visualSettings.yAxisFormatting.joinBarsColor)
-                        .style("stroke-width", this.visualSettings.yAxisFormatting.joinBarsStrokeWidth + "pt")
+                        .style("stroke-width", this.visualSettings.yAxisFormatting.joinBarsStrokeWidth / 10 + "pt")
                         .attr("x1", parseFloat(d3.select(nodes[i - 1]).attr('x')) + xScale.bandwidth())
                         .attr("y1", () => {
                             var y1;
@@ -1199,14 +1243,14 @@ export class Visual implements IVisual {
         visualData.sort((a, b) => {
             switch (this.visualSettings.chartOrientation.sortData) {
                 case 3:
-                    if (a.sortOrderIndex === b.sortOrderIndex) {
+                    if (Math.floor(a.sortOrderIndex) === Math.floor(b.sortOrderIndex)) {
                         return parseFloat(a.value.toString()) - parseFloat(b.value.toString());
                     } else {
                         return a.sortOrderIndex - b.sortOrderIndex;
                     }
                     break;
-                case 2:
-                    if (a.sortOrderIndex === b.sortOrderIndex) {
+                case 2:                    
+                    if (Math.floor(a.sortOrderIndex) === Math.floor(b.sortOrderIndex)) {
                         return parseFloat(b.value.toString()) - parseFloat(a.value.toString());
                     } else {
                         return a.sortOrderIndex - b.sortOrderIndex;
@@ -1223,19 +1267,21 @@ export class Visual implements IVisual {
         visualData.sort((a, b) => {
             switch (this.visualSettings.chartOrientation.sortData) {
                 case 3:
-                    if (a.isPillar != 1) {
+                    //if (a.isPillar != 1) {
+                        if (Math.floor(a.sortOrderIndex) === Math.floor(b.sortOrderIndex)/* && a.isPillar != 1*/) {
                         return parseFloat(a.value.toString()) - parseFloat(b.value.toString());
                     } else {
-                        return a.sortOrder - b.sortOrder;
+                        return a.sortOrderIndex - b.sortOrderIndex;
                     }
                 case 2:
-                    if (a.isPillar != 1) {
+                    //if (a.isPillar != 1) {
+                        if (Math.floor(a.sortOrderIndex) === Math.floor(b.sortOrderIndex) /* && a.isPillar != 1 */) {
                         return parseFloat(b.value.toString()) - parseFloat(a.value.toString());
                     } else {
-                        return a.sortOrder - b.sortOrder;
+                        return a.sortOrderIndex - b.sortOrderIndex;
                     }
                 default:
-                    return a.sortOrder - b.sortOrder;
+                    return a.sortOrderIndex - b.sortOrderIndex;
             }
         });
         return visualData;
@@ -1249,6 +1295,7 @@ export class Visual implements IVisual {
         // find all values and aggregate them in an array of array with each child in an array of a measure
         allMeasureValues = this.findLowestLevels();
         var sortOrderPrecision = Math.pow(10, allMeasureValues.length * allMeasureValues[0].length.toString().length);
+        var sortOrderIndex = 1;
         // calculate the difference between each measure and add them to an array as the step bars and then add the pillar bars [visualData]
         for (let indexMeasures = 0; indexMeasures < allMeasureValues.length; indexMeasures++) {
             var totalValueofMeasure = 0;
@@ -1256,6 +1303,7 @@ export class Visual implements IVisual {
             var toolTipDisplayValue2 = "";
             var Measure1Value: number = null;
             var Measure2Value: number = null;
+            
             var dataPillar = [];
             for (let nodeItems = 0; nodeItems < allMeasureValues[indexMeasures].length; nodeItems++) {
                 totalValueofMeasure = totalValueofMeasure + allMeasureValues[indexMeasures][nodeItems].value
@@ -1264,7 +1312,7 @@ export class Visual implements IVisual {
                     Measure1Value = +allMeasureValues[indexMeasures][nodeItems].value;
                     Measure2Value = +allMeasureValues[indexMeasures + 1][nodeItems].value;
                     var valueDifference = Measure2Value - Measure1Value;
-                    var HideZeroBlankValues: boolean = this.visualSettings.LabelsFormatting.HideZeroBlankValues;
+                    var HideZeroBlankValues: boolean = this.visualSettings.LabelsFormatting.HideZeroBlankValues;                    
                     if (HideZeroBlankValues && valueDifference == 0) {
 
                     } else {
@@ -1274,24 +1322,30 @@ export class Visual implements IVisual {
                         var displayName: string = allMeasureValues[indexMeasures][nodeItems].displayName;
                         var category: string = dataView.matrix.valueSources[indexMeasures].displayName + allMeasureValues[indexMeasures][nodeItems].category.toString();
                         var selectionId = allMeasureValues[indexMeasures][nodeItems].selectionId;
-                        data2Category = this.getDataForCategory(valueDifference, dataView.matrix.valueSources[indexMeasures].format, displayName, category, 0, selectionId, indexMeasures + 1 + ((nodeItems + 1) / sortOrderPrecision), 1, toolTipDisplayValue1, toolTipDisplayValue2, Measure1Value, Measure2Value);
+                        data2Category = this.getDataForCategory(valueDifference, dataView.matrix.valueSources[indexMeasures].format, displayName, category, 0, selectionId, sortOrderIndex + ((nodeItems + 1) / sortOrderPrecision), 1, toolTipDisplayValue1, toolTipDisplayValue2, Measure1Value, Measure2Value);
                         visualData.push(data2Category);
                     }
+                    
                 }
             }
+            
             toolTipDisplayValue1 = dataView.matrix.valueSources[indexMeasures].displayName;
             toolTipDisplayValue2 = null;
             Measure1Value = totalValueofMeasure;
-            Measure2Value = null;
-            dataPillar = this.getDataForCategory(totalValueofMeasure, dataView.matrix.valueSources[indexMeasures].format, dataView.matrix.valueSources[indexMeasures].displayName, dataView.matrix.valueSources[indexMeasures].displayName, 1, null, indexMeasures + 1, 1, toolTipDisplayValue1, toolTipDisplayValue2, Measure1Value, Measure2Value);
+            Measure2Value = null;                        
+            dataPillar = this.getDataForCategory(totalValueofMeasure, dataView.matrix.valueSources[indexMeasures].format, dataView.matrix.valueSources[indexMeasures].displayName, dataView.matrix.valueSources[indexMeasures].displayName, 1, null, sortOrderIndex - 1, 1, toolTipDisplayValue1, toolTipDisplayValue2, Measure1Value, Measure2Value);                        
+            sortOrderIndex = sortOrderIndex + 2;
             visualData.push(dataPillar);
+        }
+        if (this.visualSettings.chartOrientation.limitBreakdown) {
+            visualData = this.limitBreakdownsteps(options, visualData);
         }
         // Sort the [visualData] in order of the display
         if (dataView.matrix.rows.levels.length === 1) {
             this.sortDataDrillable(visualData);
         } else {
             visualData.sort((a, b) => {
-                return a.sortOrder - b.sortOrder;
+                return a.sortOrderIndex - b.sortOrderIndex;
             });
         }
 
@@ -1320,7 +1374,7 @@ export class Visual implements IVisual {
                     }
                 }
 
-                childnode = this.getDataForCategory(currNode["value"], currNode["numberFormat"], newDisplayName, currCategoryText, currNode["isPillar"], null, currNode["sortOrder"], childrenCount, currNode["toolTipDisplayValue1"], currNode["toolTipDisplayValue2"], currNode["Measure1Value"], currNode["Measure2Value"]);
+                childnode = this.getDataForCategory(currNode["value"], currNode["numberFormat"], newDisplayName, currCategoryText, currNode["isPillar"], null, currNode["sortOrderIndex"], childrenCount, currNode["toolTipDisplayValue1"], currNode["toolTipDisplayValue2"], currNode["Measure1Value"], currNode["Measure2Value"]);
                 if (displayNode != undefined) {
                     if (displayNode.displayName == currCategoryArray[levelItems + 1]) {
                         displayNode.childrenCount = displayNode.childrenCount + 1;
@@ -1419,11 +1473,14 @@ export class Visual implements IVisual {
                 data2["toolTipDisplayValue1"] = data2["category"];
                 data2["childrenCount"] = 1;
                 if (data2["isPillar"] == 1) {
-                    sortOrderIndex = sortOrderIndex + 1
+                    sortOrderIndex = Math.round(sortOrderIndex) + 1
                     data2["sortOrderIndex"] = sortOrderIndex;
+                    data2["sortOrderIndexforLimitBreakdown"] = sortOrderIndex;
                     sortOrderIndex = sortOrderIndex + 1
                 } else {
-                    data2["sortOrderIndex"] = sortOrderIndex;
+                    sortOrderIndex = sortOrderIndex + + 0.000001;
+                    data2["sortOrderIndex"] = sortOrderIndex ;
+                    data2["sortOrderIndexforLimitBreakdown"] = sortOrderIndex;
                 }
                 orderIndex++;
                 data2["orderIndex"] = orderIndex;
@@ -1433,22 +1490,25 @@ export class Visual implements IVisual {
         if (!hasPillar && this.visualSettings.definePillars.Totalpillar) {
             visualData.push(this.addTotalLine(visualData, options));
         }
-
+        if (this.visualSettings.chartOrientation.limitBreakdown) {
+            visualData = this.limitBreakdownsteps(options,visualData);
+        }
+        visualData = this.sortData(visualData);
         return visualData;
     }
     private limitBreakdownsteps(options: VisualUpdateOptions, currData) {
         //var currData = []
-
         //currData = this.getDataStaticCategoryWaterfall(options);
         currData.sort((a, b) => {
-            if (a.sortOrderIndex === b.sortOrderIndex) {
+            if (Math.round(a.sortOrderIndexforLimitBreakdown) === Math.round(b.sortOrderIndexforLimitBreakdown) && a.isPillar !=1) {
                 return parseFloat(Math.abs(b.value).toString()) - parseFloat(Math.abs(a.value).toString());
             } else {
-                return a.sortOrderIndex - b.sortOrderIndex;
+                return Math.round(a.sortOrderIndexforLimitBreakdown) - Math.round(b.sortOrderIndexforLimitBreakdown);
             }
         });
         var limit = this.visualSettings.chartOrientation.maxBreakdown;
         var limitcounter = 0;
+        var otherbreakdownstepCount = 0;
         var newOther = [];
         var otherTotalValue = 0;
         var othersortOrderIndex = 0;
@@ -1460,7 +1520,8 @@ export class Visual implements IVisual {
                 currData[index]["showbreakdownstep"] = true;
                 limitcounter = 0;
                 if (otherTotalValue != 0) {
-                    newOther.push(this.addOtherBreakdownStep(options, otherTotalValue, othersortOrderIndex));
+                    newOther.push(this.addOtherBreakdownStep(options, otherTotalValue,othersortOrderIndex, othersortOrderIndex, otherbreakdownstepCount));
+                    otherbreakdownstepCount++;
                 }
                 otherTotalValue = 0
                 othersortOrderIndex = 0;
@@ -1478,9 +1539,10 @@ export class Visual implements IVisual {
             } else {
                 currData[index]["showbreakdownstep"] = false;
                 otherTotalValue = otherTotalValue + currData[index].value;
-                othersortOrderIndex = currData[index].sortOrderIndex;
+                othersortOrderIndex = Math.round(currData[index].sortOrderIndex);
             }
         }
+
         newOther.forEach(node => {
             currData.push(node);
         });
@@ -1494,18 +1556,20 @@ export class Visual implements IVisual {
 
         }
         currData.sort((a, b) => {
-            if (a.sortOrderIndex === b.sortOrderIndex) {
+            if (a.sortOrderIndexforLimitBreakdown === b.sortOrderIndexforLimitBreakdown) {
                 //return parseFloat(Math.abs(b.value).toString()) - parseFloat(Math.abs(a.value).toString());
-                return a.orderIndex - b.orderIndex;
+                //return a.orderIndex - b.orderIndex;
+                return a.sortOrderIndexforLimitBreakdown - b.sortOrderIndexforLimitBreakdown;
             } else {
-                return a.sortOrderIndex - b.sortOrderIndex;
+                return a.sortOrderIndexforLimitBreakdown - b.sortOrderIndexforLimitBreakdown;
             }
         });
 
-        currData = this.sortData(currData);
+        
+
         return currData;
     }
-    private addOtherBreakdownStep(options: VisualUpdateOptions, value, sortOrderIndex) {
+    private addOtherBreakdownStep(options: VisualUpdateOptions, value, sortOrderIndex,sortOrderIndexforLimitBreakdown, otherbreakdownstepCount) {
         //*******************Add "Other" breakdown item *********************
         let dataView: DataView = options.dataViews[0];
         //*******************************************************************
@@ -1520,7 +1584,7 @@ export class Visual implements IVisual {
         data2["selectionId"] = null;
         data2["xAxisFormat"] = dataView.matrix.rows.levels[0].sources[0].format;
         data2["type"] = dataView.matrix.rows.levels[0].sources[0].type;
-        data2["category"] = "defaultBreakdownStepOther";
+        data2["category"] = "defaultBreakdownStepOther" + sortOrderIndex;
         data2["displayName"] = "Other";
         data2["customBarColor"] = this.visualSettings.sentimentColor.sentimentColorOther;
         if (this.visualSettings.LabelsFormatting.useDefaultFontColor) {
@@ -1537,7 +1601,8 @@ export class Visual implements IVisual {
         data2["toolTipValue1Formatted"] = this.formatValueforLabels(data2);
         data2["toolTipDisplayValue1"] = data2["category"];
         data2["childrenCount"] = 1;
-        data2["sortOrderIndex"] = sortOrderIndex;
+        data2["sortOrderIndex"] = sortOrderIndex + 0.999999;
+        data2["sortOrderIndexforLimitBreakdown"] = sortOrderIndexforLimitBreakdown + 0.999999;        
         data2["showbreakdownstep"] = true;
         return data2;
 
@@ -1607,7 +1672,7 @@ export class Visual implements IVisual {
                     }
                 }
 
-                childnode = this.getDataForCategory(currNode["value"], currNode["numberFormat"], newDisplayName, currCategoryText, currNode["isPillar"], null, currNode["sortOrder"], childrenCount, currNode["toolTipDisplayValue1"], currNode["toolTipDisplayValue2"], currNode["Measure1Value"], currNode["Measure2Value"]);
+                childnode = this.getDataForCategory(currNode["value"], currNode["numberFormat"], newDisplayName, currCategoryText, currNode["isPillar"], null, currNode["sortOrderIndex"], childrenCount, currNode["toolTipDisplayValue1"], currNode["toolTipDisplayValue2"], currNode["Measure1Value"], currNode["Measure2Value"]);
                 if (displayNode != undefined) {
                     if (displayNode.displayName == currCategoryArray[levelItems + 1]) {
                         displayNode.childrenCount = displayNode.childrenCount + 1;
@@ -2043,9 +2108,10 @@ export class Visual implements IVisual {
         data2["toolTipDisplayValue1"] = data2["category"];
         data2["childrenCount"] = 1;
         data2["sortOrderIndex"] = 1;
+        data2["sortOrderIndexforLimitBreakdown"] = 1;        
         return data2;
     }
-    private getDataForCategory(value: number, numberFormat: string, displayName: any, displayID: any, isPillar: number, selectionId: any, sortOrder: number, childrenCount: number, toolTipDisplayValue1: string, toolTipDisplayValue2: string, Measure1Value: number, Measure2Value: number) {
+    private getDataForCategory(value: number, numberFormat: string, displayName: any, displayID: any, isPillar: number, selectionId: any, sortOrderIndex: number, childrenCount: number, toolTipDisplayValue1: string, toolTipDisplayValue2: string, Measure1Value: number, Measure2Value: number) {
 
         var data2 = [];
         data2["value"] = value;
@@ -2054,7 +2120,8 @@ export class Visual implements IVisual {
         data2["category"] = displayID;
         data2["displayName"] = displayName;
         data2["selectionId"] = selectionId;
-        data2["sortOrder"] = sortOrder;
+        data2["sortOrderIndex"] = sortOrderIndex;
+        data2["sortOrderIndexforLimitBreakdown"] = sortOrderIndex;
         data2["childrenCount"] = childrenCount;
         data2["Measure1Value"] = Measure1Value;
         data2["Measure2Value"] = Measure2Value;
@@ -2257,29 +2324,29 @@ export class Visual implements IVisual {
                 if (i != 0) {
                     g.append('line')
                         .style("stroke", this.visualSettings.yAxisFormatting.joinBarsColor)
-                        .style("stroke-width", this.visualSettings.yAxisFormatting.joinBarsStrokeWidth + "pt")
+                        .style("stroke-width", this.visualSettings.yAxisFormatting.joinBarsStrokeWidth / 10 + "pt")
                         .attr("x1", () => {
                             var x1;
                             if ((d.value < 0 && !d.isPillar) || (d.value > 0 && d.isPillar)) {
-                                x1 = parseFloat(d3.select(nodes[i]).attr('x')) +  this.getWidthHorizontal(d, i);
+                                x1 = parseFloat(d3.select(nodes[i]).attr('x')) + this.getWidthHorizontal(d, i);
                             } else {
                                 x1 = parseFloat(d3.select(nodes[i]).attr('x'));
                             }
-                            
+
                             return x1;
                         })
-                        .attr("y1", parseFloat(d3.select(nodes[i-1]).attr('y')) + xScale.bandwidth())
+                        .attr("y1", parseFloat(d3.select(nodes[i - 1]).attr('y')) + xScale.bandwidth())
                         .attr("x2", () => {
                             var x1;
                             if ((d.value < 0 && !d.isPillar) || (d.value > 0 && d.isPillar)) {
-                                x1 = parseFloat(d3.select(nodes[i]).attr('x')) +  this.getWidthHorizontal(d, i);
+                                x1 = parseFloat(d3.select(nodes[i]).attr('x')) + this.getWidthHorizontal(d, i);
                             } else {
                                 x1 = parseFloat(d3.select(nodes[i]).attr('x'));
                             }
-                            
+
                             return x1;
                         })
-                        .attr("y2",parseFloat(d3.select(nodes[i]).attr('y')));
+                        .attr("y2", parseFloat(d3.select(nodes[i]).attr('y')));
                 }
             });
         }
@@ -2896,23 +2963,54 @@ export class Visual implements IVisual {
 
             yAxis.call(yAxisScale);
 
-
+            if (!this.visualSettings.yAxisFormatting.showYAxisValues) {
+                yAxis.selectAll('text').style('visibility', 'hidden');
+            }
 
             yAxis.selectAll('path').style('fill', 'none').style('stroke', 'black').style('stroke-width', "0pt");
             if (this.visualSettings.yAxisFormatting.showGridLine) {
+                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
+            } else {
+                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
+            }
+            if (this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
+                yAxis.selectAll('line').each((d, i, nodes) => {
+                    if (d == 0) {
+                        d3.select(nodes[i]).style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.zeroLineColor).style('stroke-width', this.visualSettings.yAxisFormatting.zeroLineStrokeWidth / 10 + "pt");
+                    }
+                });
+            }
+            /*if (this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
+                yAxis.selectAll('line').each((d, i, nodes) => {
+
+                    if (d == 0) {
+                        d3.select(nodes[i]).style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.zeroLineColor).style('stroke-width', this.visualSettings.yAxisFormatting.zeroLineStrokeWidth / 10 + "pt");
+                    } else if (this.visualSettings.yAxisFormatting.showGridLine) {
+                        yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
+                    }else {
+                        yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
+                    }
+                });
+            } else if (this.visualSettings.yAxisFormatting.showGridLine) {
+                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
+            }else {
+                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
+            }*/
+
+            /*if (this.visualSettings.yAxisFormatting.showGridLine) {
                 yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
             } else if (this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
                 yAxis.selectAll('line').each((d, i, nodes) => {
 
                     if (d == 0) {
-                        d3.select(nodes[i]).style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
+                        d3.select(nodes[i]).style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.zeroLineColor).style('stroke-width', this.visualSettings.yAxisFormatting.zeroLineStrokeWidth / 10 + "pt");
                     } else {
-                        d3.select(nodes[i]).style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
+                        d3.select(nodes[i]).style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.zeroLineColor).style('stroke-width', "0pt");
                     }
                 });
             } else {
                 yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
-            }
+            }*/
             yAxis.selectAll('line').attr('y2', -this.innerHeight);
         }
 

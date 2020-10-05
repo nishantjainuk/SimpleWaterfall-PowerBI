@@ -54,7 +54,7 @@ class enumerateObjects implements IEnumerateObjects {
     private defaultYAxisGridlineStrokeWidth: PrimitiveValue;
     private dataView: DataView;
 
-    constructor(visualType: String, barchartData: barChartDataPoint[],barchartDataAll, visualSettings: VisualSettings, defaultXAxisGridlineStrokeWidth: PrimitiveValue, defaultYAxisGridlineStrokeWidth: PrimitiveValue, dataView: DataView) {
+    constructor(visualType: String, barchartData: barChartDataPoint[], barchartDataAll, visualSettings: VisualSettings, defaultXAxisGridlineStrokeWidth: PrimitiveValue, defaultYAxisGridlineStrokeWidth: PrimitiveValue, dataView: DataView) {
         this.visualType = visualType;
         this.barChartData = barchartData;
         this.barChartDataAll = barchartDataAll;
@@ -170,7 +170,7 @@ class enumerateObjects implements IEnumerateObjects {
                     Totalpillar: this.visualSettings.definePillars.Totalpillar
                 },
                 selector: null
-            });            
+            });
         }
     }
 
@@ -276,7 +276,7 @@ class enumerateObjects implements IEnumerateObjects {
                     };
                 }
             }
-        } else if (this.dataView.matrix.rows.levels.length === 1 && this.visualType == "drillable") {
+        } else if (this.dataView.matrix.rows.levels.length === 1 /* && this.visualType == "drillable" */) {
             objectEnumeration.push({
                 objectName: "objectName",
                 properties: {
@@ -285,6 +285,25 @@ class enumerateObjects implements IEnumerateObjects {
                 },
                 selector: null
             });
+            objectEnumeration.push({
+                objectName: "objectName",
+                properties: {
+                    limitBreakdown: this.visualSettings.chartOrientation.limitBreakdown
+                },
+                selector: null
+            });
+            if (this.visualSettings.chartOrientation.limitBreakdown) {
+                objectEnumeration.push({
+                    objectName: "objectName",
+                    properties: {
+                        maxBreakdown: this.visualSettings.chartOrientation.maxBreakdown
+                    },
+                    selector: null
+                });
+                objectEnumeration[2].validValues = {
+                    maxBreakdown: { numberRange: { min: 1, max: 100 } }
+                };
+            }
         } else {
             objectEnumeration.push({
                 objectName: "objectName",
@@ -365,38 +384,39 @@ class enumerateObjects implements IEnumerateObjects {
             objectName: "objectName",
             properties: {
                 show: this.visualSettings.yAxisFormatting.show,
-                YAxisDataPointOption: this.visualSettings.yAxisFormatting.YAxisDataPointOption
+                YAxisDataPointOption: this.visualSettings.yAxisFormatting.YAxisDataPointOption,
+                showYAxisValues: this.visualSettings.yAxisFormatting.showYAxisValues
             },
             selector: null
         });
 
-
-        objectEnumeration.push({
-            objectName: "objectName",
-            properties: {
-                fontSize: this.visualSettings.yAxisFormatting.fontSize,
-                fontColor: this.visualSettings.yAxisFormatting.fontColor,
-                YAxisValueFormatOption: this.visualSettings.yAxisFormatting.YAxisValueFormatOption,
-                decimalPlaces: this.visualSettings.yAxisFormatting.decimalPlaces,
-                showGridLine: this.visualSettings.yAxisFormatting.showGridLine
-
-            },
-            selector: null
-        });
-        objectEnumeration[objectEnumeration.length - 1].validValues = {
-            decimalPlaces: { numberRange: { min: 0, max: 15 } }
-
-        };
-        if (!this.visualSettings.yAxisFormatting.showGridLine) {
+        if (this.visualSettings.yAxisFormatting.showYAxisValues) {
             objectEnumeration.push({
                 objectName: "objectName",
                 properties: {
-                    showZeroAxisGridLine: this.visualSettings.yAxisFormatting.showZeroAxisGridLine
+                    fontSize: this.visualSettings.yAxisFormatting.fontSize,
+                    fontColor: this.visualSettings.yAxisFormatting.fontColor,
+                    YAxisValueFormatOption: this.visualSettings.yAxisFormatting.YAxisValueFormatOption,
+                    decimalPlaces: this.visualSettings.yAxisFormatting.decimalPlaces
+
                 },
                 selector: null
             });
+            objectEnumeration[objectEnumeration.length - 1].validValues = {
+                decimalPlaces: { numberRange: { min: 0, max: 15 } }
+    
+            }
         }
-        if (this.visualSettings.yAxisFormatting.showGridLine || this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
+        objectEnumeration.push({
+            objectName: "objectName",
+            properties: {
+                showGridLine: this.visualSettings.yAxisFormatting.showGridLine
+            },
+            selector: null
+        });
+        
+
+        if (this.visualSettings.yAxisFormatting.showGridLine) {
             objectEnumeration.push({
                 objectName: "objectName",
                 properties: {
@@ -411,6 +431,33 @@ class enumerateObjects implements IEnumerateObjects {
             });
             objectEnumeration[objectEnumeration.length - 1].validValues = {
                 gridLineStrokeWidth: { numberRange: { min: 1, max: 50 } }
+
+            };
+        }
+        objectEnumeration.push({
+            objectName: "objectName",
+            properties: {
+                showZeroAxisGridLine: this.visualSettings.yAxisFormatting.showZeroAxisGridLine
+            },
+            selector: null
+        });
+
+        if (this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
+            objectEnumeration.push({
+                objectName: "objectName",
+                properties: {
+
+                    zeroLineStrokeWidth: this.visualSettings.yAxisFormatting.zeroLineStrokeWidth,
+                    zeroLineColor: {
+                        solid: {
+                            color: this.visualSettings.yAxisFormatting.zeroLineColor
+                        }
+                    }
+                },
+                selector: null
+            });
+            objectEnumeration[objectEnumeration.length - 1].validValues = {
+                zeroLineStrokeWidth: { numberRange: { min: 1, max: 50 } }
 
             };
         }

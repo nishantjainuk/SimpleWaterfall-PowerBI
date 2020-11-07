@@ -378,8 +378,6 @@ class enumerateObjects implements IEnumerateObjects {
         }
     }
     private propertiesYaxis(objectName: string, objectEnumeration: VisualObjectInstance[]) {
-
-
         objectEnumeration.push({
             objectName: "objectName",
             properties: {
@@ -389,7 +387,6 @@ class enumerateObjects implements IEnumerateObjects {
             },
             selector: null
         });
-
         if (this.visualSettings.yAxisFormatting.showYAxisValues) {
             objectEnumeration.push({
                 objectName: "objectName",
@@ -414,8 +411,6 @@ class enumerateObjects implements IEnumerateObjects {
             },
             selector: null
         });
-        
-
         if (this.visualSettings.yAxisFormatting.showGridLine) {
             objectEnumeration.push({
                 objectName: "objectName",
@@ -441,7 +436,6 @@ class enumerateObjects implements IEnumerateObjects {
             },
             selector: null
         });
-
         if (this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
             objectEnumeration.push({
                 objectName: "objectName",
@@ -482,7 +476,6 @@ class enumerateObjects implements IEnumerateObjects {
 
             };
         }
-
     }
     private propertiesLabelFormatting(objectName: string, objectEnumeration: VisualObjectInstance[]) {
         if (this.visualSettings.LabelsFormatting.show) {

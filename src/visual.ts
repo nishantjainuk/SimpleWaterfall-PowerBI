@@ -1302,8 +1302,7 @@ export class Visual implements IVisual {
             var toolTipDisplayValue1 = "";
             var toolTipDisplayValue2 = "";
             var Measure1Value: number = null;
-            var Measure2Value: number = null;
-            
+            var Measure2Value: number = null;            
             var dataPillar = [];
             for (let nodeItems = 0; nodeItems < allMeasureValues[indexMeasures].length; nodeItems++) {
                 totalValueofMeasure = totalValueofMeasure + allMeasureValues[indexMeasures][nodeItems].value
@@ -1314,7 +1313,6 @@ export class Visual implements IVisual {
                     var valueDifference = Measure2Value - Measure1Value;
                     var HideZeroBlankValues: boolean = this.visualSettings.LabelsFormatting.HideZeroBlankValues;                    
                     if (HideZeroBlankValues && valueDifference == 0) {
-
                     } else {
                         toolTipDisplayValue1 = dataView.matrix.valueSources[indexMeasures].displayName + allMeasureValues[indexMeasures][nodeItems].category.toString();
                         toolTipDisplayValue2 = dataView.matrix.valueSources[indexMeasures + 1].displayName + allMeasureValues[indexMeasures + 1][nodeItems].category.toString();
@@ -1327,8 +1325,7 @@ export class Visual implements IVisual {
                     }
                     
                 }
-            }
-            
+            }            
             toolTipDisplayValue1 = dataView.matrix.valueSources[indexMeasures].displayName;
             toolTipDisplayValue2 = null;
             Measure1Value = totalValueofMeasure;
@@ -1348,8 +1345,6 @@ export class Visual implements IVisual {
                 return a.sortOrderIndex - b.sortOrderIndex;
             });
         }
-
-
         // add arrays to the main array for additional x-axis for each category
         for (let levelItems = 0; levelItems < dataView.matrix.rows.levels.length - 1; levelItems++) {
             var categorynode = []
@@ -1373,7 +1368,6 @@ export class Visual implements IVisual {
                         newDisplayName = "";
                     }
                 }
-
                 childnode = this.getDataForCategory(currNode["value"], currNode["numberFormat"], newDisplayName, currCategoryText, currNode["isPillar"], null, currNode["sortOrderIndex"], childrenCount, currNode["toolTipDisplayValue1"], currNode["toolTipDisplayValue2"], currNode["Measure1Value"], currNode["Measure2Value"]);
                 if (displayNode != undefined) {
                     if (displayNode.displayName == currCategoryArray[levelItems + 1]) {
@@ -1389,11 +1383,9 @@ export class Visual implements IVisual {
             }
             totalData.push(categorynode);
         }
-
         // final array that contains all the values as the last array, while all the other array are only for additional x-axis
         totalData.push(visualData);
         return totalData;
-
     }
 
     private getDataStaticCategoryWaterfall(options: VisualUpdateOptions) {

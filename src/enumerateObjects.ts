@@ -7,6 +7,8 @@ import { VisualSettings, yAxisFormatting, chartOrientation } from "./settings";
 import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInstancesOptions;
 import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
 import DataView = powerbi.DataView;
+import VisualEnumerationInstanceKinds = powerbi.VisualEnumerationInstanceKinds;
+import { dataViewWildcard } from "powerbi-visuals-utils-dataviewutils";
 interface barChartDataPoint {
     value: PrimitiveValue;
     numberFormat: string;
@@ -211,13 +213,26 @@ class enumerateObjects implements IEnumerateObjects {
                             objectName: "objectName",
                             displayName: this.barChartData[index].category,
                             properties: {
-                                fill1: {
+                                fill: {
                                     solid: {
                                         color: this.barChartData[index].customBarColor
                                     }
                                 }
                             },
-                            selector: this.barChartData[index].selectionId.getSelector()
+                            //selector: this.barChartData[index].selectionId.getSelector()
+
+                            //More help on conditional formatting
+                            //https://docs.microsoft.com/en-us/power-bi/developer/visuals/conditional-format
+
+                            // Define whether the conditional formatting will apply to instances, totals, or both
+                            selector: dataViewWildcard.createDataViewWildcardSelector(dataViewWildcard.DataViewWildcardMatchingOption.InstancesAndTotals),
+
+                            // Add this property with the value previously defined for the selector property
+                            altConstantValueSelector: this.barChartData[index].selectionId.getSelector(),
+
+                            propertyInstanceKind: {
+                                fill: VisualEnumerationInstanceKinds.ConstantOrRule
+                            }
                         });
                     } else {
                         objectEnumeration.push({
@@ -401,7 +416,7 @@ class enumerateObjects implements IEnumerateObjects {
             });
             objectEnumeration[objectEnumeration.length - 1].validValues = {
                 decimalPlaces: { numberRange: { min: 0, max: 15 } }
-    
+
             }
         }
         objectEnumeration.push({
@@ -616,13 +631,28 @@ class enumerateObjects implements IEnumerateObjects {
                                 objectName: "objectName",
                                 displayName: this.barChartData[index].category,
                                 properties: {
-                                    fill1: {
+                                    fill: {
                                         solid: {
                                             color: this.barChartData[index].customFontColor
                                         }
                                     }
                                 },
-                                selector: this.barChartData[index].selectionId.getSelector()
+                                //selector: this.barChartData[index].selectionId.getSelector()
+
+
+                                //More help on conditional formatting
+                                //https://docs.microsoft.com/en-us/power-bi/developer/visuals/conditional-format
+
+                                // Define whether the conditional formatting will apply to instances, totals, or both
+                                selector: dataViewWildcard.createDataViewWildcardSelector(dataViewWildcard.DataViewWildcardMatchingOption.InstancesAndTotals),
+
+                                // Add this property with the value previously defined for the selector property
+                                altConstantValueSelector: this.barChartData[index].selectionId.getSelector(),
+
+                                propertyInstanceKind: {
+                                    fill: VisualEnumerationInstanceKinds.ConstantOrRule
+                                }
+
                             });
                         } else {
                             objectEnumeration.push({

@@ -8,3 +8,4 @@ On the terminal run "npm run pbiviz start". Run again if it fails as it will ins
 
 npm outdated - the dependencies that are out of date can be discovered
 npm intall <package>@latest - will update the package to the latest version use npm outdated to find the latest version
+npm ls --depth=0 - get the list of all the local packages along with version number

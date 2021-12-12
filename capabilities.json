@@ -214,7 +214,7 @@
                         }
                     }
                 },
-                "fill1": {
+                "fill": {
                     "displayName": "Use individual bar colors",
                     "type": {
                         "fill": {
@@ -623,7 +623,7 @@
                         }
                     }
                 },
-                "fill1": {
+                "fill": {
                     "displayName": "Use individual font colors",
                     "type": {
                         "fill": {

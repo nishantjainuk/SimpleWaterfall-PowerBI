@@ -1,7 +1,13 @@
 Clone the package from github
+
+Check the latest version of all the api and update the version number and also in pbiviz.json
 On the terminal run "npm install"
 On the terminal run "npm run pbiviz --install-cert"
 On the terminal run "npm run pbiviz start". Run again if it fails as it will install the certificate in the first attempt
+
+Issue:
+Error when loading custom visual in desktop
+https://github.com/microsoft/PowerBI-visuals-tools/issues/402
 
 
 -------- USEFUL NPM COMAMDS --------

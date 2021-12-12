@@ -192,8 +192,7 @@ class enumerateObjects implements IEnumerateObjects {
             });
         }
     }
-    private propertiesSentimentColor(objectName: string, objectEnumeration: VisualObjectInstance[]) {
-
+    private propertiesSentimentColor(objectName: string, objectEnumeration: VisualObjectInstance[]) {        
         if (this.visualType == "static" || this.visualType == "staticCategory") {
             if (this.visualSettings.chartOrientation.useSentimentFeatures && (this.visualType == "static" || this.visualType == "staticCategory")) {
                 objectEnumeration.push({

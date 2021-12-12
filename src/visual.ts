@@ -149,7 +149,7 @@ export class Visual implements IVisual {
         //-------------------------------------------------------------------------
         this.events.renderingStarted(options);
         //-------------------------------------------------------------------------
-        this.visualUpdateOptions = options;                
+        this.visualUpdateOptions = options;
         let dataView: DataView = options.dataViews[0];
         this.visualSettings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
         this.chartContainer.selectAll('svg').remove();
@@ -204,7 +204,7 @@ export class Visual implements IVisual {
 
 
         }
-        this.createWaterfallGraph(options, allData);        
+        this.createWaterfallGraph(options, allData);                
 
         //Certification requirement to use rendering API//
         //-------------------------------------------------------------------------
@@ -304,8 +304,8 @@ export class Visual implements IVisual {
         }
 
     }
-    private createWaterfallGraph(options, allData) {        
-        this.allowInteractions = options.allowInteractions;
+    private createWaterfallGraph(options, allData) {
+        this.allowInteractions = true;
         if (this.visualSettings.chartOrientation.orientation == "Horizontal") {
             this.createWaterfallGraphHorizontal(options, allData);
         } else {
@@ -1181,13 +1181,13 @@ export class Visual implements IVisual {
                             }
                         }
                         if (y.objects.sentimentColor && !this.visualSettings.chartOrientation.useSentimentFeatures) {
-                            data2["customBarColor"] = y.objects["sentimentColor"]["fill1"]["solid"]["color"];
+                            data2["customBarColor"] = y.objects["sentimentColor"]["fill"]["solid"]["color"];
                         } else {
                             data2["customBarColor"] = this.getfillColor(data2["isPillar"], data2["value"]);
                         }
                         if (y.objects.LabelsFormatting && !this.visualSettings.chartOrientation.useSentimentFeatures && !this.visualSettings.LabelsFormatting.useDefaultFontColor) {
-                            if (y.objects.LabelsFormatting.fill1) {
-                                data2["customFontColor"] = y.objects["LabelsFormatting"]["fill1"]["solid"]["color"];
+                            if (y.objects.LabelsFormatting.fill) {
+                                data2["customFontColor"] = y.objects["LabelsFormatting"]["fill"]["solid"]["color"];
                             } else {
                                 data2["customFontColor"] = this.getLabelFontColor(data2["isPillar"], data2["value"]);
                             }
@@ -1428,13 +1428,13 @@ export class Visual implements IVisual {
                         data2["isPillar"] = 0;
                     }
                     if (x.objects.sentimentColor && !this.visualSettings.chartOrientation.useSentimentFeatures) {
-                        data2["customBarColor"] = x.objects["sentimentColor"]["fill1"]["solid"]["color"];
+                        data2["customBarColor"] = x.objects["sentimentColor"]["fill"]["solid"]["color"];
                     } else {
                         data2["customBarColor"] = this.getfillColor(data2["isPillar"], data2["value"]);
                     }
                     if (x.objects.LabelsFormatting && !this.visualSettings.LabelsFormatting.useDefaultFontColor) {
-                        if (x.objects.LabelsFormatting.fill1) {
-                            data2["customFontColor"] = x.objects["LabelsFormatting"]["fill1"]["solid"]["color"];
+                        if (x.objects.LabelsFormatting.fill) {
+                            data2["customFontColor"] = x.objects["LabelsFormatting"]["fill"]["solid"]["color"];
                         } else {
                             data2["customFontColor"] = this.getLabelFontColor(data2["isPillar"], data2["value"]);
                         }
@@ -2062,14 +2062,14 @@ export class Visual implements IVisual {
             .createSelectionId();
         if (x.objects) {
             if (x.objects.sentimentColor && !this.visualSettings.chartOrientation.useSentimentFeatures) {
-                data2["customBarColor"] = x.objects["sentimentColor"]["fill1"]["solid"]["color"];
+                data2["customBarColor"] = x.objects["sentimentColor"]["fill"]["solid"]["color"];
             } else {
                 data2["customBarColor"] = this.getfillColor(data2["isPillar"], data2["value"]);
             }
 
             if (x.objects.LabelsFormatting && !this.visualSettings.chartOrientation.useSentimentFeatures && !this.visualSettings.LabelsFormatting.useDefaultFontColor) {
-                if (x.objects.LabelsFormatting.fill1) {
-                    data2["customFontColor"] = x.objects["LabelsFormatting"]["fill1"]["solid"]["color"];
+                if (x.objects.LabelsFormatting.fill) {
+                    data2["customFontColor"] = x.objects["LabelsFormatting"]["fill"]["solid"]["color"];
                 } else {
                     data2["customFontColor"] = this.getLabelFontColor(data2["isPillar"], data2["value"]);
                 }

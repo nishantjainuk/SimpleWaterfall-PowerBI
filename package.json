@@ -9,10 +9,10 @@
     },
     "dependencies": {
         "@types/d3": "5.5.0",
-        "core-js": "^3.19.3",
+        "core-js": "^3.20.0",
         "d3": "5.5.0",
         "powerbi-visuals-api": "^4.0.0",
-        "powerbi-visuals-tools": "^4.0.0",
+        "powerbi-visuals-tools": "^4.0.2",
         "powerbi-visuals-utils-dataviewutils": "^2.4.1",
         "powerbi-visuals-utils-formattingutils": "^4.7.1",
         "powerbi-visuals-utils-tooltiputils": "^2.5.2",

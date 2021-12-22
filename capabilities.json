@@ -20,6 +20,7 @@
     "sorting": {
         "default": {}
     },
+    "supportsMultiVisualSelection": true,
     "tooltips": {
         "supportedTypes": {
             "default": true,

@@ -9,7 +9,16 @@
             "displayName": "Values",
             "name": "measure",
             "displayNameKey": "Visual_Values",
-            "kind": "Measure"
+            "kind": "Measure",
+            "requiredTypes": [
+                
+                {
+                    "numeric": true
+                },
+                {
+                    "integer": true
+                }
+            ]
         }
     ],
     "drilldown": {

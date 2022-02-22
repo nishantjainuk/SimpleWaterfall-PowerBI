@@ -9,7 +9,16 @@
             "displayName": "Values",
             "name": "measure",
             "displayNameKey": "Visual_Values",
-            "kind": "Measure"
+            "kind": "Measure",
+            "requiredTypes": [
+                
+                {
+                    "numeric": true
+                },
+                {
+                    "integer": true
+                }
+            ]
         }
     ],
     "drilldown": {
@@ -20,6 +29,7 @@
     "sorting": {
         "default": {}
     },
+    "supportsMultiVisualSelection": true,
     "tooltips": {
         "supportedTypes": {
             "default": true,
@@ -214,7 +224,7 @@
                         }
                     }
                 },
-                "fill1": {
+                "fill": {
                     "displayName": "Use individual bar colors",
                     "type": {
                         "fill": {
@@ -623,7 +633,7 @@
                         }
                     }
                 },
-                "fill1": {
+                "fill": {
                     "displayName": "Use individual font colors",
                     "type": {
                         "fill": {

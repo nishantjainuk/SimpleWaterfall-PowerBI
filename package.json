@@ -9,20 +9,20 @@
     },
     "dependencies": {
         "@types/d3": "5.5.0",
-        "core-js": "^3.7.0",
+        "core-js": "^3.20.0",
         "d3": "5.5.0",
-        "powerbi-visuals-api": "^2.6.2",
-        "powerbi-visuals-tools": "^3.1.14",
-        "powerbi-visuals-utils-dataviewutils": "^2.2.1",
-        "powerbi-visuals-utils-formattingutils": "^4.5.0",
-        "powerbi-visuals-utils-tooltiputils": "^2.3.1",
-        "powerbi-visuals-utils-typeutils": "^2.2.1",
-        "regenerator-runtime": "^0.13.5"
+        "powerbi-visuals-api": "^4.0.0",
+        "powerbi-visuals-tools": "^4.0.2",
+        "powerbi-visuals-utils-dataviewutils": "^2.4.1",
+        "powerbi-visuals-utils-formattingutils": "^4.7.1",
+        "powerbi-visuals-utils-tooltiputils": "^2.5.2",
+        "powerbi-visuals-utils-typeutils": "^2.3.1",
+        "regenerator-runtime": "^0.13.9"
     },
     "devDependencies": {
         "ts-loader": "5.2.2",
         "tslint": "^5.18.1",
         "tslint-microsoft-contrib": "^6.2.0",
-        "typescript": "^3.9.7"
+        "typescript": "^3.9.10"
     }
 }

@@ -4,15 +4,15 @@
         "displayName": "Simple Waterfall",
         "guid": "SimpleWaterfall",
         "visualClassName": "Visual",
-        "version": "2.0.10.2",
+        "version": "2.0.10.4",
         "description": "A simple waterfall allowing users to create multi step waterfall",
         "supportUrl": "https://nishantjain.co.uk/simple-waterfall-support/",
         "gitHubUrl": ""
     },
-    "apiVersion": "2.6.0",
+    "apiVersion": "4.0.0",
     "author": {
         "name": "Nishant Jain",
-        "email": "nishant@nishantjain.co.uk"
+        "email": "nishant@datanomy.uk"
     },
     "assets": {
         "icon": "assets/icon-visual.png"

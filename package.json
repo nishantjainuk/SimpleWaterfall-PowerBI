@@ -20,7 +20,7 @@
         "regenerator-runtime": "^0.13.9"
     },
     "devDependencies": {
-        "ts-loader": "5.2.2",
+        "ts-loader": "9.4.2",
         "tslint": "^5.18.1",
         "tslint-microsoft-contrib": "^6.2.0",
         "typescript": "^3.9.10"

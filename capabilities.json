@@ -1,4 +1,10 @@
 {
+    "privileges": [        
+        {
+            "name": "ExportContent",
+            "essential": false
+        }
+    ],
     "dataRoles": [{
             "displayName": "Category",
             "name": "category",
@@ -23,7 +29,7 @@
     ],
     "drilldown": {
         "roles": [
-            "category"
+            "category","Rows", "Columns"
         ]
     },
     "sorting": {

@@ -26,7 +26,7 @@
                 }
             ]
         }
-    ],
+    ],    
     "drilldown": {
         "roles": [
             "category","Rows", "Columns"
@@ -36,6 +36,7 @@
         "default": {}
     },
     "supportsMultiVisualSelection": true,
+    "supportsKeyboardFocus": true,
     "tooltips": {
         "supportedTypes": {
             "default": true,

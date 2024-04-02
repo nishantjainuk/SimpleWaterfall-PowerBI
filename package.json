@@ -8,21 +8,14 @@
         "npmVersion": "npm list --depth=0"
     },
     "dependencies": {
-        "@types/d3": "5.5.0",
-        "core-js": "^3.20.0",
-        "d3": "5.5.0",
-        "powerbi-visuals-api": "^4.0.0",
-        "powerbi-visuals-tools": "^4.0.2",
-        "powerbi-visuals-utils-dataviewutils": "^2.4.1",
-        "powerbi-visuals-utils-formattingutils": "^4.7.1",
-        "powerbi-visuals-utils-tooltiputils": "^2.5.2",
-        "powerbi-visuals-utils-typeutils": "^2.3.1",
-        "regenerator-runtime": "^0.13.9"
-    },
-    "devDependencies": {
-        "ts-loader": "5.2.2",
-        "tslint": "^5.18.1",
-        "tslint-microsoft-contrib": "^6.2.0",
-        "typescript": "^3.9.10"
+        "core-js": "^3.36.1",
+        "d3": "^5.4.0",
+        "powerbi-visuals-api": "^5.9.0",
+        "powerbi-visuals-tools": "^5.4.3",
+        "powerbi-visuals-utils-dataviewutils": "^6.0.2",
+        "powerbi-visuals-utils-formattingutils": "^6.1.0",
+        "powerbi-visuals-utils-tooltiputils": "^6.0.3",
+        "powerbi-visuals-utils-typeutils": "^6.0.2",
+        "regenerator-runtime": "^0.14.1"
     }
 }

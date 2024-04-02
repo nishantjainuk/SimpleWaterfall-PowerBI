@@ -857,5 +857,9 @@
                 }
             }
         }
-    }
+    },
+    "privileges": [{
+        "name": "ExportContent",
+        "essential": true
+    }] 
 }

@@ -118,7 +118,7 @@ export class Visual implements IVisual {
 
 
 
-    constructor(options: VisualConstructorOptions) {
+    constructor(options: VisualConstructorOptions) {  
         this.host = options.host;
         this.mainContainer = d3.select<HTMLElement, any>(options.element)
             .append('div');
@@ -200,9 +200,7 @@ export class Visual implements IVisual {
                 
             }*/
             this.barChartData = this.getDataDrillableWaterfall(options)[allData.length - 1];
-            
-
-
+                
         }
         this.createWaterfallGraph(options, allData);                
 
@@ -337,7 +335,8 @@ export class Visual implements IVisual {
         this.svgYAxis.attr("height", this.height);
 
         this.margin = {
-            top: this.visualSettings.margins.topMargin + 20,
+            // top: this.visualSettings.margins.topMargin + 20,
+            top: this.visualSettings.margins.topMargin + 13,
             right: this.visualSettings.margins.rightMargin,
             bottom: this.visualSettings.margins.bottomMargin,
             left: this.visualSettings.margins.leftMargin
@@ -521,9 +520,9 @@ export class Visual implements IVisual {
 
     }
     private createYAxis(gParent, adjustLeft) {
+    //  create left axis
 
         var g = gParent.append('g').attr('class', 'yAxisParentGroup');
-
 
         var yScale = d3.scaleLinear()
             .domain([this.minValue, this.maxValue])
@@ -1353,18 +1352,19 @@ export class Visual implements IVisual {
                 var childnode = [];
                 var currCategoryText: string = currNode["category"];
                 var currCategoryArray: string[] = currCategoryText.split("|");
-                var newDisplayName = currCategoryArray[levelItems + 1];
+                // var newDisplayName = currCategoryArray[levelItems + 1];
+                var newDisplayName = currCategoryText.split('|').reverse().join(', ')
+                // if (currNode["isPillar"] == 1 || nodeItems == 0) {
 
-                if (currNode["isPillar"] == 1 || nodeItems == 0) {
-
-                } else {
-                    var previousNode = visualData[nodeItems - 1];
-                    var previousCategoryText: string = previousNode["category"];
-                    var previousCategoryArray: string[] = previousCategoryText.split("|");
-                    if (newDisplayName == previousCategoryArray[levelItems + 1]) {
-                        newDisplayName = "";
-                    }
-                }
+                // } else {
+                //     var previousNode = visualData[nodeItems - 1];
+                //     var previousCategoryText: string = previousNode["category"];
+                //     var previousCategoryArray: string[] = previousCategoryText.split("|");
+                //     if (newDisplayName == previousCategoryArray[levelItems + 1]) {
+                //         newDisplayName = "";
+                //     }
+                // }
+                // childnode = this.getDataForCategory(currNode["value"], currNode["numberFormat"], newDisplayName, currCategoryText, currNode["isPillar"], null, currNode["sortOrderIndex"], childrenCount, currNode["toolTipDisplayValue1"], currNode["toolTipDisplayValue2"], currNode["Measure1Value"], currNode["Measure2Value"]);
                 childnode = this.getDataForCategory(currNode["value"], currNode["numberFormat"], newDisplayName, currCategoryText, currNode["isPillar"], null, currNode["sortOrderIndex"], childrenCount, currNode["toolTipDisplayValue1"], currNode["toolTipDisplayValue2"], currNode["Measure1Value"], currNode["Measure2Value"]);
                 if (displayNode != undefined) {
                     if (displayNode.displayName == currCategoryArray[levelItems + 1]) {
@@ -1381,8 +1381,9 @@ export class Visual implements IVisual {
             totalData.push(categorynode);
         }
         // final array that contains all the values as the last array, while all the other array are only for additional x-axis
-        totalData.push(visualData);
-        return totalData;
+        if(dataView.matrix.rows.levels.length === 1) totalData.push(visualData);  
+        // return totalData[0].map(e=>{return {...e , displayName : 'jaimin'}});
+        return totalData
     }
 
     private getDataStaticCategoryWaterfall(options: VisualUpdateOptions) {
@@ -1854,13 +1855,13 @@ export class Visual implements IVisual {
 
         for (var allDataIndex = levels - 1; allDataIndex >= 0; allDataIndex--) {
             var currData = [];
-
+            
             if (allDataIndex == (levels - 1)) {
                 xScale = xBaseScale;
                 currData = allDatatemp[allDatatemp.length - 1];
-
+                
             } else {
-
+                
                 currData = this.getAllMatrixLevelsNew(root, allDataIndex);
                 var xAxisrange = [];
                 var currChildCount = 0
@@ -1870,12 +1871,13 @@ export class Visual implements IVisual {
                     xAxisrange.push(currChildCount);
                 });
                 xScale = d3.scaleOrdinal()
-                    .domain(currData.map((displayName, index) => index + displayName))
-                    .range(xAxisrange);
+                .domain(currData.map((displayName, index) => index + displayName))
+                .range(xAxisrange);
             }
             this.findBottom = 0;
             var myWidth = currChildCount + myBandwidth;
             if (allDataIndex != (levels - 1)) {
+                // bottom axis
                 if (dataView.matrix.valueSources.length == 1) {
                     var myxAxisParent;
 
@@ -1909,6 +1911,9 @@ export class Visual implements IVisual {
 
     private createAxis(myxAxisParent, g, baseAxis: boolean, myWidth, index: number, xScale, xBaseScale, currData, allDataIndex, levels, xAxisrange, myAxisParentHeight) {
         var myxAxisParentx = d3.axisBottom(xScale).tickSize(0);
+        const wrapText = this.visualSettings.xAxisFormatting.labelWrapText;
+        const columnWidth = this.getColumnWidth( currData, allDataIndex, levels, xScale, xAxisrange)
+        var textWidth = 0;
         myxAxisParentx.tickSizeOuter(0);
         myxAxisParent = g.append('g')
             .style("font", this.visualSettings.xAxisFormatting.fontSize + "pt times")
@@ -1916,20 +1921,35 @@ export class Visual implements IVisual {
             .style("color", this.visualSettings.xAxisFormatting.fontColor)
             .attr('class', 'myXaxis')
             .call(myxAxisParentx);
-        if (baseAxis) {
-            myxAxisParent
-                .attr('transform', `translate(0,${myAxisParentHeight})`)
-                .selectAll('path').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor);
-        } else if (index == 0) {
-            myxAxisParent
-                .attr('transform', `translate(${((xBaseScale.step() * xBaseScale.padding() * 0.5))},${myAxisParentHeight})`)
-                .selectAll('path').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor);
-        } else {
-            myxAxisParent
-                .attr('transform', `translate(${(xBaseScale.bandwidth() + (xBaseScale.step() * xBaseScale.padding() * 1.5)) + myWidth * (index - 1)},${myAxisParentHeight})`)
-                .selectAll('path').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor);
-        }
-        var xAxislabels = myxAxisParent.selectAll(".tick text").data(currData).text(d => d.displayName);
+        // if (baseAxis) {
+        //     myxAxisParent
+        //         .attr('transform', `translate(0,${myAxisParentHeight})`)
+        //         .selectAll('path').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor);
+        // } else if (index == 0) {
+        //     myxAxisParent
+        //         .attr('transform', `translate(${((xBaseScale.step() * xBaseScale.padding() * 0.5))},${myAxisParentHeight})`)
+        //         .selectAll('path').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor);
+        // } else {
+        //     myxAxisParent
+        //         .attr('transform', `translate(${(xBaseScale.bandwidth() + (xBaseScale.step() * xBaseScale.padding() * 1.5)) + myWidth * (index - 1)},${myAxisParentHeight})`)
+        //         .selectAll('path').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor);
+        // }
+        var textWidth = 0;
+        var xAxislabels = myxAxisParent.selectAll(".tick text").data(currData)
+        .style("padding", 20 + "px") 
+        .each(function() {
+            var labelWidth = this.getBBox().width;
+            textWidth = Math.max(textWidth, labelWidth); // Update textWidth if labelWidth is greater
+        }).text(d => {
+            if (d.displayName.length > 8 && !wrapText && columnWidth<=textWidth) {
+                return d.displayName.substring(0, 9) + '...';
+            } else {
+                return d.displayName;
+            }
+        });
+    
+
+
         if (this.visualType == "drillable" || this.visualType == "staticCategory" || this.visualType == "drillableCategory") {
             xAxislabels.on('click', (d) => {
                 // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)                
@@ -1958,30 +1978,32 @@ export class Visual implements IVisual {
         //move the labels of all secondary axis to the right as they don't have pillars
 
         if (allDataIndex != (levels - 1)) {
-            if (this.visualSettings.xAxisFormatting.labelWrapText) {
+            if (wrapText) {
                 myxAxisParent.selectAll(".tick text")
                     .call(this.labelWrapText, xBaseScale.bandwidth());
             } else {
                 myxAxisParent.selectAll(".tick text")
                     .call(this.labelNoWrapText, xBaseScale.bandwidth());
-            }
-
-
-
+                }
+                
+                
+                
             myxAxisParent.selectAll(".tick text").data(currData)
                 .attr('transform', (d, i) => `translate(${(xAxisrange[i + 1] - xAxisrange[i]) / 2
                     },${this.visualSettings.xAxisFormatting.padding})`);
 
             myxAxisParent.selectAll("line").remove();
         } else {
-            if (this.visualSettings.xAxisFormatting.labelWrapText) {
+
+            if (wrapText) {
+                
                 myxAxisParent.selectAll(".tick text")
                     .call(this.labelWrapText, xBaseScale.bandwidth());
             } else {
                 myxAxisParent.selectAll(".tick text")
                     .call(this.labelNoWrapText, xBaseScale.bandwidth());
             }
-            xAxislabels.attr('transform', `translate(0,${this.visualSettings.xAxisFormatting.padding})`);
+            xAxislabels.attr('transform', `translate(0,${this.visualSettings.xAxisFormatting.padding}) ${columnWidth<=textWidth && !wrapText ? 'rotate(-90)' : ''}`);
         }
 
         myxAxisParent.selectAll("text").each((d, i, nodes) => {
@@ -1989,9 +2011,23 @@ export class Visual implements IVisual {
                 this.findBottom = nodes[i].getBoundingClientRect().bottom - this.legendHeight;
             };
         });
-        this.currentAxisGridlines(myxAxisParent, currData, allDataIndex, levels, xScale, xAxisrange);
-
+        // this.currentAxisGridlines(myxAxisParent, currData, allDataIndex, levels, xScale, xAxisrange);
     }
+    private getColumnWidth(currData: any , allDataIndex : any ,levels: any, xScale: any, xAxisrange: any) {
+            var x1;
+            if (allDataIndex == (levels - 1)) {
+                x1 = xScale(currData[0].category) - (xScale.padding() * xScale.step()) / 2;
+            } else {
+                x1 = xAxisrange[0];
+            }
+            var x2;
+            if (allDataIndex == (levels - 1)) {
+                x2 = xScale(currData[1].category) - (xScale.padding() * xScale.step()) / 2;
+            } else {
+                x2 = xAxisrange[1];
+            }
+            return x2-x1;            
+        }
     private currentAxisGridlines(myxAxisParent: any, currData: any, allDataIndex: any, levels: any, xScale: any, xAxisrange: any) {
         if (this.visualSettings.xAxisFormatting.showGridLine) {
 
@@ -2001,14 +2037,14 @@ export class Visual implements IVisual {
                 .style('stroke-width', this.defaultXAxisGridlineStrokeWidth() / 8 + "pt");
             var myAxisTop = myxAxisParent.select("path").node().getBoundingClientRect().top
             myxAxisParent.selectAll(".text").data(currData)
-                .enter()
+            .enter()
+            //vertical bar lines
                 .append("line")
                 .attr("x1", (d, i) => {
                     var x1;
                     if (allDataIndex == (levels - 1)) {
                         x1 = xScale(d.category) - (xScale.padding() * xScale.step()) / 2;
                     } else {
-
                         x1 = xAxisrange[i];
                     }
                     return x1;
@@ -2129,45 +2165,43 @@ export class Visual implements IVisual {
         var width;
         text.each(function () {
             var text = d3.select(this),
-
-                word,
-                line = [],
-                lineNumber = 0,
-                lineHeight = 1,
-                y = text.attr("y"),
-                dy = parseFloat(text.attr("dy")),
-                joinwith = "";
-
-
-
+            
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1,
+            y = text.attr("y"),
+            dy = parseFloat(text.attr("dy")),
+            joinwith = "";
+            
+            
+            
             width = standardwidth * text.datum()["childrenCount"];
             joinwith = "";
-            var words = text.text().split("").reverse();
+            // var words = text.text().split("").reverse();
+            // var tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+            // while (word = words.pop()) {
+            //     line.push(word);
+            //     tspan.text(line.join(joinwith));
+            //     if (tspan.node().getComputedTextLength() > width) {
+                    
+            //         // if the 3 lines goes over the standard width, then add "..." and stop adding any more lines
+            //         if (line.length != 1) {
+            //             if (lineNumber == 2) {
+            //                 tspan.text(tspan.text().substring(0, tspan.text().length - 3) + "...");
+            //                 break;
+            //             } else {
+            //                 line.pop();
+            //                 tspan.text(line.join(joinwith));
+            //                 line = [word];
+            //                 tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+            //             }
+            //         } else {
 
+            //         }
+            //     }
 
-            var tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
-            while (word = words.pop()) {
-                line.push(word);
-                tspan.text(line.join(joinwith));
-                if (tspan.node().getComputedTextLength() > width) {
-
-                    // if the 3 lines goes over the standard width, then add "..." and stop adding any more lines
-                    if (line.length != 1) {
-                        if (lineNumber == 2) {
-                            tspan.text(tspan.text().substring(0, tspan.text().length - 3) + "...");
-                            break;
-                        } else {
-                            line.pop();
-                            tspan.text(line.join(joinwith));
-                            line = [word];
-                            tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
-                        }
-                    } else {
-
-                    }
-                }
-
-            }
+            // }
         });
     }
     private labelWrapText(text, standardwidth) {

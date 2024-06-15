@@ -363,9 +363,8 @@ export class Visual implements IVisual {
         this.createLabels(this.gScrollable);
         
         this.svg.attr("width", this.width);
-
-
     }
+
     private checkBarWidth(options) {
         if (!this.visualSettings.xAxisFormatting.fitToWidth) {
             this.visualUpdateOptions = options;

@@ -2257,7 +2257,7 @@ export class Visual implements IVisual {
         this.margin = {
             top: this.visualSettings.margins.topMargin,
             right: this.visualSettings.margins.rightMargin + 20,
-            bottom: this.visualSettings.margins.bottomMargin + 5,
+            bottom: this.visualSettings.margins.bottomMargin + 10,
             left: this.visualSettings.margins.leftMargin
         };
 

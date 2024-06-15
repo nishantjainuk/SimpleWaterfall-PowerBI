@@ -355,14 +355,14 @@ export class Visual implements IVisual {
         //this.margin.left = this.margin.left + this.yAxisWidth ;
 
         this.width = this.width - this.margin.left - this.yAxisWidth - 5;
-        this.svg.attr("width", this.width);
         this.checkBarWidth(options);
         this.createXaxis(this.gScrollable, options, allData);
         this.createYAxis(this.svgYAxis, this.margin.left + this.yAxisWidth);
-        this.createYAxis(this.gScrollable, 0);
+        //this.createYAxis(this.gScrollable, 0);
         this.createBars(this.gScrollable, this.barChartData);
         this.createLabels(this.gScrollable);
-
+        
+        this.svg.attr("width", this.width);
 
 
     }

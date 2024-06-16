@@ -619,6 +619,7 @@ export class Visual implements IVisual {
         var yAxisScale = d3.axisLeft(yScale).tickValues(this.yScaleTickValues);
 
         if (this.visualSettings.yAxisFormatting.show) {
+            console.log('called 1');
             var yAxis = g.append('g')
                 .style("font", this.visualSettings.yAxisFormatting.fontSize + "pt times")
                 .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
@@ -641,6 +642,8 @@ export class Visual implements IVisual {
             // yAxisWidth used to adjust the left margin
             this.yAxisWidth = yAxis.node().getBoundingClientRect().width;
             this.innerWidth = this.innerWidth - this.yAxisWidth;
+        } else {
+            this.yAxisWidth = 0;
         }
         g.remove();
     }
@@ -3043,6 +3046,9 @@ export class Visual implements IVisual {
             // yAxisWidth used to adjust the left margin
             this.yAxisHeightHorizontal = yAxis.node().getBoundingClientRect().height;
 
+        }
+        else {
+            this.yAxisHeightHorizontal = 0;
         }
         g.remove();
     }

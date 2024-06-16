@@ -619,7 +619,6 @@ export class Visual implements IVisual {
         var yAxisScale = d3.axisLeft(yScale).tickValues(this.yScaleTickValues);
 
         if (this.visualSettings.yAxisFormatting.show) {
-            console.log('called 1');
             var yAxis = g.append('g')
                 .style("font", this.visualSettings.yAxisFormatting.fontSize + "pt times")
                 .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)

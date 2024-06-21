@@ -2278,11 +2278,11 @@ export class Visual implements IVisual {
         this.svg.attr("height", this.innerHeight);
         this.checkBarWidthHorizontal(options);
         this.createXaxisHorizontal(this.gScrollable, options, allData);
-        this.svgYAxis.attr("width", this.innerWidth + 5);
+        this.svgYAxis.attr("width", this.innerWidth + 10);
         this.svgYAxis.attr("height", this.yAxisHeightHorizontal);
 
         this.createYAxisHorizontal(this.svgYAxis, 0);
-        this.createYAxisHorizontal(this.gScrollable, this.innerHeight);
+        // this.createYAxisHorizontal(this.gScrollable, this.innerHeight);
 
         this.createBarsHorizontal(this.gScrollable, this.barChartData);
         this.createLabelsHorizontal(this.gScrollable);

@@ -33,5 +33,13 @@
             ],            
             "url": "./.api/v1.6.0/schema.dependencies.json"
         }        
-    ]    
+    ],
+    "workbench.colorCustomizations": {
+        "commandCenter.border": "#e7e7e799",
+        "panel.border": "#3333ff",
+        "titleBar.activeBackground": "#0000ff",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#0000ff99",
+        "titleBar.inactiveForeground": "#e7e7e799"
+    }
 }

@@ -129,6 +129,15 @@ class enumerateObjects implements IEnumerateObjects {
             var hasPillar: boolean = false;
             switch (objectName) {
                 case 'definePillars':
+                     // if (!hasPillar) {
+                        objectEnumeration.push({
+                            objectName: "objectName",
+                            properties: {
+                                Totalpillar: this.visualSettings.definePillars.Totalpillar
+                            },
+                            selector: null
+                        });
+                    // }
                     var isPillarBoolean: boolean;
                     for (var index = 0; index < this.barChartData.length; index++) {
                         if (this.barChartData[index].category != "defaultBreakdownStepOther") {
@@ -154,15 +163,7 @@ class enumerateObjects implements IEnumerateObjects {
                             }
                         }
                     }
-                    if (!hasPillar) {
-                        objectEnumeration.push({
-                            objectName: "objectName",
-                            properties: {
-                                Totalpillar: this.visualSettings.definePillars.Totalpillar
-                            },
-                            selector: null
-                        });
-                    }
+                   
             }
         }
         if (this.visualType == "drillableCategory") {

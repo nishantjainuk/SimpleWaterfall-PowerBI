@@ -115,6 +115,8 @@ export class Visual implements IVisual {
     private events: IVisualEventService;
     private locale: string;
     private allowInteractions: boolean;
+    private currentBarWidth: number;
+    private currentBarPadding: number;
 
 
 
@@ -141,7 +143,7 @@ export class Visual implements IVisual {
     }
 
     public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
-        this.enumerateObjects = createenumerateObjects(this.visualType, this.barChartData, this.barChartDataAll, this.visualSettings, this.defaultXAxisGridlineStrokeWidth(), this.defaultYAxisGridlineStrokeWidth(), this.visualUpdateOptions.dataViews[0]);
+        this.enumerateObjects = createenumerateObjects(this.visualType, this.barChartData, this.barChartDataAll, this.visualSettings, this.defaultXAxisGridlineStrokeWidth(), this.defaultYAxisGridlineStrokeWidth(), this.visualUpdateOptions.dataViews[0] , this.currentBarWidth);
         return this.enumerateObjects.enumerateObjectInstances(options);
     }
     public update(options: VisualUpdateOptions) {
@@ -366,17 +368,21 @@ export class Visual implements IVisual {
     }
 
     private checkBarWidth(options) {
-        if (!this.visualSettings.xAxisFormatting.fitToWidth) {
-            this.visualUpdateOptions = options;
-
-            var xScale = d3.scaleBand()
+          var xScale = d3.scaleBand()
                 .domain(this.barChartData.map(this.xValue))
                 .range([0, this.innerWidth])
                 .padding(0.2);
 
-            var currentBarWidth = xScale.step();
-            if (currentBarWidth < this.visualSettings.xAxisFormatting.barWidth) {
-                currentBarWidth = this.visualSettings.xAxisFormatting.barWidth;
+            this.currentBarWidth = xScale.step();
+
+        if (this.currentBarWidth < 20 ) {
+            this.visualSettings.xAxisFormatting.fitToWidth = false
+        }
+        if (!this.visualSettings.xAxisFormatting.fitToWidth) {
+            if(this.currentBarWidth < 20 )this.currentBarWidth = 20
+            this.visualUpdateOptions = options;
+            if (this.currentBarWidth <= this.visualSettings.xAxisFormatting.barWidth) {
+                this.currentBarWidth = this.visualSettings.xAxisFormatting.barWidth;
 
                 var scrollBarGroup = this.svg.append('g');
                 var scrollbarContainer = scrollBarGroup.append('rect')
@@ -388,8 +394,8 @@ export class Visual implements IVisual {
                     .attr('opacity', 0.5)
                     .attr('rx', 4)
                     .attr('ry', 4);
-                this.innerWidth = currentBarWidth * this.barChartData.length
-                    + (currentBarWidth * xScale.padding());
+                this.innerWidth = this.currentBarWidth * this.barChartData.length
+                    + (this.currentBarWidth * xScale.padding());
 
                 this.innerHeight = this.height - this.margin.top - this.margin.bottom - this.scrollbarBreath;;
                 var dragStartPosition = 0;
@@ -466,6 +472,7 @@ export class Visual implements IVisual {
         }
         return currentgridLineStrokeWidth;
     }
+  
     private yValue = d => d.value;
     private xValue = d => d.category;
 

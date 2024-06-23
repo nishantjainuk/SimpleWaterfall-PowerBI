@@ -36,7 +36,8 @@ export function createenumerateObjects(
     visualSettings: VisualSettings,
     defaultXAxisGridlineStrokeWidth: PrimitiveValue,
     defaultYAxisGridlineStrokeWidth: PrimitiveValue,
-    dataView: DataView
+    dataView: DataView,
+    barWidth : number
 ): IEnumerateObjects {
     return new enumerateObjects(
         visualType,
@@ -45,7 +46,7 @@ export function createenumerateObjects(
         visualSettings,
         defaultXAxisGridlineStrokeWidth,
         defaultYAxisGridlineStrokeWidth,
-        dataView);
+        dataView,  barWidth);
 }
 class enumerateObjects implements IEnumerateObjects {
     private visualType: String;
@@ -55,8 +56,9 @@ class enumerateObjects implements IEnumerateObjects {
     private defaultXAxisGridlineStrokeWidth: PrimitiveValue;
     private defaultYAxisGridlineStrokeWidth: PrimitiveValue;
     private dataView: DataView;
+    private barWidth: number;
 
-    constructor(visualType: String, barchartData: barChartDataPoint[], barchartDataAll, visualSettings: VisualSettings, defaultXAxisGridlineStrokeWidth: PrimitiveValue, defaultYAxisGridlineStrokeWidth: PrimitiveValue, dataView: DataView) {
+    constructor(visualType: String, barchartData: barChartDataPoint[], barchartDataAll, visualSettings: VisualSettings, defaultXAxisGridlineStrokeWidth: PrimitiveValue, defaultYAxisGridlineStrokeWidth: PrimitiveValue, dataView: DataView , barWidth : number) {
         this.visualType = visualType;
         this.barChartData = barchartData;
         this.barChartDataAll = barchartDataAll;
@@ -64,7 +66,7 @@ class enumerateObjects implements IEnumerateObjects {
         this.defaultXAxisGridlineStrokeWidth = defaultXAxisGridlineStrokeWidth;
         this.defaultYAxisGridlineStrokeWidth = defaultYAxisGridlineStrokeWidth;
         this.dataView = dataView;
-
+        this.barWidth = barWidth
     }
     public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
         let objectName: string = options.objectName;
@@ -340,11 +342,13 @@ class enumerateObjects implements IEnumerateObjects {
                 fontSize: this.visualSettings.xAxisFormatting.fontSize,
                 fontColor: this.visualSettings.xAxisFormatting.fontColor,
                 fontFamily: this.visualSettings.xAxisFormatting.fontFamily,
-                fitToWidth: this.visualSettings.xAxisFormatting.fitToWidth,
+                // fitToWidth: this.visualSettings.xAxisFormatting.fitToWidth,
                 labelWrapText: this.visualSettings.xAxisFormatting.labelWrapText
             },
             selector: null
         });
+        if(this.barWidth > 21) objectEnumeration[objectEnumeration.length - 1].properties.fitToWidth = this.visualSettings.xAxisFormatting.fitToWidth;
+        
         if (!this.visualSettings.xAxisFormatting.fitToWidth) {
             objectEnumeration.push({
                 objectName: "objectName",
@@ -355,7 +359,7 @@ class enumerateObjects implements IEnumerateObjects {
             });
 
             objectEnumeration[1].validValues = {
-                barWidth: { numberRange: { min: 10, max: 100 } }
+                barWidth: { numberRange: { min: 20, max: 100 } }
 
             };
         }

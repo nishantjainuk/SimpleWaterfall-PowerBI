@@ -116,7 +116,6 @@ export class Visual implements IVisual {
     private locale: string;
     private allowInteractions: boolean;
     private currentBarWidth: number;
-    private currentBarPadding: number;
 
 
 
@@ -2632,83 +2631,91 @@ export class Visual implements IVisual {
             .range([0, this.innerHeight])
             .padding(0.2);
 
-        var currentBarWidth = xScale.step();
-        if (currentBarWidth < this.visualSettings.xAxisFormatting.barWidth) {
-            currentBarWidth = this.visualSettings.xAxisFormatting.barWidth;
+        this.currentBarWidth = xScale.step();
+
+        if (this.currentBarWidth < 20) {
+            this.visualSettings.xAxisFormatting.fitToWidth = false
+        }
+        if (!this.visualSettings.xAxisFormatting.fitToWidth) {
+            if (this.currentBarWidth < 20) this.currentBarWidth = 20
+            this.visualUpdateOptions = options;
+            if (this.currentBarWidth <= this.visualSettings.xAxisFormatting.barWidth) {
+                this.currentBarWidth = this.visualSettings.xAxisFormatting.barWidth;
 
 
-            var scrollBarGroup = this.svg.append('g');
-            var scrollbarContainer = scrollBarGroup.append('rect')
-                .attr('width', this.scrollbarBreath)
-                .attr('height', this.innerHeight)
-                .attr('x', this.width - this.scrollbarBreath - this.margin.left)
-                .attr('y', 0)
-                .attr('fill', '#e1e1e1')
-                .attr('opacity', 0.5)
-                .attr('rx', 4)
-                .attr('ry', 4);
-            var scrollBarGroupHeight = this.innerHeight
-            this.innerHeight = currentBarWidth * this.barChartData.length
-                + (currentBarWidth * xScale.padding());
+                var scrollBarGroup = this.svg.append('g');
+                var scrollbarContainer = scrollBarGroup.append('rect')
+                    .attr('width', this.scrollbarBreath)
+                    .attr('height', this.innerHeight)
+                    .attr('x', this.width - this.scrollbarBreath - this.margin.left)
+                    .attr('y', 0)
+                    .attr('fill', '#e1e1e1')
+                    .attr('opacity', 0.5)
+                    .attr('rx', 4)
+                    .attr('ry', 4);
+                var scrollBarGroupHeight = this.innerHeight
+                this.innerHeight = this.currentBarWidth * this.barChartData.length
+                    + (this.currentBarWidth * xScale.padding());
 
 
-            var dragStartPosition = 0;
-            var dragScrollBarXStartposition = 0;
-            var dragStartPositionWheel = 0
+                var dragStartPosition = 0;
+                var dragScrollBarXStartposition = 0;
+                var dragStartPositionWheel = 0
 
-            var scrollbarHeight = (scrollBarGroupHeight) * (scrollBarGroupHeight) / this.innerHeight;
+                var scrollbarHeight = (scrollBarGroupHeight) * (scrollBarGroupHeight) / this.innerHeight;
 
 
-            var scrollbar = scrollBarGroup.append('rect')
-                .attr('width', this.scrollbarBreath)
-                .attr('height', scrollbarHeight)
-                .attr('x', this.width - this.scrollbarBreath - this.margin.left)
-                .attr('y', 0)
-                .attr('fill', '#000')
-                .attr('opacity', 0.24)
-                .attr('rx', 4)
-                .attr('ry', 4);
+                var scrollbar = scrollBarGroup.append('rect')
+                    .attr('width', this.scrollbarBreath)
+                    .attr('height', scrollbarHeight)
+                    .attr('x', this.width - this.scrollbarBreath - this.margin.left)
+                    .attr('y', 0)
+                    .attr('fill', '#000')
+                    .attr('opacity', 0.24)
+                    .attr('rx', 4)
+                    .attr('ry', 4);
 
-            var scrollBarHorizontalDragBar = d3.drag()
-                .on("start", () => {
-                    dragStartPosition = d3.event.y;
-                    dragScrollBarXStartposition = parseInt(scrollbar.attr('y'));
+                var scrollBarHorizontalDragBar = d3.drag()
+                    .on("start", () => {
+                        dragStartPosition = d3.event.y;
+                        dragScrollBarXStartposition = parseInt(scrollbar.attr('y'));
 
-                })
-                .on("drag", () => {
-                    var scrollBarMovement = d3.event.y - dragStartPosition;
+                    })
+                    .on("drag", () => {
+                        var scrollBarMovement = d3.event.y - dragStartPosition;
 
-                    //do not move the scroll bar beyond the x axis or after the end of the scroll bar
-                    if (dragScrollBarXStartposition + scrollBarMovement >= 0 && (dragScrollBarXStartposition + scrollBarMovement + scrollbarHeight <= (this.height - this.margin.top - this.margin.bottom - this.yAxisHeightHorizontal))) {
-                        scrollbar.attr('y', dragScrollBarXStartposition + scrollBarMovement);
-                        this.gScrollable.attr('transform', `translate(${0},${(dragScrollBarXStartposition + scrollBarMovement) / (this.height - this.margin.top - this.margin.bottom - this.yAxisHeightHorizontal - scrollbarHeight) * (this.innerHeight - this.height + this.margin.top + this.margin.bottom + this.yAxisHeightHorizontal) * -1})`);
+                        //do not move the scroll bar beyond the x axis or after the end of the scroll bar
+                        if (dragScrollBarXStartposition + scrollBarMovement >= 0 && (dragScrollBarXStartposition + scrollBarMovement + scrollbarHeight <= (this.height - this.margin.top - this.margin.bottom - this.yAxisHeightHorizontal))) {
+                            scrollbar.attr('y', dragScrollBarXStartposition + scrollBarMovement);
+                            this.gScrollable.attr('transform', `translate(${0},${(dragScrollBarXStartposition + scrollBarMovement) / (this.height - this.margin.top - this.margin.bottom - this.yAxisHeightHorizontal - scrollbarHeight) * (this.innerHeight - this.height + this.margin.top + this.margin.bottom + this.yAxisHeightHorizontal) * -1})`);
+                        }
+                    });
+
+                var scrollBarHorizontalWheel = d3.zoom().on("zoom", () => {
+
+                    var zoomScrollContainerheight = parseInt(scrollbarContainer.attr('height'));
+                    var zoomScrollBarMovement = d3.event.sourceEvent.deltaY / 100 * zoomScrollContainerheight / this.barChartData.length;
+                    var zoomScrollBarXStartposition = parseInt(scrollbar.attr('y'));
+                    var zoomScrollBarheight = parseInt(scrollbar.attr('height'));
+
+                    var scrollBarMovement = zoomScrollBarXStartposition + zoomScrollBarMovement;
+                    if (scrollBarMovement < 0) {
+                        scrollBarMovement = 0;
                     }
+                    if (scrollBarMovement + zoomScrollBarheight > zoomScrollContainerheight) {
+                        scrollBarMovement = zoomScrollContainerheight - zoomScrollBarheight
+                    }
+                    scrollbar.attr('y', scrollBarMovement);
+                    this.gScrollable.attr('transform', `translate(${0},${(scrollBarMovement) / (this.height - this.margin.top - this.margin.bottom - this.yAxisHeightHorizontal - scrollbarHeight) * (this.innerHeight - this.height + this.margin.top + this.margin.bottom + this.yAxisHeightHorizontal) * -1})`);
+
+
+
                 });
 
-            var scrollBarHorizontalWheel = d3.zoom().on("zoom", () => {
-
-                var zoomScrollContainerheight = parseInt(scrollbarContainer.attr('height'));
-                var zoomScrollBarMovement = d3.event.sourceEvent.deltaY / 100 * zoomScrollContainerheight / this.barChartData.length;
-                var zoomScrollBarXStartposition = parseInt(scrollbar.attr('y'));
-                var zoomScrollBarheight = parseInt(scrollbar.attr('height'));
-
-                var scrollBarMovement = zoomScrollBarXStartposition + zoomScrollBarMovement;
-                if (scrollBarMovement < 0) {
-                    scrollBarMovement = 0;
-                }
-                if (scrollBarMovement + zoomScrollBarheight > zoomScrollContainerheight) {
-                    scrollBarMovement = zoomScrollContainerheight - zoomScrollBarheight
-                }
-                scrollbar.attr('y', scrollBarMovement);
-                this.gScrollable.attr('transform', `translate(${0},${(scrollBarMovement) / (this.height - this.margin.top - this.margin.bottom - this.yAxisHeightHorizontal - scrollbarHeight) * (this.innerHeight - this.height + this.margin.top + this.margin.bottom + this.yAxisHeightHorizontal) * -1})`);
-
-
-
-            });
-
-            scrollBarHorizontalDragBar(this.svg);
-            scrollBarHorizontalWheel(this.svg);
-            scrollBarHorizontalDragBar(scrollbar);
+                scrollBarHorizontalDragBar(this.svg);
+                scrollBarHorizontalWheel(this.svg);
+                scrollBarHorizontalDragBar(scrollbar);
+            }
         }
     }
     private createXaxisHorizontal(gParent, options, allDatatemp) {

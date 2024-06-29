@@ -1633,19 +1633,25 @@ export class Visual implements IVisual {
         var currNode = visualData[nodeItems];
         var childnode = [];
         var currCategoryText: string = currNode["category"];
-        var currCategoryArray: string[] = currCategoryText.split("|");
-        // var newDisplayName = currCategoryArray[levelItems + 1];
-        // if (currNode["isPillar"] == 1 || nodeItems == 0) {
+          var currCategoryArray: string[] = currCategoryText.split("|");
+          var newDisplayName
+          if (this.visualSettings.chartOrientation.orientation == "Horizontal") {
+                newDisplayName = currCategoryArray[levelItems + 1];
 
-        // } else {
-        //     var previousNode = visualData[nodeItems - 1];
-        //     var previousCategoryText: string = previousNode["category"];
-        //     var previousCategoryArray: string[] = previousCategoryText.split("|");
-        //     if (newDisplayName == previousCategoryArray[levelItems + 1]) {
-        //         newDisplayName = "";
-        //     }
-        // }
-        var newDisplayName = currCategoryText.split("|").reverse().join(", ");
+                if (currNode["isPillar"] == 1 || nodeItems == 0) {
+
+                } else {
+                    var previousNode = visualData[nodeItems - 1];
+                    var previousCategoryText: string = previousNode["category"];
+                    var previousCategoryArray: string[] = previousCategoryText.split("|");
+                    if (newDisplayName == previousCategoryArray[levelItems + 1]) {
+                        newDisplayName = "";
+                    }
+                }
+          }
+          else {
+              newDisplayName = currCategoryText.split("|").reverse().join(", ");
+          }
         childnode = this.getDataForCategory(
           currNode["value"],
           currNode["numberFormat"],
@@ -2055,17 +2061,24 @@ export class Visual implements IVisual {
         var childnode = [];
         var currCategoryText: string = currNode["category"];
         var currCategoryArray: string[] = currCategoryText.split("|");
-        // var newDisplayName = currCategoryArray[levelItems + 1];
-var newDisplayName = currCategoryText.split('|').reverse().join(', ')
-        // if (currNode["isPillar"] == 1 || nodeItems == 0) {
-        // } else {
-        //   var previousNode = visualData[nodeItems - 1];
-        //   var previousCategoryText: string = previousNode["category"];
-        //   var previousCategoryArray: string[] = previousCategoryText.split("|");
-        //   if (newDisplayName == previousCategoryArray[levelItems + 1]) {
-        //     newDisplayName = "";
-        //   }
-        // }
+        var newDisplayName 
+            if (this.visualSettings.chartOrientation.orientation == "Horizontal") {
+                newDisplayName = currCategoryArray[levelItems + 1];
+
+                if (currNode["isPillar"] == 1 || nodeItems == 0) {
+
+                } else {
+                    var previousNode = visualData[nodeItems - 1];
+                    var previousCategoryText: string = previousNode["category"];
+                    var previousCategoryArray: string[] = previousCategoryText.split("|");
+                    if (newDisplayName == previousCategoryArray[levelItems + 1]) {
+                        newDisplayName = "";
+                    }
+                }
+          }
+          else {
+              newDisplayName = currCategoryText.split("|").reverse().join(", ");
+          }
 
         childnode = this.getDataForCategory(
           currNode["value"],
@@ -2097,7 +2110,7 @@ var newDisplayName = currCategoryText.split('|').reverse().join(', ')
     }
 
     // final array that contains all the values as the last array, while all the other array are only for additional x-axis
-   if(dataView.matrix.rows.levels.length === 1) totalData.push(visualData);
+    if (dataView.matrix.rows.levels.length === 1) totalData.push(visualData);
     return totalData;
   }
   private findLowestLevels() {
@@ -2328,35 +2341,7 @@ var newDisplayName = currCategoryText.split('|').reverse().join(', ')
       }
       this.findBottom = 0;
       var myWidth = currChildCount + myBandwidth;
-      if (allDataIndex != levels - 1) {
-        if (dataView.matrix.valueSources.length == 1) {
-          var myxAxisParent;
-
-          this.createAxis(
-            myxAxisParent,
-            g,
-            false,
-            myWidth,
-            0,
-            xScale,
-            xBaseScale,
-            currData,
-            allDataIndex,
-            levels,
-            xAxisrange,
-            myAxisParentHeight
-          );
-        } else {
-          for (
-            let index = 1;
-            index < dataView.matrix.valueSources.length;
-            index++
-          ) {
-            // var myxAxisParent;
-            // this.createAxis(myxAxisParent, g, false, myWidth, index, xScale, xBaseScale, currData, allDataIndex, levels, xAxisrange, myAxisParentHeight);
-          }
-        }
-      } else {
+      if (allDataIndex == levels - 1) {
         var myxAxisParent;
         this.createAxis(
           myxAxisParent,
@@ -2399,8 +2384,8 @@ var newDisplayName = currCategoryText.split('|').reverse().join(', ')
       this.margin.bottom -
       this.xAxisPosition -
       this.scrollbarBreath +
-      this.legendHeight
-      if(this.isLabelVertical) this.innerHeight -= 30
+      this.legendHeight;
+    if (this.isLabelVertical) this.innerHeight -= 30;
   }
   private findBottom;
 
@@ -2469,13 +2454,15 @@ var newDisplayName = currCategoryText.split('|').reverse().join(', ')
           return d.displayName;
         }
       });
-      if (columnWidth <= textWidth) {
-          this.isLabelVertical = true;
-      }
-      else {
-          this.isLabelVertical = false;
-      }
-    myxAxisParent.selectAll("path").attr("transform", `translate(0,${this.isLabelVertical ? '-30' : '0' })`);
+    if (columnWidth <= textWidth) {
+      this.isLabelVertical = true;
+    } else {
+      this.isLabelVertical = false;
+    }
+
+      myxAxisParent
+      .selectAll("path")
+      .attr("transform", `translate(0,${this.isLabelVertical ? "-30" : "0"})`);
 
     if (
       this.visualType == "drillable" ||

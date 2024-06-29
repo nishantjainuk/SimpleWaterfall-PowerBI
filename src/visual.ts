@@ -1681,7 +1681,7 @@ export class Visual implements IVisual {
       totalData.push(categorynode);
     }
     // final array that contains all the values as the last array, while all the other array are only for additional x-axis
-    if (dataView.matrix.rows.levels.length === 1) totalData.push(visualData);
+    if (dataView.matrix.rows.levels.length === 1 || this.visualSettings.chartOrientation.orientation == "Horizontal") totalData.push(visualData);
     // return totalData[0].map(e=>{return {...e , displayName : 'jaimin'}});
     return totalData;
   }
@@ -2110,7 +2110,7 @@ export class Visual implements IVisual {
     }
 
     // final array that contains all the values as the last array, while all the other array are only for additional x-axis
-    if (dataView.matrix.rows.levels.length === 1) totalData.push(visualData);
+    if (dataView.matrix.rows.levels.length === 1  || this.visualSettings.chartOrientation.orientation == "Horizontal") totalData.push(visualData);
     return totalData;
   }
   private findLowestLevels() {

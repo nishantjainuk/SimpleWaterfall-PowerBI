@@ -856,7 +856,18 @@
                     }
                 }
             }
+        },
+    "general": {
+        "properties": {
+            "formatString": {
+                "type": {
+                    "formatting": {
+                        "formatString": true
+                    }
+                }
+            }
         }
+}
     },
     "privileges": [{
         "name": "ExportContent",

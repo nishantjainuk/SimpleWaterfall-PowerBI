@@ -338,10 +338,11 @@ export class Visual implements IVisual {
         this.svgYAxis.attr("height", this.height);
 
         this.margin = {
-            top: this.visualSettings.margins.topMargin + 20,
-            right: this.visualSettings.margins.rightMargin,
-            bottom: this.visualSettings.margins.bottomMargin,
-            left: this.visualSettings.margins.leftMargin
+          // top: this.visualSettings.margins.topMargin + 20,
+          top: this.visualSettings.margins.topMargin + 13,
+          right: this.visualSettings.margins.rightMargin,
+          bottom: this.visualSettings.margins.bottomMargin,
+          left: this.visualSettings.margins.leftMargin,
         };
         this.innerWidth = this.width - this.margin.left - this.margin.right;
         this.innerHeight = this.height - this.margin.top - this.margin.bottom;
@@ -359,7 +360,7 @@ export class Visual implements IVisual {
         this.checkBarWidth(options);
         this.createXaxis(this.gScrollable, options, allData);
         this.createYAxis(this.svgYAxis, this.margin.left + this.yAxisWidth);
-        //this.createYAxis(this.gScrollable, 0);
+        this.createYAxis(this.gScrollable, 0);
         this.createBars(this.gScrollable, this.barChartData);
         this.createLabels(this.gScrollable);
         
@@ -396,7 +397,7 @@ export class Visual implements IVisual {
                 this.innerWidth = this.currentBarWidth * this.barChartData.length
                     + (this.currentBarWidth * xScale.padding());
 
-                this.innerHeight = this.height - this.margin.top - this.margin.bottom - this.scrollbarBreath;;
+                this.innerHeight = this.height - this.margin.top - this.margin.bottom - this.scrollbarBreath;
                 var dragStartPosition = 0;
                 var dragScrollBarXStartposition = 0;
                 var scrollbarwidth = this.width * this.width / this.innerWidth;
@@ -1360,18 +1361,21 @@ export class Visual implements IVisual {
                 var childnode = [];
                 var currCategoryText: string = currNode["category"];
                 var currCategoryArray: string[] = currCategoryText.split("|");
-                var newDisplayName = currCategoryArray[levelItems + 1];
+                // var newDisplayName = currCategoryArray[levelItems + 1];
+                // if (currNode["isPillar"] == 1 || nodeItems == 0) {
 
-                if (currNode["isPillar"] == 1 || nodeItems == 0) {
-
-                } else {
-                    var previousNode = visualData[nodeItems - 1];
-                    var previousCategoryText: string = previousNode["category"];
-                    var previousCategoryArray: string[] = previousCategoryText.split("|");
-                    if (newDisplayName == previousCategoryArray[levelItems + 1]) {
-                        newDisplayName = "";
-                    }
-                }
+                // } else {
+                //     var previousNode = visualData[nodeItems - 1];
+                //     var previousCategoryText: string = previousNode["category"];
+                //     var previousCategoryArray: string[] = previousCategoryText.split("|");
+                //     if (newDisplayName == previousCategoryArray[levelItems + 1]) {
+                //         newDisplayName = "";
+                //     }
+                // }
+                var newDisplayName = currCategoryText
+                  .split("|")
+                  .reverse()
+                  .join(", ");
                 childnode = this.getDataForCategory(currNode["value"], currNode["numberFormat"], newDisplayName, currCategoryText, currNode["isPillar"], null, currNode["sortOrderIndex"], childrenCount, currNode["toolTipDisplayValue1"], currNode["toolTipDisplayValue2"], currNode["Measure1Value"], currNode["Measure2Value"]);
                 if (displayNode != undefined) {
                     if (displayNode.displayName == currCategoryArray[levelItems + 1]) {
@@ -1388,7 +1392,9 @@ export class Visual implements IVisual {
             totalData.push(categorynode);
         }
         // final array that contains all the values as the last array, while all the other array are only for additional x-axis
-        totalData.push(visualData);
+        if (dataView.matrix.rows.levels.length === 1)
+          totalData.push(visualData);
+        // return totalData[0].map(e=>{return {...e , displayName : 'jaimin'}});
         return totalData;
     }
 
@@ -1889,8 +1895,8 @@ export class Visual implements IVisual {
                     this.createAxis(myxAxisParent, g, false, myWidth, 0, xScale, xBaseScale, currData, allDataIndex, levels, xAxisrange, myAxisParentHeight);
                 } else {
                     for (let index = 1; index < dataView.matrix.valueSources.length; index++) {
-                        var myxAxisParent;
-                        this.createAxis(myxAxisParent, g, false, myWidth, index, xScale, xBaseScale, currData, allDataIndex, levels, xAxisrange, myAxisParentHeight);
+                        // var myxAxisParent;
+                        // this.createAxis(myxAxisParent, g, false, myWidth, index, xScale, xBaseScale, currData, allDataIndex, levels, xAxisrange, myAxisParentHeight);
                     }
                 }
 
@@ -1910,95 +1916,170 @@ export class Visual implements IVisual {
 
         g.attr('transform', `translate(${0},${this.height - this.xAxisPosition - this.margin.bottom - this.scrollbarBreath + this.legendHeight})`);
 
-        this.innerHeight = this.height - this.margin.top - this.margin.bottom - this.xAxisPosition - this.scrollbarBreath + this.legendHeight;
+        this.innerHeight = this.height - this.margin.top - this.margin.bottom - this.xAxisPosition - this.scrollbarBreath + this.legendHeight -30;
     }
     private findBottom;
 
-    private createAxis(myxAxisParent, g, baseAxis: boolean, myWidth, index: number, xScale, xBaseScale, currData, allDataIndex, levels, xAxisrange, myAxisParentHeight) {
+    private createAxis(myxAxisParent, g, baseAxis: boolean, myWidth, index: number, xScale, xBaseScale, currData, allDataIndex, levels, xAxisrange, myAxisParentHeight) {     
         var myxAxisParentx = d3.axisBottom(xScale).tickSize(0);
-        myxAxisParentx.tickSizeOuter(0);
-        myxAxisParent = g.append('g')
-            .style("font", this.visualSettings.xAxisFormatting.fontSize + "pt times")
-            .style("font-family", this.visualSettings.xAxisFormatting.fontFamily)
-            .style("color", this.visualSettings.xAxisFormatting.fontColor)
-            .attr('class', 'myXaxis')
-            .call(myxAxisParentx);
-        if (baseAxis) {
-            myxAxisParent
-                .attr('transform', `translate(0,${myAxisParentHeight})`)
-                .selectAll('path').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor);
-        } else if (index == 0) {
-            myxAxisParent
-                .attr('transform', `translate(${((xBaseScale.step() * xBaseScale.padding() * 0.5))},${myAxisParentHeight})`)
-                .selectAll('path').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor);
-        } else {
-            myxAxisParent
-                .attr('transform', `translate(${(xBaseScale.bandwidth() + (xBaseScale.step() * xBaseScale.padding() * 1.5)) + myWidth * (index - 1)},${myAxisParentHeight})`)
-                .selectAll('path').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor);
-        }
-        var xAxislabels = myxAxisParent.selectAll(".tick text").data(currData).text(d => d.displayName);
-        if (this.visualType == "drillable" || this.visualType == "staticCategory" || this.visualType == "drillableCategory") {
-            xAxislabels.on('click', (d) => {
-                // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)                
-                if (this.allowInteractions) {
-                    const isCtrlPressed: boolean = (<MouseEvent>d3.event).ctrlKey;
-                    if (this.selectionManager.hasSelection() && !isCtrlPressed) {
-                        this.bars.attr('fill-opacity', 1);
-                    }
-                    this.selectionManager
-                        .select(d.selectionId, isCtrlPressed)
-                        .then((ids: ISelectionId[]) => {
-                            this.syncSelectionState(this.bars, ids);
-                        });
-                    (<Event>d3.event).stopPropagation();
-                }
-            });
-        }
-        //tooltip for x-axis labels
-        this.tooltipServiceWrapper.addTooltip(
-            myxAxisParent.selectAll(".tick text"),
-            (tooltipEvent: TooltipEventArgs<number>) => this.getTooltipXaxis(tooltipEvent.data),
-            (tooltipEvent: TooltipEventArgs<number>) => null
+        const wrapText = this.visualSettings.xAxisFormatting.labelWrapText;
+        const columnWidth = this.getColumnWidth(
+            currData,
+            allDataIndex,
+            levels,
+            xScale,
+            xAxisrange
         );
+        var textWidth = 0;
+        myxAxisParentx.tickSizeOuter(0);
+        
+        myxAxisParent = g
+        .append("g")
+        .style(
+            "font",
+            this.visualSettings.xAxisFormatting.fontSize + "pt times"
+        )
+        .style("font-family", this.visualSettings.xAxisFormatting.fontFamily)
+        .style("color", this.visualSettings.xAxisFormatting.fontColor)
+        .attr("class", "myXaxis")
+        .call(myxAxisParentx);
+      // if (baseAxis) {
+      //     myxAxisParent
+      //         .attr('transform', `translate(0,${myAxisParentHeight})`)
+      //         .selectAll('path').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor);
+      // } else if (index == 0) {
+      //     myxAxisParent
+      //         .attr('transform', `translate(${((xBaseScale.step() * xBaseScale.padding() * 0.5))},${myAxisParentHeight})`)
+      //         .selectAll('path').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor);
+      // } else {
+      //     myxAxisParent
+      //         .attr('transform', `translate(${(xBaseScale.bandwidth() + (xBaseScale.step() * xBaseScale.padding() * 1.5)) + myWidth * (index - 1)},${myAxisParentHeight})`)
+      //         .selectAll('path').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor);
+      // }
+      var textWidth = 0;
+      var xAxislabels = myxAxisParent
+        .selectAll(".tick text")
+        .data(currData)
+        .style("padding", 20 + "px")
+        .each(function () {
+          var labelWidth = this.getBBox().width;
+          textWidth = Math.max(textWidth, labelWidth); // Update textWidth if labelWidth is greater
+        })
+        .text((d) => {
+            if (
+            d.displayName.length > 8 &&
+            !wrapText &&
+            columnWidth <= textWidth
+          ) {
+            return d.displayName.substring(0, 9) + "...";
+          } else {
+            return d.displayName;
+          }
+        });
 
-
-        //move the labels of all secondary axis to the right as they don't have pillars
-
-        if (allDataIndex != (levels - 1)) {
-            if (this.visualSettings.xAxisFormatting.labelWrapText) {
-                myxAxisParent.selectAll(".tick text")
-                    .call(this.labelWrapText, xBaseScale.bandwidth());
-            } else {
-                myxAxisParent.selectAll(".tick text")
-                    .call(this.labelNoWrapText, xBaseScale.bandwidth());
+      if (
+        this.visualType == "drillable" ||
+        this.visualType == "staticCategory" ||
+        this.visualType == "drillableCategory"
+      ) {
+        xAxislabels.on("click", (d) => {
+          // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
+          if (this.allowInteractions) {
+            const isCtrlPressed: boolean = (<MouseEvent>d3.event).ctrlKey;
+            if (this.selectionManager.hasSelection() && !isCtrlPressed) {
+              this.bars.attr("fill-opacity", 1);
             }
+            this.selectionManager
+              .select(d.selectionId, isCtrlPressed)
+              .then((ids: ISelectionId[]) => {
+                this.syncSelectionState(this.bars, ids);
+              });
+            (<Event>d3.event).stopPropagation();
+          }
+        });
+      }
+      //tooltip for x-axis labels
+      this.tooltipServiceWrapper.addTooltip(
+        myxAxisParent.selectAll(".tick text"),
+        (tooltipEvent: TooltipEventArgs<number>) =>
+          this.getTooltipXaxis(tooltipEvent.data),
+        (tooltipEvent: TooltipEventArgs<number>) => null
+      );
 
+      //move the labels of all secondary axis to the right as they don't have pillars
 
-
-            myxAxisParent.selectAll(".tick text").data(currData)
-                .attr('transform', (d, i) => `translate(${(xAxisrange[i + 1] - xAxisrange[i]) / 2
-                    },${this.visualSettings.xAxisFormatting.padding})`);
-
-            myxAxisParent.selectAll("line").remove();
+      if (allDataIndex != levels - 1) {
+        if (wrapText) {
+          myxAxisParent
+            .selectAll(".tick text")
+            .call(this.labelWrapText, xBaseScale.bandwidth());
         } else {
-            if (this.visualSettings.xAxisFormatting.labelWrapText) {
-                myxAxisParent.selectAll(".tick text")
-                    .call(this.labelWrapText, xBaseScale.bandwidth());
-            } else {
-                myxAxisParent.selectAll(".tick text")
-                    .call(this.labelNoWrapText, xBaseScale.bandwidth());
-            }
-            xAxislabels.attr('transform', `translate(0,${this.visualSettings.xAxisFormatting.padding})`);
+          myxAxisParent
+            .selectAll(".tick text")
+            .call(this.labelNoWrapText, xBaseScale.bandwidth());
         }
 
-        myxAxisParent.selectAll("text").each((d, i, nodes) => {
-            if (this.findBottom <= nodes[i].getBoundingClientRect().bottom) {
-                this.findBottom = nodes[i].getBoundingClientRect().bottom - this.legendHeight;
-            };
-        });
-        this.currentAxisGridlines(myxAxisParent, currData, allDataIndex, levels, xScale, xAxisrange);
+        myxAxisParent
+          .selectAll(".tick text")
+          .data(currData)
+          .attr(
+            "transform",
+            (d, i) =>
+              `translate(${(xAxisrange[i + 1] - xAxisrange[i]) / 2},${
+                this.visualSettings.xAxisFormatting.padding
+              })`
+          );
 
+        myxAxisParent.selectAll("line").remove();
+      } else {
+
+          if (wrapText) {
+          myxAxisParent
+            .selectAll(".tick text")
+            .call(this.labelWrapText, xBaseScale.bandwidth());
+        } else {
+          myxAxisParent
+            .selectAll(".tick text")
+            .call(this.labelNoWrapText, xBaseScale.bandwidth());
+        }
+     xAxislabels.attr(
+       "transform",
+       `translate(0,${this.visualSettings.xAxisFormatting.padding}) ${
+         columnWidth <= textWidth && !wrapText ? "rotate(-90)" : ""
+       }`
+     );
+      }
+
+      myxAxisParent.selectAll("text").each((d, i, nodes) => {
+        if (this.findBottom <= nodes[i].getBoundingClientRect().bottom) {
+          this.findBottom =
+            nodes[i].getBoundingClientRect().bottom - this.legendHeight;
+        }
+      });
+    //   this.currentAxisGridlines(
+    //     myxAxisParent,
+    //     currData,
+    //     allDataIndex,
+    //     levels,
+    //     xScale,
+    //     xAxisrange
+    //   );
     }
+        private getColumnWidth(currData: any , allDataIndex : any ,levels: any, xScale: any, xAxisrange: any) {
+            var x1;
+            if (allDataIndex == (levels - 1)) {
+                x1 = xScale(currData[0].category) - (xScale.padding() * xScale.step()) / 2;
+            } else {
+                x1 = xAxisrange[0];
+            }
+            var x2;
+            if (allDataIndex == (levels - 1)) {
+                x2 = xScale(currData[1].category) - (xScale.padding() * xScale.step()) / 2;
+            } else {
+                x2 = xAxisrange[1];
+            }
+            return x2-x1;            
+        }
     private currentAxisGridlines(myxAxisParent: any, currData: any, allDataIndex: any, levels: any, xScale: any, xAxisrange: any) {
         if (this.visualSettings.xAxisFormatting.showGridLine) {
 
@@ -2149,32 +2230,32 @@ export class Visual implements IVisual {
 
             width = standardwidth * text.datum()["childrenCount"];
             joinwith = "";
-            var words = text.text().split("").reverse();
+            // var words = text.text().split("").reverse();
 
 
-            var tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
-            while (word = words.pop()) {
-                line.push(word);
-                tspan.text(line.join(joinwith));
-                if (tspan.node().getComputedTextLength() > width) {
+            // var tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+            // while (word = words.pop()) {
+            //     line.push(word);
+            //     tspan.text(line.join(joinwith));
+            //     if (tspan.node().getComputedTextLength() > width) {
 
-                    // if the 3 lines goes over the standard width, then add "..." and stop adding any more lines
-                    if (line.length != 1) {
-                        if (lineNumber == 2) {
-                            tspan.text(tspan.text().substring(0, tspan.text().length - 3) + "...");
-                            break;
-                        } else {
-                            line.pop();
-                            tspan.text(line.join(joinwith));
-                            line = [word];
-                            tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
-                        }
-                    } else {
+            //         // if the 3 lines goes over the standard width, then add "..." and stop adding any more lines
+            //         if (line.length != 1) {
+            //             if (lineNumber == 2) {
+            //                 tspan.text(tspan.text().substring(0, tspan.text().length - 3) + "...");
+            //                 break;
+            //             } else {
+            //                 line.pop();
+            //                 tspan.text(line.join(joinwith));
+            //                 line = [word];
+            //                 tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+            //             }
+            //         } else {
 
-                    }
-                }
+            //         }
+            //     }
 
-            }
+            // }
         });
     }
     private labelWrapText(text, standardwidth) {

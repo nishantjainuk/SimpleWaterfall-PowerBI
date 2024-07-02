@@ -160,6 +160,8 @@ export class Visual implements IVisual {
     return this.enumerateObjects.enumerateObjectInstances(options);
   }
   public update(options: VisualUpdateOptions) {
+    console.log({ options });
+
     //Certification requirement to use rendering API//
     //-------------------------------------------------------------------------
     this.events.renderingStarted(options);
@@ -618,6 +620,7 @@ export class Visual implements IVisual {
         .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
         .style("color", this.visualSettings.yAxisFormatting.fontColor)
         .attr("class", "myYaxis");
+        
       yAxisScale.tickFormat((d) => this.formatValueforYAxis(d));
 
       yAxis.call(yAxisScale);
@@ -900,6 +903,7 @@ export class Visual implements IVisual {
       }
       return yPosition;
     };
+    console.log({ barChartData: this.barChartData });
     var xScale = d3
       .scaleBand()
       .domain(this.barChartData.map(this.xValue))
@@ -1633,25 +1637,24 @@ export class Visual implements IVisual {
         var currNode = visualData[nodeItems];
         var childnode = [];
         var currCategoryText: string = currNode["category"];
-          var currCategoryArray: string[] = currCategoryText.split("|");
-          var newDisplayName
-          if (this.visualSettings.chartOrientation.orientation == "Horizontal") {
-                newDisplayName = currCategoryArray[levelItems + 1];
+        var currCategoryArray: string[] = currCategoryText.split("|");
+        var newDisplayName;
+        if (this.visualSettings.chartOrientation.orientation == "Horizontal") {
+          newDisplayName = currCategoryArray[levelItems + 1];
 
-                if (currNode["isPillar"] == 1 || nodeItems == 0) {
-
-                } else {
-                    var previousNode = visualData[nodeItems - 1];
-                    var previousCategoryText: string = previousNode["category"];
-                    var previousCategoryArray: string[] = previousCategoryText.split("|");
-                    if (newDisplayName == previousCategoryArray[levelItems + 1]) {
-                        newDisplayName = "";
-                    }
-                }
+          if (currNode["isPillar"] == 1 || nodeItems == 0) {
+          } else {
+            var previousNode = visualData[nodeItems - 1];
+            var previousCategoryText: string = previousNode["category"];
+            var previousCategoryArray: string[] =
+              previousCategoryText.split("|");
+            if (newDisplayName == previousCategoryArray[levelItems + 1]) {
+              newDisplayName = "";
+            }
           }
-          else {
-              newDisplayName = currCategoryText.split("|").reverse().join(", ");
-          }
+        } else {
+          newDisplayName = currCategoryText.split("|").reverse().join(", ");
+        }
         childnode = this.getDataForCategory(
           currNode["value"],
           currNode["numberFormat"],
@@ -1681,7 +1684,11 @@ export class Visual implements IVisual {
       totalData.push(categorynode);
     }
     // final array that contains all the values as the last array, while all the other array are only for additional x-axis
-    if (dataView.matrix.rows.levels.length === 1 || this.visualSettings.chartOrientation.orientation == "Horizontal") totalData.push(visualData);
+    if (
+      dataView.matrix.rows.levels.length === 1 ||
+      this.visualSettings.chartOrientation.orientation == "Horizontal"
+    )
+      totalData.push(visualData);
     // return totalData[0].map(e=>{return {...e , displayName : 'jaimin'}});
     return totalData;
   }
@@ -2061,24 +2068,23 @@ export class Visual implements IVisual {
         var childnode = [];
         var currCategoryText: string = currNode["category"];
         var currCategoryArray: string[] = currCategoryText.split("|");
-        var newDisplayName 
-            if (this.visualSettings.chartOrientation.orientation == "Horizontal") {
-                newDisplayName = currCategoryArray[levelItems + 1];
+        var newDisplayName;
+        if (this.visualSettings.chartOrientation.orientation == "Horizontal") {
+          newDisplayName = currCategoryArray[levelItems + 1];
 
-                if (currNode["isPillar"] == 1 || nodeItems == 0) {
-
-                } else {
-                    var previousNode = visualData[nodeItems - 1];
-                    var previousCategoryText: string = previousNode["category"];
-                    var previousCategoryArray: string[] = previousCategoryText.split("|");
-                    if (newDisplayName == previousCategoryArray[levelItems + 1]) {
-                        newDisplayName = "";
-                    }
-                }
+          if (currNode["isPillar"] == 1 || nodeItems == 0) {
+          } else {
+            var previousNode = visualData[nodeItems - 1];
+            var previousCategoryText: string = previousNode["category"];
+            var previousCategoryArray: string[] =
+              previousCategoryText.split("|");
+            if (newDisplayName == previousCategoryArray[levelItems + 1]) {
+              newDisplayName = "";
+            }
           }
-          else {
-              newDisplayName = currCategoryText.split("|").reverse().join(", ");
-          }
+        } else {
+          newDisplayName = currCategoryText.split("|").reverse().join(", ");
+        }
 
         childnode = this.getDataForCategory(
           currNode["value"],
@@ -2110,7 +2116,11 @@ export class Visual implements IVisual {
     }
 
     // final array that contains all the values as the last array, while all the other array are only for additional x-axis
-    if (dataView.matrix.rows.levels.length === 1  || this.visualSettings.chartOrientation.orientation == "Horizontal") totalData.push(visualData);
+    if (
+      dataView.matrix.rows.levels.length === 1 ||
+      this.visualSettings.chartOrientation.orientation == "Horizontal"
+    )
+      totalData.push(visualData);
     return totalData;
   }
   private findLowestLevels() {
@@ -2460,7 +2470,7 @@ export class Visual implements IVisual {
       this.isLabelVertical = false;
     }
 
-      myxAxisParent
+    myxAxisParent
       .selectAll("path")
       .attr("transform", `translate(0,${this.isLabelVertical ? "-30" : "0"})`);
 
@@ -3182,6 +3192,7 @@ export class Visual implements IVisual {
 
       return xScale(d.category) + xScale.step() / 2;
     };
+
     var xScale = d3
       .scaleBand()
       .domain(this.barChartData.map(this.xValue))
@@ -4023,6 +4034,7 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 1e6,
             precision: decimalPlaces,
+            format: d.numberFormat,
           });
           formattedvalue = iValueFormatter.format(d.value);
         } else if (Math.abs(d.value) >= 1000) {
@@ -4030,6 +4042,7 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 1001,
             precision: decimalPlaces,
+            format: d.numberFormat,
           });
           formattedvalue = iValueFormatter.format(d.value);
         } else {
@@ -4037,6 +4050,7 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 0,
             precision: decimalPlaces,
+            format: d.numberFormat,
           });
           formattedvalue = iValueFormatter.format(d.value);
         }
@@ -4163,6 +4177,8 @@ export class Visual implements IVisual {
   }
 
   private formatValueforYAxis(d: any) {
+    console.log({d, format: this.barChartData[0].numberFormat});
+    
     var iValueFormatter;
     var decimalPlaces = this.visualSettings.yAxisFormatting.decimalPlaces;
     var formattedvalue;
@@ -4176,6 +4192,7 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 1e9,
             precision: decimalPlaces,
+            format: this.barChartData[0].numberFormat
           });
           formattedvalue = iValueFormatter.format(d);
         } else if (
@@ -4186,6 +4203,7 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 1e6,
             precision: decimalPlaces,
+            format: this.barChartData[0].numberFormat
           });
           formattedvalue = iValueFormatter.format(d);
         } else if (
@@ -4196,6 +4214,7 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 1001,
             precision: decimalPlaces,
+            format: this.barChartData[0].numberFormat
           });
           formattedvalue = iValueFormatter.format(d);
         } else {
@@ -4203,6 +4222,7 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 0,
             precision: decimalPlaces,
+            format: this.barChartData[0].numberFormat
           });
           formattedvalue = iValueFormatter.format(d);
         }

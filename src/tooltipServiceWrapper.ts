@@ -64,12 +64,12 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
         let rootNode = this.rootElement;
 
         // Mouse events
-        selection.on("mouseover.tooltip", () => {
+        selection.on("mouseover.tooltip", (event) => {
             // Ignore mouseover while handling touch events
-            if (!this.canDisplayTooltip(d3.event))
+            if (!this.canDisplayTooltip(event))
                 return;
 
-            let tooltipEventArgs = this.makeTooltipEventArgs<T>(rootNode, true, false);
+            let tooltipEventArgs = this.makeTooltipEventArgs<T>(rootNode, true, false, event);
             if (!tooltipEventArgs)
                 return;
 
@@ -94,12 +94,12 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
             });
         });
 
-        selection.on("mousemove.tooltip", () => {
+        selection.on("mousemove.tooltip", (event) => {
             // Ignore mousemove while handling touch events
-            if (!this.canDisplayTooltip(d3.event))
+            if (!this.canDisplayTooltip(event))
                 return;
 
-            let tooltipEventArgs = this.makeTooltipEventArgs<T>(rootNode, true, false);
+            let tooltipEventArgs = this.makeTooltipEventArgs<T>(rootNode, true, false, event);
             if (!tooltipEventArgs)
                 return;
 
@@ -131,13 +131,13 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
         let touchEndEventName: string = TooltipServiceWrapper.touchEndEventName();
         let isPointerEvent: boolean = TooltipServiceWrapper.usePointerEvents();
 
-        selection.on(touchStartEventName + '.tooltip', () => {
+        selection.on(touchStartEventName + '.tooltip', (event) => {
             this.visualHostTooltipService.hide({
                 isTouchEvent: true,
                 immediately: true,
             });
 
-            let tooltipEventArgs = this.makeTooltipEventArgs<T>(rootNode, isPointerEvent, true);
+            let tooltipEventArgs = this.makeTooltipEventArgs<T>(rootNode, isPointerEvent, true, event);
             if (!tooltipEventArgs)
                 return;
 
@@ -172,12 +172,12 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
         this.visualHostTooltipService.hide({ immediately: true, isTouchEvent: false });
     }
 
-    private makeTooltipEventArgs<T>(rootNode: any, isPointerEvent: boolean, isTouchEvent: boolean): TooltipEventArgs<T> {
-        let target = <HTMLElement>(<Event>d3.event).target;
+    private makeTooltipEventArgs<T>(rootNode: any, isPointerEvent: boolean, isTouchEvent: boolean, event: Event): TooltipEventArgs<T> {
+        let target = <HTMLElement>event.target;
         let data: any = d3.select(target).datum();
 
-        let mouseCoordinates = this.getCoordinates(rootNode, isPointerEvent);
-        let elementCoordinates: number[] = this.getCoordinates(target, isPointerEvent);
+        let mouseCoordinates = this.getCoordinates(rootNode, isPointerEvent, event);
+        let elementCoordinates: number[] = this.getCoordinates(target, isPointerEvent, event);
         return {
             data: data,
             coordinates: mouseCoordinates,
@@ -211,18 +211,18 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
         return canDisplay;
     }
 
-    private getCoordinates(rootNode: any, isPointerEvent: boolean): number[] {
+    private getCoordinates(rootNode: any, isPointerEvent: boolean, event: Event): number[] {
         let coordinates: number[];
 
         if (isPointerEvent) {
             // copied from d3_eventSource (which is not exposed)
-            let e = <any>d3.event, s;
+            let e = <any>event, s;
             while (s = e.sourceEvent) e = s;
             let rect = rootNode.getBoundingClientRect();
             coordinates = [e.clientX - rect.left - rootNode.clientLeft, e.clientY - rect.top - rootNode.clientTop];
         }
         else {
-            let touchCoordinates = d3.touches(rootNode);
+            let touchCoordinates = d3.pointers(rootNode);
             if (touchCoordinates && touchCoordinates.length > 0) {
                 coordinates = touchCoordinates[0];
             }

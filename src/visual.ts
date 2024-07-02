@@ -335,8 +335,8 @@ export class Visual implements IVisual {
   private createWaterfallGraphVertical(options, allData) {
     this.svgYAxis = this.chartContainer.append("svg");
     this.svg = this.chartContainer.append("svg");
-    this.svg.on("contextmenu", () => {
-      const mouseEvent: MouseEvent = <MouseEvent>d3.event;
+    this.svg.on("contextmenu", (event) => {
+      const mouseEvent: MouseEvent = <MouseEvent>event;
       const eventTarget: EventTarget = mouseEvent.target;
       let dataPoint: any = d3.select(<d3.BaseType>eventTarget).datum();
       this.selectionManager.showContextMenu(
@@ -439,12 +439,16 @@ export class Visual implements IVisual {
 
         var scrollBarDragBar = d3
           .drag()
-          .on("start", () => {
-            dragStartPosition = d3.event.x;
+          .on("start", (event) => {
+            console.log("drag start");
+            
+            dragStartPosition = event.x;
             dragScrollBarXStartposition = parseInt(scrollbar.attr("x"));
           })
-          .on("drag", () => {
-            var scrollBarMovement = d3.event.x - dragStartPosition;
+          .on("drag", (event) => {
+            console.log("dragging");
+
+            var scrollBarMovement = event.x - dragStartPosition;
             //do not move the scroll bar beyond the x axis or after the end of the scroll bar
             if (
               dragScrollBarXStartposition + scrollBarMovement >= 0 &&
@@ -468,11 +472,11 @@ export class Visual implements IVisual {
               );
             }
           });
-        var scrollBarVerticalWheel = d3.zoom().on("zoom", () => {
+        var scrollBarVerticalWheel = d3.zoom().on("zoom", (event) => {
           var zoomScrollContainerheight = parseInt(
             scrollbarContainer.attr("width")
           );
-          var deltaY = d3.event.sourceEvent.deltaY;
+          var deltaY = event.sourceEvent.deltaY;
 
           var zoomScrollBarMovement =
             ((deltaY / 100) * zoomScrollContainerheight) /
@@ -1040,7 +1044,7 @@ export class Visual implements IVisual {
         // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
 
         if (this.allowInteractions) {
-          const isCtrlPressed: boolean = (<MouseEvent>d3.event).ctrlKey;
+          const isCtrlPressed: boolean = (<MouseEvent>d).ctrlKey;
           if (this.selectionManager.hasSelection() && !isCtrlPressed) {
             this.bars.attr("fill-opacity", 1);
           }
@@ -1049,7 +1053,7 @@ export class Visual implements IVisual {
             .then((ids: ISelectionId[]) => {
               this.syncSelectionState(this.bars, ids);
             });
-          (<Event>d3.event).stopPropagation();
+          (<Event>d).stopPropagation();
         }
       });
     }
@@ -2482,7 +2486,7 @@ export class Visual implements IVisual {
       xAxislabels.on("click", (d) => {
         // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
         if (this.allowInteractions) {
-          const isCtrlPressed: boolean = (<MouseEvent>d3.event).ctrlKey;
+          const isCtrlPressed: boolean = (<MouseEvent>d).ctrlKey;
           if (this.selectionManager.hasSelection() && !isCtrlPressed) {
             this.bars.attr("fill-opacity", 1);
           }
@@ -2491,7 +2495,7 @@ export class Visual implements IVisual {
             .then((ids: ISelectionId[]) => {
               this.syncSelectionState(this.bars, ids);
             });
-          (<Event>d3.event).stopPropagation();
+          (<Event>d).stopPropagation();
         }
       });
     }
@@ -2908,8 +2912,8 @@ export class Visual implements IVisual {
   private createWaterfallGraphHorizontal(options, allData) {
     this.svg = this.chartContainer.append("svg");
     this.svgYAxis = this.chartContainer.append("svg");
-    this.svg.on("contextmenu", () => {
-      const mouseEvent: MouseEvent = <MouseEvent>d3.event;
+    this.svg.on("contextmenu", (event) => {
+      const mouseEvent: MouseEvent = <MouseEvent>event;
       const eventTarget: EventTarget = mouseEvent.target;
       let dataPoint: any = d3.select(<d3.BaseType>eventTarget).datum();
       this.selectionManager.showContextMenu(
@@ -3059,7 +3063,7 @@ export class Visual implements IVisual {
         // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
 
         if (this.allowInteractions) {
-          const isCtrlPressed: boolean = (<MouseEvent>d3.event).ctrlKey;
+          const isCtrlPressed: boolean = (<MouseEvent>d).ctrlKey;
           if (this.selectionManager.hasSelection() && !isCtrlPressed) {
             this.bars.attr("fill-opacity", 1);
           }
@@ -3068,7 +3072,7 @@ export class Visual implements IVisual {
             .then((ids: ISelectionId[]) => {
               this.syncSelectionState(this.bars, ids);
             });
-          (<Event>d3.event).stopPropagation();
+          (<Event>d).stopPropagation();
         }
       });
     }
@@ -3381,12 +3385,12 @@ export class Visual implements IVisual {
 
         var scrollBarHorizontalDragBar = d3
           .drag()
-          .on("start", () => {
-            dragStartPosition = d3.event.y;
+          .on("start", (event) => {
+            dragStartPosition = event.y;
             dragScrollBarXStartposition = parseInt(scrollbar.attr("y"));
           })
-          .on("drag", () => {
-            var scrollBarMovement = d3.event.y - dragStartPosition;
+          .on("drag", (event) => {
+            var scrollBarMovement = event.y - dragStartPosition;
 
             //do not move the scroll bar beyond the x axis or after the end of the scroll bar
             if (
@@ -3423,12 +3427,12 @@ export class Visual implements IVisual {
             }
           });
 
-        var scrollBarHorizontalWheel = d3.zoom().on("zoom", () => {
+        var scrollBarHorizontalWheel = d3.zoom().on("zoom", (event) => {
           var zoomScrollContainerheight = parseInt(
             scrollbarContainer.attr("height")
           );
           var zoomScrollBarMovement =
-            ((d3.event.sourceEvent.deltaY / 100) * zoomScrollContainerheight) /
+            ((event.sourceEvent.deltaY / 100) * zoomScrollContainerheight) /
             this.barChartData.length;
           var zoomScrollBarXStartposition = parseInt(scrollbar.attr("y"));
           var zoomScrollBarheight = parseInt(scrollbar.attr("height"));
@@ -3664,7 +3668,7 @@ export class Visual implements IVisual {
       xAxislabels.on("click", (d) => {
         // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
         if (this.allowInteractions) {
-          const isCtrlPressed: boolean = (<MouseEvent>d3.event).ctrlKey;
+          const isCtrlPressed: boolean = (<MouseEvent>d).ctrlKey;
           if (this.selectionManager.hasSelection() && !isCtrlPressed) {
             this.bars.attr("fill-opacity", 1);
           }
@@ -3673,7 +3677,7 @@ export class Visual implements IVisual {
             .then((ids: ISelectionId[]) => {
               this.syncSelectionState(this.bars, ids);
             });
-          (<Event>d3.event).stopPropagation();
+          (<Event>d).stopPropagation();
         }
       });
     }

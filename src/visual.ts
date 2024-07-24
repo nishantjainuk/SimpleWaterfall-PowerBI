@@ -160,8 +160,6 @@ export class Visual implements IVisual {
     return this.enumerateObjects.enumerateObjectInstances(options);
   }
   public update(options: VisualUpdateOptions) {
-    console.log({ options });
-
     //Certification requirement to use rendering API//
     //-------------------------------------------------------------------------
     this.events.renderingStarted(options);
@@ -440,14 +438,10 @@ export class Visual implements IVisual {
         var scrollBarDragBar = d3
           .drag()
           .on("start", (event) => {
-            console.log("drag start");
-            
             dragStartPosition = event.x;
             dragScrollBarXStartposition = parseInt(scrollbar.attr("x"));
           })
           .on("drag", (event) => {
-            console.log("dragging");
-
             var scrollBarMovement = event.x - dragStartPosition;
             //do not move the scroll bar beyond the x axis or after the end of the scroll bar
             if (
@@ -907,7 +901,6 @@ export class Visual implements IVisual {
       }
       return yPosition;
     };
-    console.log({ barChartData: this.barChartData });
     var xScale = d3
       .scaleBand()
       .domain(this.barChartData.map(this.xValue))
@@ -1576,9 +1569,21 @@ export class Visual implements IVisual {
               allMeasureValues[indexMeasures][nodeItems].category.toString();
             var selectionId =
               allMeasureValues[indexMeasures][nodeItems].selectionId;
+            var formatString: string =
+              dataView.matrix.valueSources[indexMeasures]?.format;
+            if (
+              !formatString &&
+              dataView.matrix.rows.root?.children[indexMeasures]?.values[0]
+                ?.objects?.general?.formatString
+            ) {
+              formatString =
+                dataView.matrix.rows.root?.children[
+                  indexMeasures
+                ]?.values[0]?.objects?.general?.formatString.toString();
+            }
             data2Category = this.getDataForCategory(
               valueDifference,
-              dataView.matrix.valueSources[indexMeasures].format,
+              formatString,
               displayName,
               category,
               0,
@@ -1601,7 +1606,7 @@ export class Visual implements IVisual {
       Measure2Value = null;
       dataPillar = this.getDataForCategory(
         totalValueofMeasure,
-        dataView.matrix.valueSources[indexMeasures].format,
+        dataView.matrix.valueSources[indexMeasures].format || formatString,
         dataView.matrix.valueSources[indexMeasures].displayName,
         dataView.matrix.valueSources[indexMeasures].displayName,
         1,
@@ -4181,9 +4186,10 @@ export class Visual implements IVisual {
   }
 
   private formatValueforYAxis(d: any) {
-    console.log({d, format: this.barChartData[0].numberFormat});
-    
     var iValueFormatter;
+    var formatString = this.barChartData[0].numberFormat;
+    if (!formatString && this.barChartData[1].numberFormat)
+      formatString = this.barChartData[1].numberFormat;
     var decimalPlaces = this.visualSettings.yAxisFormatting.decimalPlaces;
     var formattedvalue;
     switch (this.visualSettings.yAxisFormatting.YAxisValueFormatOption) {
@@ -4196,7 +4202,7 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 1e9,
             precision: decimalPlaces,
-            format: this.barChartData[0].numberFormat
+            format: formatString,
           });
           formattedvalue = iValueFormatter.format(d);
         } else if (
@@ -4207,7 +4213,7 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 1e6,
             precision: decimalPlaces,
-            format: this.barChartData[0].numberFormat
+            format: formatString,
           });
           formattedvalue = iValueFormatter.format(d);
         } else if (
@@ -4218,7 +4224,7 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 1001,
             precision: decimalPlaces,
-            format: this.barChartData[0].numberFormat
+            format: formatString,
           });
           formattedvalue = iValueFormatter.format(d);
         } else {
@@ -4226,7 +4232,7 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 0,
             precision: decimalPlaces,
-            format: this.barChartData[0].numberFormat
+            format: formatString,
           });
           formattedvalue = iValueFormatter.format(d);
         }
@@ -4236,7 +4242,7 @@ export class Visual implements IVisual {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
           value: 1e3,
-          format: this.barChartData[0].numberFormat,
+          format: formatString,
           precision: decimalPlaces,
         });
         formattedvalue = iValueFormatter.format(d);
@@ -4246,7 +4252,7 @@ export class Visual implements IVisual {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
           value: 1e6,
-          format: this.barChartData[0].numberFormat,
+          format: formatString,
           precision: decimalPlaces,
         });
         formattedvalue = iValueFormatter.format(d);
@@ -4256,7 +4262,7 @@ export class Visual implements IVisual {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
           value: 1e9,
-          format: this.barChartData[0].numberFormat,
+          format: formatString,
           precision: decimalPlaces,
         });
         formattedvalue = iValueFormatter.format(d);
@@ -4265,7 +4271,7 @@ export class Visual implements IVisual {
       default: {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
-          format: this.barChartData[0].numberFormat,
+          format: formatString,
         });
         formattedvalue = iValueFormatter.format(d);
         break;

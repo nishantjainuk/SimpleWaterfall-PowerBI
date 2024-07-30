@@ -352,8 +352,7 @@ export class Visual implements IVisual {
     this.svgYAxis.attr("height", this.height);
 
     this.margin = {
-      // top: this.visualSettings.margins.topMargin + 20,
-      top: this.visualSettings.margins.topMargin + 13,
+      top: this.visualSettings.margins.topMargin + 20,
       right: this.visualSettings.margins.rightMargin,
       bottom: this.visualSettings.margins.bottomMargin,
       left: this.visualSettings.margins.leftMargin,

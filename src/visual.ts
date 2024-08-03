@@ -1311,7 +1311,9 @@ export class Visual implements IVisual {
         if (checkforZero == false) {
           var data2 = [];
           data2["value"] = +x.values[index].value;
-          data2["numberFormat"] = dataView.matrix.valueSources[index].format;
+          data2["numberFormat"] =
+            dataView.matrix.valueSources[index].format ||
+            this.extractFormattingValue(dataView, 0);
           data2["selectionId"] = this.host
             .createSelectionIdBuilder()
             .withMeasure(dataView.matrix.valueSources[index].queryName)
@@ -1522,7 +1524,7 @@ export class Visual implements IVisual {
       if (formatString2) return formatString2;
     }
 
-    return 0;
+    return undefined;
   }
   private getDataDrillableWaterfall(options: VisualUpdateOptions) {
     let dataView: DataView = options.dataViews[0];
@@ -1738,7 +1740,8 @@ export class Visual implements IVisual {
         data2["value"] = +x.values[measureIndex].value;
 
         data2["numberFormat"] =
-          dataView.matrix.valueSources[measureIndex].format;
+          dataView.matrix.valueSources[measureIndex].format ||
+          this.extractFormattingValue(dataView, 0);
         data2["selectionId"] = this.host
           .createSelectionIdBuilder()
           .withMatrixNode(x, dataView.matrix.rows.levels)
@@ -2052,17 +2055,14 @@ export class Visual implements IVisual {
           allMeasureValues[indexMeasures][nodeItems].category.toString();
         var selectionId =
           allMeasureValues[indexMeasures][nodeItems].selectionId;
-         var formatString: string =
-         dataView.matrix.valueSources[indexMeasures]?.format;
-         if (
-           !formatString &&
-           this.extractFormattingValue(dataView, indexMeasures)
-          ) {
-            formatString = this.extractFormattingValue(
-              dataView,
-              indexMeasures
-            );
-          }
+        var formatString: string =
+          dataView.matrix.valueSources[indexMeasures]?.format;
+        if (
+          !formatString &&
+          this.extractFormattingValue(dataView, indexMeasures)
+        ) {
+          formatString = this.extractFormattingValue(dataView, indexMeasures);
+        }
         data2Category = this.getDataForCategory(
           valueDifference,
           formatString,

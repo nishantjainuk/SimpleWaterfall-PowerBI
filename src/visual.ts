@@ -617,7 +617,6 @@ export class Visual implements IVisual {
         .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
         .style("color", this.visualSettings.yAxisFormatting.fontColor)
         .attr("class", "myYaxis");
-        
       yAxisScale.tickFormat((d) => this.formatValueforYAxis(d));
 
       yAxis.call(yAxisScale);
@@ -1511,6 +1510,20 @@ export class Visual implements IVisual {
     return visualData;
   }
 
+  private extractFormattingValue(dataView, index) {
+    const data = dataView.matrix.rows.root?.children[index];
+
+    if (data) {
+      const formatString1 = data.values?.[0]?.objects?.general?.formatString;
+      if (formatString1) return formatString1;
+
+      const formatString2 =
+        data.children?.[0]?.values?.[0]?.objects?.general?.formatString;
+      if (formatString2) return formatString2;
+    }
+
+    return 0;
+  }
   private getDataDrillableWaterfall(options: VisualUpdateOptions) {
     let dataView: DataView = options.dataViews[0];
     var totalData = [];
@@ -1572,13 +1585,12 @@ export class Visual implements IVisual {
               dataView.matrix.valueSources[indexMeasures]?.format;
             if (
               !formatString &&
-              dataView.matrix.rows.root?.children[indexMeasures]?.values[0]
-                ?.objects?.general?.formatString
+              this.extractFormattingValue(dataView, indexMeasures)
             ) {
-              formatString =
-                dataView.matrix.rows.root?.children[
-                  indexMeasures
-                ]?.values[0]?.objects?.general?.formatString.toString();
+              formatString = this.extractFormattingValue(
+                dataView,
+                indexMeasures
+              );
             }
             data2Category = this.getDataForCategory(
               valueDifference,
@@ -1605,7 +1617,7 @@ export class Visual implements IVisual {
       Measure2Value = null;
       dataPillar = this.getDataForCategory(
         totalValueofMeasure,
-        dataView.matrix.valueSources[indexMeasures].format || formatString,
+        formatString,
         dataView.matrix.valueSources[indexMeasures].displayName,
         dataView.matrix.valueSources[indexMeasures].displayName,
         1,
@@ -2042,7 +2054,7 @@ export class Visual implements IVisual {
           allMeasureValues[indexMeasures][nodeItems].selectionId;
         data2Category = this.getDataForCategory(
           valueDifference,
-          dataView.matrix.valueSources[indexMeasures].format,
+          dataView.matrix.valueSources[indexMeasures]?.format,
           displayName,
           category,
           0,
@@ -4042,7 +4054,9 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 1e6,
             precision: decimalPlaces,
-            format: d.numberFormat,
+            format: d.numberFormat
+              ? `${d.numberFormat}${decimalPlaces}`
+              : d.numberFormat,
           });
           formattedvalue = iValueFormatter.format(d.value);
         } else if (Math.abs(d.value) >= 1000) {
@@ -4050,7 +4064,9 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 1001,
             precision: decimalPlaces,
-            format: d.numberFormat,
+            format: d.numberFormat
+              ? `${d.numberFormat}${decimalPlaces}`
+              : d.numberFormat,
           });
           formattedvalue = iValueFormatter.format(d.value);
         } else {
@@ -4058,7 +4074,9 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 0,
             precision: decimalPlaces,
-            format: d.numberFormat,
+            format: d.numberFormat
+              ? `${d.numberFormat}${decimalPlaces}`
+              : d.numberFormat,
           });
           formattedvalue = iValueFormatter.format(d.value);
         }
@@ -4067,7 +4085,9 @@ export class Visual implements IVisual {
       case "Thousands": {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
-          format: d.numberFormat,
+          format: d.numberFormat
+            ? `${d.numberFormat}${decimalPlaces}`
+            : d.numberFormat,
           value: 1e3,
           precision: decimalPlaces,
         });
@@ -4077,7 +4097,9 @@ export class Visual implements IVisual {
       case "Millions": {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
-          format: d.numberFormat,
+          format: d.numberFormat
+            ? `${d.numberFormat}${decimalPlaces}`
+            : d.numberFormat,
           value: 1e6,
           precision: decimalPlaces,
         });
@@ -4087,7 +4109,9 @@ export class Visual implements IVisual {
       case "Billions": {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
-          format: d.numberFormat,
+          format: d.numberFormat
+            ? `${d.numberFormat}${decimalPlaces}`
+            : d.numberFormat,
           value: 1e9,
           precision: decimalPlaces,
         });
@@ -4097,7 +4121,9 @@ export class Visual implements IVisual {
       default: {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
-          format: d.numberFormat,
+          format: d.numberFormat
+            ? `${d.numberFormat}${decimalPlaces}`
+            : d.numberFormat,
         });
         formattedvalue = iValueFormatter.format(d.value);
         break;
@@ -4145,7 +4171,9 @@ export class Visual implements IVisual {
       case "Thousands": {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
-          format: numberFormat,
+          format: numberFormat
+            ? `${numberFormat}${decimalPlaces}`
+            : numberFormat,
           value: 1e3,
           precision: decimalPlaces,
         });
@@ -4155,7 +4183,9 @@ export class Visual implements IVisual {
       case "Millions": {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
-          format: numberFormat,
+          format: numberFormat
+            ? `${numberFormat}${decimalPlaces}`
+            : numberFormat,
           value: 1e6,
           precision: decimalPlaces,
         });
@@ -4165,7 +4195,9 @@ export class Visual implements IVisual {
       case "Billions": {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
-          format: numberFormat,
+          format: numberFormat
+            ? `${numberFormat}${decimalPlaces}`
+            : numberFormat,
           value: 1e9,
           precision: decimalPlaces,
         });
@@ -4175,7 +4207,9 @@ export class Visual implements IVisual {
       default: {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
-          format: numberFormat,
+          format: numberFormat
+            ? `${numberFormat}${decimalPlaces}`
+            : numberFormat,
         });
         formattedvalue = iValueFormatter.format(value);
         break;
@@ -4201,7 +4235,9 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 1e9,
             precision: decimalPlaces,
-            format: formatString,
+            format: formatString
+              ? `${formatString}${decimalPlaces}`
+              : formatString,
           });
           formattedvalue = iValueFormatter.format(d);
         } else if (
@@ -4212,7 +4248,9 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 1e6,
             precision: decimalPlaces,
-            format: formatString,
+            format: formatString
+              ? `${formatString}${decimalPlaces}`
+              : formatString,
           });
           formattedvalue = iValueFormatter.format(d);
         } else if (
@@ -4223,7 +4261,9 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 1001,
             precision: decimalPlaces,
-            format: formatString,
+            format: formatString
+              ? `${formatString}${decimalPlaces}`
+              : formatString,
           });
           formattedvalue = iValueFormatter.format(d);
         } else {
@@ -4231,7 +4271,9 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 0,
             precision: decimalPlaces,
-            format: formatString,
+            format: formatString
+              ? `${formatString}${decimalPlaces}`
+              : formatString,
           });
           formattedvalue = iValueFormatter.format(d);
         }
@@ -4241,7 +4283,9 @@ export class Visual implements IVisual {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
           value: 1e3,
-          format: formatString,
+          format: formatString
+            ? `${formatString}${decimalPlaces}`
+            : formatString,
           precision: decimalPlaces,
         });
         formattedvalue = iValueFormatter.format(d);
@@ -4251,7 +4295,9 @@ export class Visual implements IVisual {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
           value: 1e6,
-          format: formatString,
+          format: formatString
+            ? `${formatString}${decimalPlaces}`
+            : formatString,
           precision: decimalPlaces,
         });
         formattedvalue = iValueFormatter.format(d);
@@ -4261,7 +4307,9 @@ export class Visual implements IVisual {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
           value: 1e9,
-          format: formatString,
+          format: formatString
+            ? `${formatString}${decimalPlaces}`
+            : formatString,
           precision: decimalPlaces,
         });
         formattedvalue = iValueFormatter.format(d);

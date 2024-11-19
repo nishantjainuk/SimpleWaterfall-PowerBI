@@ -220,7 +220,6 @@ export class Visual implements IVisual {
         this.getDataDrillableWaterfall(options)[allData.length - 1];
     }
     this.createWaterfallGraph(options, allData);
-    console.log("VisualType: ", this.visualType);
     //Certification requirement to use rendering API//
     //-------------------------------------------------------------------------
     this.events.renderingFinished(options);

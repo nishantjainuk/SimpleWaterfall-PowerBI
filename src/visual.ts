@@ -179,7 +179,7 @@ export class Visual implements IVisual {
     }
     if (dataView.matrix.rows.levels.length == 0) {
       this.visualType = "static";
-      this.barChartData = this.getDataStaticWaterfall(options);
+      this.barChartData = this.getDataStaticWaterfall({ ...options });
 
       var allData = [];
       allData.push(this.barChartData);
@@ -1292,7 +1292,7 @@ export class Visual implements IVisual {
   }
   private getDataStaticWaterfall(options: VisualUpdateOptions) {
     let dataView: DataView = options.dataViews[0];
-
+    // console.log({ dataView });
     var visualData = [];
     var sortOrderIndex = 0;
     for (
@@ -1310,10 +1310,12 @@ export class Visual implements IVisual {
         }
         if (checkforZero == false) {
           var data2 = [];
+
           data2["value"] = +x.values[index].value;
           data2["numberFormat"] =
-            dataView.matrix.valueSources[index].format ||
-            this.extractFormattingValue(dataView, 0);
+            this.extractFormattingValue(dataView, 0) ||
+            dataView.metadata.columns[index].format;
+
           data2["selectionId"] = this.host
             .createSelectionIdBuilder()
             .withMeasure(dataView.matrix.valueSources[index].queryName)
@@ -1522,6 +1524,8 @@ export class Visual implements IVisual {
       const formatString2 =
         data.children?.[0]?.values?.[0]?.objects?.general?.formatString;
       if (formatString2) return formatString2;
+
+      return undefined;
     }
 
     return undefined;

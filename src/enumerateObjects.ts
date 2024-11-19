@@ -131,7 +131,7 @@ class enumerateObjects implements IEnumerateObjects {
             var hasPillar: boolean = false;
             switch (objectName) {
                 case 'definePillars':
-                     // if (!hasPillar) {
+                     if (!hasPillar) {
                         objectEnumeration.push({
                             objectName: "objectName",
                             properties: {
@@ -139,7 +139,7 @@ class enumerateObjects implements IEnumerateObjects {
                             },
                             selector: null
                         });
-                    // }
+                    }
                     var isPillarBoolean: boolean;
                     for (var index = 0; index < this.barChartData.length; index++) {
                         if (this.barChartData[index].category != "defaultBreakdownStepOther") {
@@ -153,7 +153,7 @@ class enumerateObjects implements IEnumerateObjects {
                             } else {
                                 isPillarBoolean = false;
                             }
-                            if (!this.visualSettings.definePillars.Totalpillar) {
+                            // if (!this.visualSettings.definePillars.Totalpillar) {
                                 objectEnumeration.push({
                                     objectName: "objectName",
                                     displayName: this.barChartData[index].category,
@@ -162,7 +162,7 @@ class enumerateObjects implements IEnumerateObjects {
                                     },
                                     selector: this.barChartData[index].selectionId.getSelector()
                                 });
-                            }
+                            // }
                         }
                     }
                    
@@ -355,13 +355,13 @@ class enumerateObjects implements IEnumerateObjects {
                 properties: {
                     barWidth: this.visualSettings.xAxisFormatting.barWidth
                 },
-                selector: null
+                selector: null,
+                validValues: {
+                    barWidth: { numberRange: { min: 20, max: 100 } }
+                }
             });
 
-            objectEnumeration[1].validValues = {
-                barWidth: { numberRange: { min: 20, max: 100 } }
-
-            };
+            // objectEnumeration[1].
         }
 
 

@@ -4,6 +4,8 @@
         "pbiviz": "pbiviz",
         "start": "pbiviz start",
         "package": "pbiviz package",
+        "cert": "pbiviz install-cert",
+        "help": "pbiviz help",
         "lint": "tslint -c tslint.json -p tsconfig.json",
         "npmVersion": "npm list --depth=0"
     },

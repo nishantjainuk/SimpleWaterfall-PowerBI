@@ -2431,7 +2431,6 @@ export class Visual implements IVisual {
       this.xAxisPosition -
       this.scrollbarBreath +
       this.legendHeight;
-    console.log({ minLableVerticalHeight: this.minLableVerticalHeight });
 
     if (this.isLabelVertical) this.innerHeight -= this.minLableVerticalHeight;
   }
@@ -2502,11 +2501,7 @@ export class Visual implements IVisual {
           percent = (this.innerHeight / 275) * 100;
           this.minLableVerticalHeight = (percent / 100) * 30;
         } else this.minLableVerticalHeight = 30;
-        if (
-          d.displayName.length > 8 &&
-          !wrapText &&
-          columnWidth <= textWidth
-        ) {
+        if (d.displayName.length > 8 && !wrapText && columnWidth <= textWidth) {
           let substringFactor = 9;
           if (this.innerHeight > 275) {
             substringFactor = Math.round((percent / 100) * 9);

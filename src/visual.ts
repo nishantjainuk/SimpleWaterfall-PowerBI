@@ -120,6 +120,7 @@ export class Visual implements IVisual {
   private allowInteractions: boolean;
   private currentBarWidth: number;
   private isLabelVertical = false;
+  private minLableVerticalHeight = 30;
 
   constructor(options: VisualConstructorOptions) {
     this.host = options.host;
@@ -2430,7 +2431,9 @@ export class Visual implements IVisual {
       this.xAxisPosition -
       this.scrollbarBreath +
       this.legendHeight;
-    if (this.isLabelVertical) this.innerHeight -= 30;
+    console.log({ minLableVerticalHeight: this.minLableVerticalHeight });
+
+    if (this.isLabelVertical) this.innerHeight -= this.minLableVerticalHeight;
   }
   private findBottom;
 
@@ -2480,6 +2483,7 @@ export class Visual implements IVisual {
     //         .attr('transform', `translate(${(xBaseScale.bandwidth() + (xBaseScale.step() * xBaseScale.padding() * 1.5)) + myWidth * (index - 1)},${myAxisParentHeight})`)
     //         .selectAll('path').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor);
     // }
+
     var textWidth = 0;
     var textWidths = [];
     var xAxislabels = myxAxisParent
@@ -2493,12 +2497,28 @@ export class Visual implements IVisual {
         textWidth = Math.max(textWidth, labelWidth); // Update textWidth if labelWidth is greater
       })
       .text((d) => {
-        if (d.displayName.length > 8 && !wrapText && columnWidth <= textWidth) {
-          return d.displayName.substring(0, 9) + "...";
+        let percent = 100;
+        if (this.innerHeight > 275) {
+          percent = (this.innerHeight / 275) * 100;
+          this.minLableVerticalHeight = (percent / 100) * 30;
+        } else this.minLableVerticalHeight = 30;
+        if (
+          d.displayName.length > 8 &&
+          !wrapText &&
+          columnWidth <= textWidth
+        ) {
+          let substringFactor = 9;
+          if (this.innerHeight > 275) {
+            substringFactor = Math.round((percent / 100) * 9);
+          }
+          return substringFactor < d.displayName.length
+            ? d.displayName.substring(0, substringFactor) + "..."
+            : d.displayName;
         } else {
           return d.displayName;
         }
       });
+
     if (columnWidth <= textWidth) {
       this.isLabelVertical = true;
     } else {
@@ -2507,7 +2527,12 @@ export class Visual implements IVisual {
 
     myxAxisParent
       .selectAll("path")
-      .attr("transform", `translate(0,${this.isLabelVertical ? "-30" : "0"})`);
+      .attr(
+        "transform",
+        `translate(0,${
+          this.isLabelVertical ? `-${this.minLableVerticalHeight}` : "0"
+        })`
+      );
 
     if (
       this.visualType == "drillable" ||

@@ -220,6 +220,7 @@ export class Visual implements IVisual {
       this.barChartData =
         this.getDataDrillableWaterfall(options)[allData.length - 1];
     }
+
     this.createWaterfallGraph(options, allData);
     //Certification requirement to use rendering API//
     //-------------------------------------------------------------------------
@@ -1868,6 +1869,7 @@ export class Visual implements IVisual {
       visualData = this.limitBreakdownsteps(options, visualData);
     }
     visualData = this.sortData(visualData);
+
     return visualData;
   }
   private limitBreakdownsteps(options: VisualUpdateOptions, currData) {
@@ -2056,7 +2058,7 @@ export class Visual implements IVisual {
         var displayName: string =
           allMeasureValues[indexMeasures][nodeItems].displayName;
         var category: string =
-          dataView.matrix.valueSources[indexMeasures].displayName +
+          // dataView.matrix.valueSources[indexMeasures].displayName +
           allMeasureValues[indexMeasures][nodeItems].category.toString();
         var selectionId =
           allMeasureValues[indexMeasures][nodeItems].selectionId;
@@ -2085,7 +2087,7 @@ export class Visual implements IVisual {
         visualData.push(data2Category);
       }
     }
-    if (this.visualSettings.definePillars.Totalpillar) {
+    if (this.visualSettings.definePillars.Totalpillar) {      
       visualData.push(this.addTotalLine(visualData, options));
     }
 
@@ -2119,7 +2121,10 @@ export class Visual implements IVisual {
             }
           }
         } else {
-          newDisplayName = currCategoryText.split("|").reverse().join(", ");
+          newDisplayName = currCategoryText
+            .split("|")
+            .filter((x) => x !== "")
+            .join(", ");
         }
 
         childnode = this.getDataForCategory(
@@ -2705,12 +2710,22 @@ export class Visual implements IVisual {
     //This will always be zero as it should only have 1 measure
     var measureIndex = 0;
     //*******************************************************************
+
     data.forEach((element) => {
       totalValue = totalValue + element["value"];
       if (orderIndex < element["orderIndex"]) {
         orderIndex = element["orderIndex"];
       }
     });
+
+    // let maxValue = Math.max.apply(
+    //   null,
+    //   data.map(function (o) {
+    //     return o.value;
+    //   })
+    // );
+
+    // console.log({ maxValue });
     data2["value"] = totalValue;
     data2["orderIndex"] = orderIndex;
     data2["numberFormat"] = data[0]["numberFormat"];
@@ -3321,6 +3336,7 @@ export class Visual implements IVisual {
         widthAdjustment = nodes[i].getBoundingClientRect().width;
       }
     });
+
     switch (d.customLabelPositioning) {
       case "Inside end":
         yPosition =
@@ -3330,7 +3346,10 @@ export class Visual implements IVisual {
           5;
         break;
       case "Outside end":
-        if (d.value >= 0) {
+        if (
+          d.value >= 0 &&
+          this.getXPositionHorizontal(d, i) % this.getWidthHorizontal(d, i) < 2
+        ) {
           yPosition =
             this.getXPositionHorizontal(d, i) +
             this.getWidthHorizontal(d, i) +

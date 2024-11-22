@@ -127,12 +127,12 @@ class enumerateObjects implements IEnumerateObjects {
                     }
             }
         }
-        if (this.visualType == "staticCategory") {
+        if (this.visualType == "staticCategory" || this.visualType == "drillableCategory") {
             var hasPillar: boolean = false;
             switch (objectName) {
                 case 'definePillars':
                     var isPillarBoolean: boolean;
-                    for (var index = 0; index < this.barChartData.length; index++) {
+                    for (var index = 0; index < this.barChartData.length; index++) {                        
                         if (this.barChartData[index].category != "defaultBreakdownStepOther") {
                             if (this.barChartData[index].isPillar) {
                                 // if the last pillar is the only pillar than treat it as no pillar
@@ -157,7 +157,7 @@ class enumerateObjects implements IEnumerateObjects {
                         }
                     }
 
-                    //  if (!hasPillar) {
+                     if (!hasPillar) {
                         objectEnumeration.push({
                             objectName: "objectName",
                             properties: {
@@ -165,19 +165,19 @@ class enumerateObjects implements IEnumerateObjects {
                             },
                             selector: null
                         });
-                    // }
+                    }
                    
             }
         }
-        if (this.visualType == "drillableCategory") {
-            objectEnumeration.push({
-                objectName: "objectName",
-                properties: {
-                    Totalpillar: this.visualSettings.definePillars.Totalpillar
-                },
-                selector: null
-            });
-        }
+        // if (this.visualType == "drillableCategory") {
+        //     objectEnumeration.push({
+        //         objectName: "objectName",
+        //         properties: {
+        //             Totalpillar: this.visualSettings.definePillars.Totalpillar
+        //         },
+        //         selector: null
+        //     });
+        // }
     }
 
     private propertiesLegend(objectName: string, objectEnumeration: VisualObjectInstance[]) {
@@ -233,9 +233,9 @@ class enumerateObjects implements IEnumerateObjects {
                             // Add this property with the value previously defined for the selector property
                             altConstantValueSelector: this.barChartData[index].selectionId.getSelector(),
 
-                            propertyInstanceKind: {
-                                fill: VisualEnumerationInstanceKinds.ConstantOrRule
-                            }
+                            // propertyInstanceKind: {
+                            //     fill: VisualEnumerationInstanceKinds.ConstantOrRule
+                            // }
                         });
                     } else {
                         objectEnumeration.push({

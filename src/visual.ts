@@ -114,7 +114,7 @@ export class Visual implements IVisual {
   private yAxisWidth = 0;
   private yAxisTitleWidth = 15;
   private yAxisHeightHorizontal = 0;
-  private scrollbarBreath = 0;
+  private scrollbarBreadth = 0;
   private yScaleTickValues = [];
   private events: IVisualEventService;
   private locale: string;
@@ -132,7 +132,7 @@ export class Visual implements IVisual {
     this.chartContainer = this.mainContainer.append("div");
 
     this.adjustmentConstant = 0;
-    this.scrollbarBreath = 8;
+    this.scrollbarBreadth = 8;
     this.tooltipServiceWrapper = createTooltipServiceWrapper(
       options.host.tooltipService,
       options.element
@@ -333,8 +333,14 @@ export class Visual implements IVisual {
   }
 
   private createWaterfallGraphVertical(options, allData) {
-    this.svgYAxis = this.chartContainer.append("svg");
-    this.svg = this.chartContainer.append("svg");
+    if (this.visualSettings.yAxisFormatting.switchPosition) {
+      this.svg = this.chartContainer.append("svg");
+      this.svgYAxis = this.chartContainer.append("svg");
+    } else {
+      this.svgYAxis = this.chartContainer.append("svg");
+      this.svg = this.chartContainer.append("svg");
+    }
+
     this.svg.on("contextmenu", (event) => {
       const mouseEvent: MouseEvent = <MouseEvent>event;
       const eventTarget: EventTarget = mouseEvent.target;
@@ -366,19 +372,26 @@ export class Visual implements IVisual {
     this.getMinMaxValue();
     this.gScrollable = this.svg.append("g");
     this.getYaxisWidth(this.gScrollable);
-    console.log({ options });
-    this.svgYAxis.attr("width", this.margin.left + this.yAxisWidth);
 
-    //this.margin.left = this.margin.left + this.yAxisWidth ;
+    const yAxisWidth = this.visualSettings.yAxisFormatting.showTitle
+      ? this.yAxisTitleWidth
+      : 0;
 
-    this.width = this.width - this.margin.left - this.yAxisWidth - 5;
+    this.svgYAxis.attr(
+      "width",
+      this.margin.left + this.yAxisWidth + yAxisWidth
+    );
+
+    this.width =
+      this.width - this.margin.left - this.yAxisWidth - 5 - yAxisWidth;
+
     this.checkBarWidth(options);
     this.createXaxis(this.gScrollable, options, allData);
     this.createYAxis(this.svgYAxis, this.margin.left + this.yAxisWidth);
+    // this.createYAxis(this.gScrollable, 0);
     if (this.visualSettings.yAxisFormatting.showTitle) {
       this.createYAxisTitle(this.svgYAxis, options);
     }
-    this.createYAxis(this.gScrollable, 0);
     this.createBars(this.gScrollable, this.barChartData);
     this.createLabels(this.gScrollable);
 
@@ -391,7 +404,6 @@ export class Visual implements IVisual {
       options.dataViews[0].matrix.valueSources
         .map((v) => v.displayName)
         .join(", ");
-    console.log(this.visualSettings);
 
     const titleSvg = svg
       .append("text")
@@ -418,14 +430,17 @@ export class Visual implements IVisual {
           : "none"
       );
     if (this.visualSettings.chartOrientation.orientation === "Vertical") {
+      const yPosition = this.visualSettings.yAxisFormatting.switchPosition
+        ? this.yAxisWidth + 5
+        : this.yAxisTitleWidth - 5;
       titleSvg
         .attr("transform", "rotate(-90)")
         .attr("x", -(this.height / 2))
-        .attr("y", this.yAxisTitleWidth);
+        .attr("y", yPosition);
     } else {
       titleSvg
         .attr("x", this.innerWidth / 2)
-        .attr("y", (this.yAxisTitleWidth * 2) + 5);
+        .attr("y", this.yAxisTitleWidth * 2 + 5);
     }
   }
 
@@ -453,9 +468,9 @@ export class Visual implements IVisual {
         var scrollbarContainer = scrollBarGroup
           .append("rect")
           .attr("width", this.width)
-          .attr("height", this.scrollbarBreath)
+          .attr("height", this.scrollbarBreadth)
           .attr("x", 0)
-          .attr("y", this.height - this.scrollbarBreath)
+          .attr("y", this.height - this.scrollbarBreadth)
           .attr("fill", "#e1e1e1")
           .attr("opacity", 0.5)
           .attr("rx", 4)
@@ -468,7 +483,7 @@ export class Visual implements IVisual {
           this.height -
           this.margin.top -
           this.margin.bottom -
-          this.scrollbarBreath;
+          this.scrollbarBreadth;
         var dragStartPosition = 0;
         var dragScrollBarXStartposition = 0;
         var scrollbarwidth = (this.width * this.width) / this.innerWidth;
@@ -476,9 +491,9 @@ export class Visual implements IVisual {
         var scrollbar = scrollBarGroup
           .append("rect")
           .attr("width", scrollbarwidth)
-          .attr("height", this.scrollbarBreath)
+          .attr("height", this.scrollbarBreadth)
           .attr("x", 0)
-          .attr("y", this.height - this.scrollbarBreath)
+          .attr("y", this.height - this.scrollbarBreadth)
           .attr("fill", "#000")
           .attr("opacity", 0.24)
           .attr("rx", 4)
@@ -655,7 +670,9 @@ export class Visual implements IVisual {
       .domain([this.minValue, this.maxValue])
       .range([this.innerHeight, 0]);
 
-    var yAxisScale = d3.axisLeft(yScale).tickValues(this.yScaleTickValues);
+    var yAxisScale = this.visualSettings.yAxisFormatting.switchPosition
+      ? d3.axisRight(yScale).tickValues(this.yScaleTickValues)
+      : d3.axisLeft(yScale).tickValues(this.yScaleTickValues);
 
     if (this.visualSettings.yAxisFormatting.show) {
       var yAxis = g
@@ -775,10 +792,22 @@ export class Visual implements IVisual {
       /*var yAxisWidth = yAxis.node().getBoundingClientRect().width;
             var yAxisHeight = yAxis.selectAll('text').node().getBoundingClientRect().height;*/
 
-      yAxis.selectAll("line").attr("x2", this.innerWidth);
+      yAxis
+        .selectAll("line")
+        .attr(
+          "x2",
+          this.visualSettings.yAxisFormatting.switchPosition
+            ? -this.innerWidth
+            : this.innerWidth
+        );
     }
     var nodeWidth;
-    g.attr("transform", `translate(${adjustLeft},${this.margin.top})`);
+    g.attr(
+      "transform",
+      `translate(${
+        this.visualSettings.yAxisFormatting.switchPosition ? 0 : adjustLeft
+      },${this.margin.top})`
+    );
   }
 
   private getLineDashArray(style: string): string {
@@ -812,7 +841,9 @@ export class Visual implements IVisual {
     /*var ticksCount = 5;
         var staticYscaleTIcks = yScale.ticks(ticksCount);*/
 
-    var yAxisScale = d3.axisLeft(yScale).tickValues(this.yScaleTickValues);
+    var yAxisScale = this.visualSettings.yAxisFormatting.switchPosition
+      ? d3.axisRight(yScale).tickValues(this.yScaleTickValues)
+      : d3.axisLeft(yScale).tickValues(this.yScaleTickValues);
 
     if (this.visualSettings.yAxisFormatting.show) {
       var yAxis = g
@@ -854,7 +885,9 @@ export class Visual implements IVisual {
       // adjust the left margin of the chart area according to the width of yaxis
       // yAxisWidth used to adjust the left margin
       this.yAxisWidth = yAxis.node().getBoundingClientRect().width;
-      this.yAxisWidth += this.visualSettings.yAxisFormatting.showTitle ? this.yAxisTitleWidth : 0;
+      this.yAxisWidth += this.visualSettings.yAxisFormatting.showTitle
+        ? this.yAxisTitleWidth
+        : 0;
       this.innerWidth = this.innerWidth - this.yAxisWidth;
     } else {
       this.yAxisWidth = 0;
@@ -2522,7 +2555,7 @@ export class Visual implements IVisual {
         this.height -
         this.xAxisPosition -
         this.margin.bottom -
-        this.scrollbarBreath +
+        this.scrollbarBreadth +
         this.legendHeight
       })`
     );
@@ -2532,7 +2565,7 @@ export class Visual implements IVisual {
       this.margin.top -
       this.margin.bottom -
       this.xAxisPosition -
-      this.scrollbarBreath +
+      this.scrollbarBreadth +
       this.legendHeight;
 
     if (this.isLabelVertical) this.innerHeight -= this.minLableVerticalHeight;
@@ -3260,7 +3293,7 @@ export class Visual implements IVisual {
     var yScale = d3
       .scaleLinear()
       .domain([this.minValue, this.maxValue])
-      .range([this.innerWidth + this.xAxisPosition - this.scrollbarBreath, 0]);
+      .range([this.innerWidth + this.xAxisPosition - this.scrollbarBreadth, 0]);
 
     //calculate the cumulative starting value
     for (let index = 0; index < i; index++) {
@@ -3290,7 +3323,7 @@ export class Visual implements IVisual {
     var yScale = d3
       .scaleLinear()
       .domain([this.minValue, this.maxValue])
-      .range([0, this.innerWidth + this.xAxisPosition - this.scrollbarBreath]);
+      .range([0, this.innerWidth + this.xAxisPosition - this.scrollbarBreadth]);
 
     /* if ((d.isPillar == 1 || i == 0) && d.value < 0) {
             if (this.maxValue >= 0) {
@@ -3328,7 +3361,7 @@ export class Visual implements IVisual {
     var yScale = d3
       .scaleLinear()
       .domain([this.minValue, this.maxValue])
-      .range([this.innerWidth + this.xAxisPosition - this.scrollbarBreath, 0]);
+      .range([this.innerWidth + this.xAxisPosition - this.scrollbarBreadth, 0]);
     if (d.isPillar == 1 || i == 0) {
       if (d.value > 0) {
         if (this.minValue < 0) {
@@ -3412,7 +3445,7 @@ export class Visual implements IVisual {
 
     g.selectAll(".labels").call(
       this.labelFitToWidthHorizontal,
-      this.width + this.findRightHorizontal - this.scrollbarBreath
+      this.width + this.findRightHorizontal - this.scrollbarBreadth
     );
     this.tooltipServiceWrapper.addTooltip(
       g.selectAll(".labels"),
@@ -3523,9 +3556,9 @@ export class Visual implements IVisual {
         var scrollBarGroup = this.svg.append("g");
         var scrollbarContainer = scrollBarGroup
           .append("rect")
-          .attr("width", this.scrollbarBreath)
+          .attr("width", this.scrollbarBreadth)
           .attr("height", this.innerHeight)
-          .attr("x", this.width - this.scrollbarBreath - this.margin.left)
+          .attr("x", this.width - this.scrollbarBreadth - this.margin.left)
           .attr("y", 0)
           .attr("fill", "#e1e1e1")
           .attr("opacity", 0.5)
@@ -3545,9 +3578,9 @@ export class Visual implements IVisual {
 
         var scrollbar = scrollBarGroup
           .append("rect")
-          .attr("width", this.scrollbarBreath)
+          .attr("width", this.scrollbarBreadth)
           .attr("height", scrollbarHeight)
-          .attr("x", this.width - this.scrollbarBreath - this.margin.left)
+          .attr("x", this.width - this.scrollbarBreadth - this.margin.left)
           .attr("y", 0)
           .attr("fill", "#000")
           .attr("opacity", 0.24)
@@ -3992,7 +4025,7 @@ export class Visual implements IVisual {
     var yScale = d3
       .scaleLinear()
       .domain([this.maxValue, this.minValue])
-      .range([this.innerWidth + this.xAxisPosition - this.scrollbarBreath, 0]);
+      .range([this.innerWidth + this.xAxisPosition - this.scrollbarBreadth, 0]);
 
     var yAxisScale = d3.axisBottom(yScale).tickValues(this.yScaleTickValues);
 
@@ -4144,7 +4177,10 @@ export class Visual implements IVisual {
       // adjust the left margin of the chart area according to the width of yaxis
       // yAxisWidth used to adjust the left margin
       this.yAxisHeightHorizontal = yAxis.node().getBoundingClientRect().height;
-      this.yAxisHeightHorizontal += this.visualSettings.yAxisFormatting.showTitle ? this.yAxisTitleWidth : 0;;
+      this.yAxisHeightHorizontal += this.visualSettings.yAxisFormatting
+        .showTitle
+        ? this.yAxisTitleWidth
+        : 0;
     } else {
       this.yAxisHeightHorizontal = 0;
     }

@@ -561,6 +561,14 @@ class enumerateObjects implements IEnumerateObjects {
     objectEnumeration.push({
       objectName: objectName,
       properties: {
+        switchPosition: this.visualSettings.yAxisFormatting.switchPosition,
+      },
+      selector: null,
+    });
+
+    objectEnumeration.push({
+      objectName: objectName,
+      properties: {
         showTitle: this.visualSettings.yAxisFormatting.showTitle,
       },
       selector: null,

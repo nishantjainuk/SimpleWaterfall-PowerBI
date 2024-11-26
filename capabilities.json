@@ -585,6 +585,10 @@
             }
           }
         },
+        "switchPosition": {
+          "displayName": "Switch Y-Axis Position",
+          "type": { "bool": true }
+        },
         "showTitle": {
           "displayName": "Show Y-Axis Title",
           "type": { "bool": true }

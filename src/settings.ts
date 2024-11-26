@@ -111,6 +111,7 @@ export class yAxisFormatting {
   public joinBarsStrokeWidth: number = 1;
   public joinBarsColor: string = "#777777";
   public decimalPlaces: number = 0;
+  public switchPosition: boolean = false;
   public showTitle: boolean = false;
   public titleText: string = "";
   public titleFontSize: number = 9;

@@ -377,17 +377,17 @@ export class Visual implements IVisual {
       ? this.yAxisTitleWidth
       : 0;
 
-    this.svgYAxis.attr(
-      "width",
-      this.margin.left + this.yAxisWidth + yAxisWidth
-    );
+    const yAxisMargin = this.visualSettings.yAxisFormatting.switchPosition
+      ? this.margin.right
+      : this.margin.left;
+    this.svgYAxis.attr("width", yAxisMargin + this.yAxisWidth + yAxisWidth);
 
     this.width =
       this.width - this.margin.left - this.yAxisWidth - 5 - yAxisWidth;
 
     this.checkBarWidth(options);
     this.createXaxis(this.gScrollable, options, allData);
-    this.createYAxis(this.svgYAxis, this.margin.left + this.yAxisWidth);
+    this.createYAxis(this.svgYAxis, yAxisMargin + this.yAxisWidth);
     // this.createYAxis(this.gScrollable, 0);
     if (this.visualSettings.yAxisFormatting.showTitle) {
       this.createYAxisTitle(this.svgYAxis, options);
@@ -438,9 +438,10 @@ export class Visual implements IVisual {
         .attr("x", -(this.height / 2))
         .attr("y", yPosition);
     } else {
-      titleSvg
-        .attr("x", this.innerWidth / 2)
-        .attr("y", this.yAxisTitleWidth * 2 + 5);
+      const yPosition = this.visualSettings.yAxisFormatting.switchPosition
+        ? this.yAxisTitleWidth
+        : this.yAxisTitleWidth * 2 + 5;
+      titleSvg.attr("x", this.innerWidth / 2).attr("y", yPosition);
     }
   }
 
@@ -1424,7 +1425,7 @@ export class Visual implements IVisual {
   }
   private getDataStaticWaterfall(options: VisualUpdateOptions) {
     let dataView: DataView = options.dataViews[0];
-    // console.log({ dataView });
+
     var visualData = [];
     var sortOrderIndex = 0;
     for (
@@ -2849,14 +2850,6 @@ export class Visual implements IVisual {
       }
     });
 
-    // let maxValue = Math.max.apply(
-    //   null,
-    //   data.map(function (o) {
-    //     return o.value;
-    //   })
-    // );
-
-    // console.log({ maxValue });
     data2["value"] = totalValue;
     data2["orderIndex"] = orderIndex;
     data2["numberFormat"] = data[0]["numberFormat"];
@@ -3107,8 +3100,14 @@ export class Visual implements IVisual {
   }
 
   private createWaterfallGraphHorizontal(options, allData) {
-    this.svg = this.chartContainer.append("svg");
-    this.svgYAxis = this.chartContainer.append("svg");
+    if (this.visualSettings.yAxisFormatting.switchPosition) {
+      this.svgYAxis = this.chartContainer.append("svg");
+      this.svg = this.chartContainer.append("svg");
+    } else {
+      this.svg = this.chartContainer.append("svg");
+      this.svgYAxis = this.chartContainer.append("svg");
+    }
+
     this.svg.on("contextmenu", (event) => {
       const mouseEvent: MouseEvent = <MouseEvent>event;
       const eventTarget: EventTarget = mouseEvent.target;
@@ -3145,6 +3144,9 @@ export class Visual implements IVisual {
     this.getMinMaxValue();
 
     this.gScrollable = this.svg.append("g");
+    if (this.visualSettings.yAxisFormatting.showTitle) {
+      this.createYAxisTitle(this.svgYAxis, options);
+    }
     this.getYaxisHeightHorizontal(this.gScrollable);
     this.svg.attr("width", this.width);
     this.innerHeight = this.innerHeight - this.yAxisHeightHorizontal;
@@ -3153,8 +3155,18 @@ export class Visual implements IVisual {
     this.createXaxisHorizontal(this.gScrollable, options, allData);
     this.svgYAxis.attr("width", this.innerWidth + 10);
     this.svgYAxis.attr("height", this.yAxisHeightHorizontal);
-
-    this.createYAxisHorizontal(this.svgYAxis, 0);
+    const yAxisMargin = this.visualSettings.yAxisFormatting.switchPosition
+      ? this.margin.top
+      : this.margin.bottom;
+    const yAxisTitleHeight = this.visualSettings.yAxisFormatting.showTitle
+      ? this.yAxisTitleWidth
+      : 0;
+    this.createYAxisHorizontal(
+      this.svgYAxis,
+      this.visualSettings.yAxisFormatting.switchPosition
+        ? yAxisMargin + yAxisTitleHeight
+        : 0
+    );
     // this.createYAxisHorizontal(this.gScrollable, this.innerHeight);
 
     this.createBarsHorizontal(this.gScrollable, this.barChartData);
@@ -3167,9 +3179,6 @@ export class Visual implements IVisual {
       "transform",
       `translate(${this.margin.left},${this.margin.top})`
     );
-    if (this.visualSettings.yAxisFormatting.showTitle) {
-      this.createYAxisTitle(this.svgYAxis, options);
-    }
   }
 
   private createBarsHorizontal(gParent, data) {

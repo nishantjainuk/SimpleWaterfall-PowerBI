@@ -506,6 +506,35 @@
             }
           }
         },
+        "gridLineStyle": {
+          "displayName": "Grid Line Style",
+          "type": {
+            "enumeration": [
+              { "value": "solid", "displayName": "Solid" },
+              { "value": "dashed", "displayName": "Dashed" },
+              { "value": "dotted", "displayName": "Dotted" },
+              { "value": "custom", "displayName": "Custom" }
+            ]
+          }
+        },
+        "dashArray": {
+          "displayName": "Dash Array",
+          "type": { "text": true }
+        },
+        "scaleByWidth": {
+          "displayName": "Scale by Width",
+          "type": { "bool": true }
+        },
+        "dashCap": {
+          "displayName": "Dash Cap",
+          "type": {
+            "enumeration": [
+              { "value": "flat", "displayName": "Flat" },
+              { "value": "round", "displayName": "Round" },
+              { "value": "square", "displayName": "Square" }
+            ]
+          }
+        },
         "showZeroAxisGridLine": {
           "displayName": "Show Zero Line",
           "description": "Show Zero Line",
@@ -555,6 +584,35 @@
               }
             }
           }
+        },
+        "showTitle": {
+          "displayName": "Show Y-Axis Title",
+          "type": { "bool": true }
+        },
+        "titleText": {
+          "displayName": "Title Text",
+          "type": { "text": true },
+          "placeHolderText": "Auto"
+        },
+        "titleFontSize": {
+          "displayName": "Font Size",
+          "type": {
+            "formatting": {
+              "fontSize": true
+            }
+          }
+        },
+        "titleBold": {
+          "displayName": "Bold",
+          "type": { "bool": true }
+        },
+        "titleItalic": {
+          "displayName": "Italic",
+          "type": { "bool": true }
+        },
+        "titleUnderline": {
+          "displayName": "Underline",
+          "type": { "bool": true }
         }
       }
     },

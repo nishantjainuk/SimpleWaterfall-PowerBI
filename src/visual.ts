@@ -112,6 +112,7 @@ export class Visual implements IVisual {
   private bars: d3.Selection<d3.BaseType, any, d3.BaseType, any>;
   private xAxisPosition = 0;
   private yAxisWidth = 0;
+  private yAxisTitleWidth = 15;
   private yAxisHeightHorizontal = 0;
   private scrollbarBreath = 0;
   private yScaleTickValues = [];
@@ -365,6 +366,7 @@ export class Visual implements IVisual {
     this.getMinMaxValue();
     this.gScrollable = this.svg.append("g");
     this.getYaxisWidth(this.gScrollable);
+    console.log({ options });
     this.svgYAxis.attr("width", this.margin.left + this.yAxisWidth);
 
     //this.margin.left = this.margin.left + this.yAxisWidth ;
@@ -373,11 +375,58 @@ export class Visual implements IVisual {
     this.checkBarWidth(options);
     this.createXaxis(this.gScrollable, options, allData);
     this.createYAxis(this.svgYAxis, this.margin.left + this.yAxisWidth);
+    if (this.visualSettings.yAxisFormatting.showTitle) {
+      this.createYAxisTitle(this.svgYAxis, options);
+    }
     this.createYAxis(this.gScrollable, 0);
     this.createBars(this.gScrollable, this.barChartData);
     this.createLabels(this.gScrollable);
 
     this.svg.attr("width", this.width);
+  }
+
+  private createYAxisTitle(svg, options) {
+    let title =
+      this.visualSettings.yAxisFormatting.titleText ||
+      options.dataViews[0].matrix.valueSources
+        .map((v) => v.displayName)
+        .join(", ");
+    console.log(this.visualSettings);
+
+    const titleSvg = svg
+      .append("text")
+      .text(`${title}`)
+      .style("text-anchor", "middle")
+      .style(
+        "font-size",
+        this.visualSettings.yAxisFormatting.titleFontSize + "pt"
+      )
+      .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
+      .style("fill", this.visualSettings.yAxisFormatting.fontColor)
+      .style(
+        "font-weight",
+        this.visualSettings.yAxisFormatting.titleBold ? "bold" : "normal"
+      )
+      .style(
+        "font-style",
+        this.visualSettings.yAxisFormatting.titleItalic ? "italic" : "normal"
+      )
+      .style(
+        "text-decoration",
+        this.visualSettings.yAxisFormatting.titleUnderline
+          ? "underline"
+          : "none"
+      );
+    if (this.visualSettings.chartOrientation.orientation === "Vertical") {
+      titleSvg
+        .attr("transform", "rotate(-90)")
+        .attr("x", -(this.height / 2))
+        .attr("y", this.yAxisTitleWidth);
+    } else {
+      titleSvg
+        .attr("x", this.innerWidth / 2)
+        .attr("y", (this.yAxisTitleWidth * 2) + 5);
+    }
   }
 
   private checkBarWidth(options) {
@@ -629,6 +678,10 @@ export class Visual implements IVisual {
         .style("fill", "none")
         .style("stroke", "black")
         .style("stroke-width", "0pt");
+
+      // .style("font-weight", isBold ? "bold" : "normal")
+      // .style("font-style", isItalic ? "italic" : "normal")
+      // .style("text-decoration", isUnderline ? "underline" : "none");
       /*if (this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
                 yAxis.selectAll('line').each((d, i, nodes) => {
 
@@ -647,6 +700,14 @@ export class Visual implements IVisual {
             }*/
 
       if (this.visualSettings.yAxisFormatting.showGridLine) {
+        // Scale dash array by visual width if enabled
+        const scaledDashArray = this.visualSettings.yAxisFormatting.scaleByWidth
+          ? this.scaleDashArray(
+              this.visualSettings.yAxisFormatting.dashArray,
+              this.innerWidth
+            )
+          : this.visualSettings.yAxisFormatting.dashArray;
+
         yAxis
           .selectAll("line")
           .style("fill", "none")
@@ -654,7 +715,21 @@ export class Visual implements IVisual {
           .style(
             "stroke-width",
             this.defaultYAxisGridlineStrokeWidth() / 10 + "pt"
-          );
+          )
+          .style(
+            "stroke-dasharray",
+            this.visualSettings.yAxisFormatting.gridLineStyle === "custom"
+              ? scaledDashArray
+              : this.getLineDashArray(
+                  this.visualSettings.yAxisFormatting.gridLineStyle
+                )
+          )
+          .style(
+            "stroke-linecap",
+            this.visualSettings.yAxisFormatting.gridLineStyle === "custom"
+              ? this.visualSettings.yAxisFormatting.dashCap
+              : "flat"
+          ); // Default to flat
       } else {
         yAxis
           .selectAll("line")
@@ -705,6 +780,28 @@ export class Visual implements IVisual {
     var nodeWidth;
     g.attr("transform", `translate(${adjustLeft},${this.margin.top})`);
   }
+
+  private getLineDashArray(style: string): string {
+    switch (style) {
+      case "dashed":
+        return "5,5"; // Dashed pattern
+      case "dotted":
+        return "1,5"; // Dotted pattern
+      case "solid":
+      default:
+        return "0"; // Solid pattern
+    }
+  }
+
+  private scaleDashArray(dashArray: string, width: number): string {
+    if (!dashArray) return "";
+    const scaleFactor = width / 100; // Adjust scaling logic as needed
+    return dashArray
+      .split(",")
+      .map((value) => parseFloat(value) * scaleFactor)
+      .join(",");
+  }
+
   private getYaxisWidth(gParent) {
     var g = gParent.append("g").attr("class", "yAxisParentGroup");
     var yScale = d3
@@ -757,6 +854,7 @@ export class Visual implements IVisual {
       // adjust the left margin of the chart area according to the width of yaxis
       // yAxisWidth used to adjust the left margin
       this.yAxisWidth = yAxis.node().getBoundingClientRect().width;
+      this.yAxisWidth += this.visualSettings.yAxisFormatting.showTitle ? this.yAxisTitleWidth : 0;
       this.innerWidth = this.innerWidth - this.yAxisWidth;
     } else {
       this.yAxisWidth = 0;
@@ -2087,7 +2185,7 @@ export class Visual implements IVisual {
         visualData.push(data2Category);
       }
     }
-    if (this.visualSettings.definePillars.Totalpillar) {      
+    if (this.visualSettings.definePillars.Totalpillar) {
       visualData.push(this.addTotalLine(visualData, options));
     }
 
@@ -3036,6 +3134,9 @@ export class Visual implements IVisual {
       "transform",
       `translate(${this.margin.left},${this.margin.top})`
     );
+    if (this.visualSettings.yAxisFormatting.showTitle) {
+      this.createYAxisTitle(this.svgYAxis, options);
+    }
   }
 
   private createBarsHorizontal(gParent, data) {
@@ -4043,6 +4144,7 @@ export class Visual implements IVisual {
       // adjust the left margin of the chart area according to the width of yaxis
       // yAxisWidth used to adjust the left margin
       this.yAxisHeightHorizontal = yAxis.node().getBoundingClientRect().height;
+      this.yAxisHeightHorizontal += this.visualSettings.yAxisFormatting.showTitle ? this.yAxisTitleWidth : 0;;
     } else {
       this.yAxisHeightHorizontal = 0;
     }

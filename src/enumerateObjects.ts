@@ -393,7 +393,7 @@ class enumerateObjects implements IEnumerateObjects {
       },
       selector: null,
     });
-    if (this.barWidth > 21)
+    if (this.barWidth > 21 && this.visualSettings.chartOrientation.orientation !== "Horizontal")
       objectEnumeration[objectEnumeration.length - 1].properties.fitToWidth =
         this.visualSettings.xAxisFormatting.fitToWidth;
 

@@ -598,8 +598,49 @@
           "type": { "text": true },
           "placeHolderText": "Auto"
         },
+        "titleStyle": {
+          "displayName": "Title Style",
+          "type": {
+            "enumeration": [
+              {
+                "displayName": "Show Title Only",
+                "description": "Show Title Only",
+                "value": "Show Title Only"
+              },
+              {
+                "displayName": "Show Unit Only",
+                "description": "Show Unit Only",
+                "value": "Show Unit Only"
+              },
+              {
+                "displayName": "Show Both",
+                "description": "Show Both",
+                "value": "Show Both"
+              }
+            ]
+          }
+        },
+        "titleColor": {
+          "displayName": "Title Color",
+          "description": "Title color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "titleFontFamily": {
+          "displayName": "Title Font Family",
+          "type": {
+            "formatting": {
+              "fontFamily": true
+            }
+          }
+        },
         "titleFontSize": {
-          "displayName": "Font Size",
+          "displayName": "Title Font Size",
           "type": {
             "formatting": {
               "fontSize": true

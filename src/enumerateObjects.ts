@@ -579,6 +579,9 @@ class enumerateObjects implements IEnumerateObjects {
         objectName: objectName,
         properties: {
           titleText: this.visualSettings.yAxisFormatting.titleText,
+          titleStyle: this.visualSettings.yAxisFormatting.titleStyle,
+          titleColor: this.visualSettings.yAxisFormatting.titleColor,
+          titleFontFamily: this.visualSettings.yAxisFormatting.titleFontFamily,
           titleFontSize: this.visualSettings.yAxisFormatting.titleFontSize,
           titleBold: this.visualSettings.yAxisFormatting.titleBold,
           titleItalic: this.visualSettings.yAxisFormatting.titleItalic,

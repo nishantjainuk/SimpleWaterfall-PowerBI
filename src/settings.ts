@@ -114,6 +114,9 @@ export class yAxisFormatting {
   public switchPosition: boolean = false;
   public showTitle: boolean = false;
   public titleText: string = "";
+  public titleStyle: string = "Show Title Only";
+  public titleColor: string = "#777777";
+  public titleFontFamily: string = '"Segoe UI", wf_segoe-ui_normal, helvetica, arial, sans-serif';
   public titleFontSize: number = 9;
   public titleBold: boolean = false;
   public titleItalic: boolean = false;

@@ -93,8 +93,6 @@ export class Visual implements IVisual {
   private adjustmentConstant: number;
   private minValue: number;
   private maxValue: number;
-  private originalwidth: number;
-  private originalheight: number;
   private width: number;
   private height: number;
   private innerWidth: number;
@@ -114,6 +112,7 @@ export class Visual implements IVisual {
   private yAxisWidth = 0;
   private yAxisTitleWidth = 15;
   private yAxisHeightHorizontal = 0;
+  private yAxisUnit: string;
   private scrollbarBreadth = 0;
   private yScaleTickValues = [];
   private events: IVisualEventService;
@@ -399,11 +398,25 @@ export class Visual implements IVisual {
   }
 
   private createYAxisTitle(svg, options) {
-    let title =
-      this.visualSettings.yAxisFormatting.titleText ||
-      options.dataViews[0].matrix.valueSources
-        .map((v) => v.displayName)
-        .join(", ");
+    let title = "";
+    switch (this.visualSettings.yAxisFormatting.titleStyle) {
+      case "Show Title Only":
+        title = options.dataViews[0].matrix.valueSources
+          .map((v) => v.displayName)
+          .join(", ");
+        break;
+      case "Show Unit Only":
+        title = this.yAxisUnit;
+        break;
+      case "Show Both":
+        title = `${options.dataViews[0].matrix.valueSources
+          .map((v) => v.displayName)
+          .join(", ")} (${this.yAxisUnit})`;
+        break;
+      default:
+        break;
+    }
+    title = this.visualSettings.yAxisFormatting.titleText || title;
 
     const titleSvg = svg
       .append("text")
@@ -413,8 +426,8 @@ export class Visual implements IVisual {
         "font-size",
         this.visualSettings.yAxisFormatting.titleFontSize + "pt"
       )
-      .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
-      .style("fill", this.visualSettings.yAxisFormatting.fontColor)
+      .style("font-family", this.visualSettings.yAxisFormatting.titleFontFamily)
+      .style("fill", this.visualSettings.yAxisFormatting.titleColor)
       .style(
         "font-weight",
         this.visualSettings.yAxisFormatting.titleBold ? "bold" : "normal"
@@ -4405,12 +4418,14 @@ export class Visual implements IVisual {
       formatString = this.barChartData[1].numberFormat;
     var decimalPlaces = this.visualSettings.yAxisFormatting.decimalPlaces;
     var formattedvalue;
+    this.yAxisUnit = this.visualSettings.yAxisFormatting.YAxisValueFormatOption;
     switch (this.visualSettings.yAxisFormatting.YAxisValueFormatOption) {
       case "Auto": {
         if (
           Math.abs(this.minValue) >= 1000000000 ||
           Math.abs(this.maxValue) >= 1000000000
         ) {
+          this.yAxisUnit = "Billions";
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
             value: 1e9,
@@ -4422,6 +4437,7 @@ export class Visual implements IVisual {
           Math.abs(this.minValue) >= 1000000 ||
           Math.abs(this.maxValue) >= 1000000
         ) {
+          this.yAxisUnit = "Millions";
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
             value: 1e6,
@@ -4433,6 +4449,7 @@ export class Visual implements IVisual {
           Math.abs(this.minValue) >= 1000 ||
           Math.abs(this.maxValue) >= 1000
         ) {
+          this.yAxisUnit = "Thousands";
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
             value: 1001,
@@ -4441,6 +4458,7 @@ export class Visual implements IVisual {
           });
           formattedvalue = iValueFormatter.format(d);
         } else {
+          this.yAxisUnit = "Hundreds";
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
             value: 0,
@@ -4488,6 +4506,7 @@ export class Visual implements IVisual {
         break;
       }
       default: {
+        this.yAxisUnit = "Hundreds";
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
           format: formatString,

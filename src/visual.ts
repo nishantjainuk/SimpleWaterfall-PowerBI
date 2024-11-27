@@ -983,7 +983,6 @@ export class Visual implements IVisual {
 
   private createLabels(gParent) {
     var g = gParent.append("g").attr("class", "myBarLabels");
-
     var yPosition = (d, i) => {
       var yPosition;
       var nodeID = i;
@@ -1892,7 +1891,7 @@ export class Visual implements IVisual {
         data2["numberFormat"] =
           this.extractFormattingValue(dataView, 0) ||
           dataView.matrix.valueSources[measureIndex].format;
-
+        
         data2["selectionId"] = this.host
           .createSelectionIdBuilder()
           .withMatrixNode(x, dataView.matrix.rows.levels)
@@ -2651,7 +2650,9 @@ export class Visual implements IVisual {
           percent = (this.innerHeight / 275) * 100;
           this.minLableVerticalHeight = (percent / 100) * 30;
         } else this.minLableVerticalHeight = 30;
-        if (d.displayName.length > 8 && !wrapText && columnWidth <= textWidth) {
+        if (
+          (d.displayName.length > 8 && !wrapText && columnWidth <= textWidth)
+        ) {
           let substringFactor = 9;
           if (this.innerHeight > 275) {
             substringFactor = Math.round((percent / 100) * 9);
@@ -2663,8 +2664,7 @@ export class Visual implements IVisual {
           return d.displayName;
         }
       });
-
-    if (columnWidth <= textWidth) {
+    if ((columnWidth <= textWidth && !wrapText)) {
       this.isLabelVertical = true;
     } else {
       this.isLabelVertical = false;
@@ -2711,7 +2711,7 @@ export class Visual implements IVisual {
     //move the labels of all secondary axis to the right as they don't have pillars
 
     if (allDataIndex != levels - 1) {
-      if (wrapText) {
+      if (wrapText && !this.isLabelVertical) {
         myxAxisParent
           .selectAll(".tick text")
           .call(this.labelWrapText, xBaseScale.bandwidth());
@@ -2734,7 +2734,7 @@ export class Visual implements IVisual {
 
       myxAxisParent.selectAll("line").remove();
     } else {
-      if (wrapText) {
+      if (wrapText && !this.isLabelVertical) {
         myxAxisParent
           .selectAll(".tick text")
           .call(this.labelWrapText, xBaseScale.bandwidth());
@@ -2746,7 +2746,7 @@ export class Visual implements IVisual {
       xAxislabels.attr(
         "transform",
         `translate(0,${this.visualSettings.xAxisFormatting.padding}) ${
-          this.isLabelVertical && !wrapText ? "rotate(-90)" : ""
+          (this.isLabelVertical && !wrapText) ? "rotate(-90)" : ""
         }`
       );
     }
@@ -2757,14 +2757,15 @@ export class Visual implements IVisual {
           nodes[i].getBoundingClientRect().bottom - this.legendHeight;
       }
     });
-    //   this.currentAxisGridlines(
-    //     myxAxisParent,
-    //     currData,
-    //     allDataIndex,
-    //     levels,
-    //     xScale,
-    //     xAxisrange
-    //   );
+    if (!this.isLabelVertical)
+      this.currentAxisGridlines(
+        myxAxisParent,
+        currData,
+        allDataIndex,
+        levels,
+        xScale,
+        xAxisrange
+      );
   }
   private getColumnWidth(
     currData: any,
@@ -2834,7 +2835,7 @@ export class Visual implements IVisual {
           }
           return x1;
         })
-        .attr("y2", this.findBottom - myAxisTop)
+        .attr("y2", this.height - this.margin.bottom)
         .attr("stroke-width", (d, i) => this.lineWidth(d, i))
         .attr("stroke", this.visualSettings.xAxisFormatting.gridLineColor);
     } else {
@@ -3045,6 +3046,7 @@ export class Visual implements IVisual {
   }
   private labelWrapText(text, standardwidth) {
     var width;
+
     text.each(function () {
       var text = d3.select(this),
         words = text.text().split(/\s+/).reverse(),
@@ -4255,27 +4257,30 @@ export class Visual implements IVisual {
     var decimalPlaces = this.visualSettings.LabelsFormatting.decimalPlaces;
     var formattedvalue;
 
+
     switch (this.visualSettings.LabelsFormatting.valueFormat) {
       case "Auto": {
         if (Math.abs(d.value) >= 1000000000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
-            value: 1e9,
+            value: d.numberFormat ? 0 : 1e9,
             precision: decimalPlaces,
           });
           formattedvalue = iValueFormatter.format(d.value);
         } else if (Math.abs(d.value) >= 1000000) {
+          
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
-            value: 1e6,
+            value: d.numberFormat ? 0 : 1e6,
             precision: decimalPlaces,
             format: d.numberFormat,
           });
           formattedvalue = iValueFormatter.format(d.value);
+         
         } else if (Math.abs(d.value) >= 1000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
-            value: 1001,
+            value: d.numberFormat ? 0 : 1001,
             precision: decimalPlaces,
             format: d.numberFormat,
           });
@@ -4442,7 +4447,9 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 1e6,
             precision: decimalPlaces,
-            format: formatString,
+            format: formatString
+            ? `${formatString}${decimalPlaces}`
+            : formatString,
           });
           formattedvalue = iValueFormatter.format(d);
         } else if (
@@ -4463,7 +4470,9 @@ export class Visual implements IVisual {
             cultureSelector: this.locale,
             value: 0,
             precision: decimalPlaces,
-            format: formatString,
+            format: formatString
+            ? `${formatString}${decimalPlaces}`
+            : formatString,
           });
           formattedvalue = iValueFormatter.format(d);
         }
@@ -4518,7 +4527,7 @@ export class Visual implements IVisual {
     return formattedvalue;
   }
   private formatCategory(value: any, type: any, format: any) {
-    let iValueFormatter_XAxis;
+    let iValueFormatter_XAxis;    
     iValueFormatter_XAxis = valueFormatter.create({
       cultureSelector: this.locale,
       format: format,

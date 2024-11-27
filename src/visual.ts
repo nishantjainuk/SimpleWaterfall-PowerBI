@@ -372,22 +372,18 @@ export class Visual implements IVisual {
     this.gScrollable = this.svg.append("g");
     this.getYaxisWidth(this.gScrollable);
 
-    const yAxisWidth = this.visualSettings.yAxisFormatting.showTitle
-      ? this.yAxisTitleWidth
-      : 0;
-
     const yAxisMargin = this.visualSettings.yAxisFormatting.switchPosition
       ? this.margin.right
       : this.margin.left;
-    this.svgYAxis.attr("width", yAxisMargin + this.yAxisWidth + yAxisWidth);
+    this.svgYAxis.attr("width", yAxisMargin + this.yAxisWidth);
 
     this.width =
-      this.width - this.margin.left - this.yAxisWidth - 5 - yAxisWidth;
+      this.width - this.margin.left - this.yAxisWidth - 5;
 
     this.checkBarWidth(options);
     this.createXaxis(this.gScrollable, options, allData);
     this.createYAxis(this.svgYAxis, yAxisMargin + this.yAxisWidth);
-    // this.createYAxis(this.gScrollable, 0);
+    this.createYAxisGridlines(this.gScrollable, 0);
     if (this.visualSettings.yAxisFormatting.showTitle) {
       this.createYAxisTitle(this.svgYAxis, options);
     }
@@ -444,7 +440,7 @@ export class Visual implements IVisual {
       );
     if (this.visualSettings.chartOrientation.orientation === "Vertical") {
       const yPosition = this.visualSettings.yAxisFormatting.switchPosition
-        ? this.yAxisWidth + 5
+        ? this.yAxisWidth - 5
         : this.yAxisTitleWidth - 5;
       titleSvg
         .attr("transform", "rotate(-90)")
@@ -452,8 +448,8 @@ export class Visual implements IVisual {
         .attr("y", yPosition);
     } else {
       const yPosition = this.visualSettings.yAxisFormatting.switchPosition
-        ? this.yAxisTitleWidth
-        : this.yAxisTitleWidth * 2 + 5;
+        ? this.yAxisTitleWidth - 5
+        : this.yAxisHeightHorizontal - this.yAxisTitleWidth + 10;
       titleSvg.attr("x", this.innerWidth / 2).attr("y", yPosition);
     }
   }
@@ -710,25 +706,53 @@ export class Visual implements IVisual {
         .style("stroke", "black")
         .style("stroke-width", "0pt");
 
-      // .style("font-weight", isBold ? "bold" : "normal")
-      // .style("font-style", isItalic ? "italic" : "normal")
-      // .style("text-decoration", isUnderline ? "underline" : "none");
-      /*if (this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
-                yAxis.selectAll('line').each((d, i, nodes) => {
+      yAxis
+        .selectAll("line")
+        .style("fill", "none")
+        .style("stroke", this.visualSettings.yAxisFormatting.gridLineColor)
+        .style("stroke-width", "0pt");
+    }
 
-                    if (d == 0) {
-                        d3.select(nodes[i]).style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.zeroLineColor).style('stroke-width', this.visualSettings.yAxisFormatting.zeroLineStrokeWidth + "pt");
-                    } else if (this.visualSettings.yAxisFormatting.showGridLine) {
-                        yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
-                    }else {
-                        yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
-                    }
-                });
-            } else if (this.visualSettings.yAxisFormatting.showGridLine) {
-                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
-            }else {
-                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
-            }*/
+    g.attr(
+      "transform",
+      `translate(${
+        this.visualSettings.yAxisFormatting.switchPosition ? 0 : adjustLeft
+      },${this.margin.top})`
+    );
+  }
+  private createYAxisGridlines(gParent, adjustLeft) {
+    var g = gParent.append("g").attr("class", "yAxisGridGroup");
+
+    var yScale = d3
+      .scaleLinear()
+      .domain([this.minValue, this.maxValue])
+      .range([this.innerHeight, 0]);
+
+    var yAxisScale = this.visualSettings.yAxisFormatting.switchPosition
+      ? d3.axisRight(yScale).tickValues(this.yScaleTickValues)
+      : d3.axisLeft(yScale).tickValues(this.yScaleTickValues);
+
+    if (this.visualSettings.yAxisFormatting.show) {
+      var yAxis = g
+        .append("g")
+        .style(
+          "font",
+          this.visualSettings.yAxisFormatting.fontSize + "pt times"
+        )
+        .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
+        .style("color", this.visualSettings.yAxisFormatting.fontColor)
+        .attr("class", "myYaxis");
+      yAxisScale.tickFormat((d) => this.formatValueforYAxis(d));
+
+      yAxis.call(yAxisScale);
+
+      yAxis.selectAll("text").style("visibility", "hidden");
+
+      yAxis
+        .selectAll("path")
+        .style("fill", "none")
+        .style("stroke", "black")
+        .style("stroke-width", "0pt");
 
       if (this.visualSettings.yAxisFormatting.showGridLine) {
         // Scale dash array by visual width if enabled
@@ -786,36 +810,8 @@ export class Visual implements IVisual {
         });
       }
 
-      /*if (this.visualSettings.yAxisFormatting.showGridLine) {
-                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
-            } else if (this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
-                yAxis.selectAll('line').each((d, i, nodes) => {
-
-                    if (d == 0) {
-                        d3.select(nodes[i]).style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
-                    } else {
-                        d3.select(nodes[i]).style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
-                    }
-                });
-            } else {
-                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
-            }*/
-
-      // adjust the left margin of the chart area according to the width of yaxis
-      // yAxisWidth used to adjust the left margin
-      /*var yAxisWidth = yAxis.node().getBoundingClientRect().width;
-            var yAxisHeight = yAxis.selectAll('text').node().getBoundingClientRect().height;*/
-
-      yAxis
-        .selectAll("line")
-        .attr(
-          "x2",
-          this.visualSettings.yAxisFormatting.switchPosition
-            ? -this.innerWidth
-            : this.innerWidth
-        );
+      yAxis.selectAll("line").attr("x2", this.innerWidth);
     }
-    var nodeWidth;
     g.attr(
       "transform",
       `translate(${
@@ -874,31 +870,12 @@ export class Visual implements IVisual {
 
       yAxis.call(yAxisScale);
 
-      yAxis
-        .selectAll("path")
-        .style("fill", "none")
-        .style("stroke", "black")
-        .style("stroke-width", "0pt");
-      if (this.visualSettings.yAxisFormatting.showGridLine) {
-        yAxis
-          .selectAll("line")
-          .style("fill", "none")
-          .style("stroke", this.visualSettings.yAxisFormatting.gridLineColor)
-          .style(
-            "stroke-width",
-            this.defaultYAxisGridlineStrokeWidth() / 10 + "pt"
-          );
-      } else {
-        yAxis
-          .selectAll("line")
-          .style("fill", "none")
-          .style("stroke", this.visualSettings.yAxisFormatting.gridLineColor)
-          .style("stroke-width", "0pt");
-      }
-
       // adjust the left margin of the chart area according to the width of yaxis
       // yAxisWidth used to adjust the left margin
-      this.yAxisWidth = yAxis.node().getBoundingClientRect().width;
+      this.yAxisWidth = this.visualSettings.yAxisFormatting.showYAxisValues
+        ? yAxis.node().getBoundingClientRect().width
+        : 0;
+      // this.yAxisWidth = yAxis.node().getBoundingClientRect().width;
       this.yAxisWidth += this.visualSettings.yAxisFormatting.showTitle
         ? this.yAxisTitleWidth
         : 0;
@@ -1891,7 +1868,7 @@ export class Visual implements IVisual {
         data2["numberFormat"] =
           this.extractFormattingValue(dataView, 0) ||
           dataView.matrix.valueSources[measureIndex].format;
-        
+
         data2["selectionId"] = this.host
           .createSelectionIdBuilder()
           .withMatrixNode(x, dataView.matrix.rows.levels)
@@ -2650,9 +2627,7 @@ export class Visual implements IVisual {
           percent = (this.innerHeight / 275) * 100;
           this.minLableVerticalHeight = (percent / 100) * 30;
         } else this.minLableVerticalHeight = 30;
-        if (
-          (d.displayName.length > 8 && !wrapText && columnWidth <= textWidth)
-        ) {
+        if (d.displayName.length > 8 && !wrapText && columnWidth <= textWidth) {
           let substringFactor = 9;
           if (this.innerHeight > 275) {
             substringFactor = Math.round((percent / 100) * 9);
@@ -2664,7 +2639,7 @@ export class Visual implements IVisual {
           return d.displayName;
         }
       });
-    if ((columnWidth <= textWidth && !wrapText)) {
+    if (columnWidth <= textWidth && !wrapText) {
       this.isLabelVertical = true;
     } else {
       this.isLabelVertical = false;
@@ -2746,7 +2721,7 @@ export class Visual implements IVisual {
       xAxislabels.attr(
         "transform",
         `translate(0,${this.visualSettings.xAxisFormatting.padding}) ${
-          (this.isLabelVertical && !wrapText) ? "rotate(-90)" : ""
+          this.isLabelVertical && !wrapText ? "rotate(-90)" : ""
         }`
       );
     }
@@ -3159,9 +3134,7 @@ export class Visual implements IVisual {
     this.getMinMaxValue();
 
     this.gScrollable = this.svg.append("g");
-    if (this.visualSettings.yAxisFormatting.showTitle) {
-      this.createYAxisTitle(this.svgYAxis, options);
-    }
+
     this.getYaxisHeightHorizontal(this.gScrollable);
     this.svg.attr("width", this.width);
     this.innerHeight = this.innerHeight - this.yAxisHeightHorizontal;
@@ -3180,10 +3153,12 @@ export class Visual implements IVisual {
       this.svgYAxis,
       this.visualSettings.yAxisFormatting.switchPosition
         ? yAxisMargin + yAxisTitleHeight
-        : 0
+        : this.yAxisHeightHorizontal - yAxisTitleHeight
     );
-    // this.createYAxisHorizontal(this.gScrollable, this.innerHeight);
-
+    this.createYAxisGridlinesHorizontal(this.gScrollable, this.innerHeight);
+    if (this.visualSettings.yAxisFormatting.showTitle) {
+      this.createYAxisTitle(this.svgYAxis, options);
+    }
     this.createBarsHorizontal(this.gScrollable, this.barChartData);
     this.createLabelsHorizontal(this.gScrollable);
     this.svg.attr(
@@ -4051,6 +4026,63 @@ export class Visual implements IVisual {
       .domain([this.maxValue, this.minValue])
       .range([this.innerWidth + this.xAxisPosition - this.scrollbarBreadth, 0]);
 
+    var yAxisScale = this.visualSettings.yAxisFormatting.switchPosition
+      ? d3.axisBottom(yScale).tickValues(this.yScaleTickValues)
+      : d3.axisTop(yScale).tickValues(this.yScaleTickValues);
+
+    if (this.visualSettings.yAxisFormatting.show) {
+      var yAxis = g
+        .append("g")
+        .style(
+          "font",
+          this.visualSettings.yAxisFormatting.fontSize + "pt times"
+        )
+        .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
+        .style("color", this.visualSettings.yAxisFormatting.fontColor)
+        .attr("class", "myYaxis");
+
+      yAxisScale.tickFormat((d) => this.formatValueforYAxis(d));
+
+      yAxis.call(yAxisScale);
+
+      if (!this.visualSettings.yAxisFormatting.showYAxisValues) {
+        yAxis.selectAll("text").style("visibility", "hidden");
+      }
+
+      yAxis
+        .selectAll("path")
+        .style("fill", "none")
+        .style("stroke", "black")
+        .style("stroke-width", "0pt");
+
+      yAxis
+        .selectAll("line")
+        .style("fill", "none")
+        .style("stroke", this.visualSettings.yAxisFormatting.gridLineColor)
+        .style("stroke-width", "0pt");
+
+      yAxis.selectAll("line").attr("y2", -this.innerHeight);
+    }
+    yAxis
+      .selectAll("line")
+      .style("fill", "none")
+      .style("stroke", this.visualSettings.yAxisFormatting.gridLineColor)
+      .style("stroke-width", "0pt");
+
+    g.attr(
+      "transform",
+      `translate(${-this.findRightHorizontal},${adjustPosition})`
+    );
+  }
+  private createYAxisGridlinesHorizontal(gParent, adjustPosition) {
+    var g = gParent.append("g").attr("class", "yAxisParentGroup");
+
+    //recreate yScale using the new values
+    var yScale = d3
+      .scaleLinear()
+      .domain([this.maxValue, this.minValue])
+      .range([this.innerWidth + this.xAxisPosition - this.scrollbarBreadth, 0]);
+
     var yAxisScale = d3.axisBottom(yScale).tickValues(this.yScaleTickValues);
 
     if (this.visualSettings.yAxisFormatting.show) {
@@ -4078,6 +4110,13 @@ export class Visual implements IVisual {
         .style("stroke", "black")
         .style("stroke-width", "0pt");
       if (this.visualSettings.yAxisFormatting.showGridLine) {
+        const scaledDashArray = this.visualSettings.yAxisFormatting.scaleByWidth
+          ? this.scaleDashArray(
+              this.visualSettings.yAxisFormatting.dashArray,
+              this.innerWidth
+            )
+          : this.visualSettings.yAxisFormatting.dashArray;
+
         yAxis
           .selectAll("line")
           .style("fill", "none")
@@ -4085,7 +4124,21 @@ export class Visual implements IVisual {
           .style(
             "stroke-width",
             this.defaultYAxisGridlineStrokeWidth() / 10 + "pt"
-          );
+          )
+          .style(
+            "stroke-dasharray",
+            this.visualSettings.yAxisFormatting.gridLineStyle === "custom"
+              ? scaledDashArray
+              : this.getLineDashArray(
+                  this.visualSettings.yAxisFormatting.gridLineStyle
+                )
+          )
+          .style(
+            "stroke-linecap",
+            this.visualSettings.yAxisFormatting.gridLineStyle === "custom"
+              ? this.visualSettings.yAxisFormatting.dashCap
+              : "flat"
+          ); // Default to flat
       } else {
         yAxis
           .selectAll("line")
@@ -4110,37 +4163,7 @@ export class Visual implements IVisual {
           }
         });
       }
-      /*if (this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
-                yAxis.selectAll('line').each((d, i, nodes) => {
 
-                    if (d == 0) {
-                        d3.select(nodes[i]).style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.zeroLineColor).style('stroke-width', this.visualSettings.yAxisFormatting.zeroLineStrokeWidth / 10 + "pt");
-                    } else if (this.visualSettings.yAxisFormatting.showGridLine) {
-                        yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
-                    }else {
-                        yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
-                    }
-                });
-            } else if (this.visualSettings.yAxisFormatting.showGridLine) {
-                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
-            }else {
-                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
-            }*/
-
-      /*if (this.visualSettings.yAxisFormatting.showGridLine) {
-                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', this.defaultYAxisGridlineStrokeWidth() / 10 + "pt");
-            } else if (this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
-                yAxis.selectAll('line').each((d, i, nodes) => {
-
-                    if (d == 0) {
-                        d3.select(nodes[i]).style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.zeroLineColor).style('stroke-width', this.visualSettings.yAxisFormatting.zeroLineStrokeWidth / 10 + "pt");
-                    } else {
-                        d3.select(nodes[i]).style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.zeroLineColor).style('stroke-width', "0pt");
-                    }
-                });
-            } else {
-                yAxis.selectAll('line').style('fill', 'none').style('stroke', this.visualSettings.yAxisFormatting.gridLineColor).style('stroke-width', "0pt");
-            }*/
       yAxis.selectAll("line").attr("y2", -this.innerHeight);
     }
 
@@ -4159,7 +4182,9 @@ export class Visual implements IVisual {
     /*var ticksCount = 5;
         var staticYscaleTIcks = yScale.ticks(ticksCount);*/
 
-    var yAxisScale = d3.axisBottom(yScale).tickValues(this.yScaleTickValues);
+    var yAxisScale = this.visualSettings.yAxisFormatting.switchPosition
+      ? d3.axisBottom(yScale).tickValues(this.yScaleTickValues)
+      : d3.axisTop(yScale).tickValues(this.yScaleTickValues);
 
     if (this.visualSettings.yAxisFormatting.show) {
       var yAxis = g
@@ -4176,31 +4201,12 @@ export class Visual implements IVisual {
 
       yAxis.call(yAxisScale);
 
-      yAxis
-        .selectAll("path")
-        .style("fill", "none")
-        .style("stroke", "black")
-        .style("stroke-width", "0pt");
-      if (this.visualSettings.yAxisFormatting.showGridLine) {
-        yAxis
-          .selectAll("line")
-          .style("fill", "none")
-          .style("stroke", this.visualSettings.yAxisFormatting.gridLineColor)
-          .style(
-            "stroke-width",
-            this.defaultYAxisGridlineStrokeWidth() / 10 + "pt"
-          );
-      } else {
-        yAxis
-          .selectAll("line")
-          .style("fill", "none")
-          .style("stroke", this.visualSettings.yAxisFormatting.gridLineColor)
-          .style("stroke-width", "0pt");
-      }
-
       // adjust the left margin of the chart area according to the width of yaxis
       // yAxisWidth used to adjust the left margin
-      this.yAxisHeightHorizontal = yAxis.node().getBoundingClientRect().height;
+      this.yAxisHeightHorizontal = this.visualSettings.yAxisFormatting
+        .showYAxisValues
+        ? yAxis.node().getBoundingClientRect().height
+        : 0;
       this.yAxisHeightHorizontal += this.visualSettings.yAxisFormatting
         .showTitle
         ? this.yAxisTitleWidth
@@ -4257,7 +4263,6 @@ export class Visual implements IVisual {
     var decimalPlaces = this.visualSettings.LabelsFormatting.decimalPlaces;
     var formattedvalue;
 
-
     switch (this.visualSettings.LabelsFormatting.valueFormat) {
       case "Auto": {
         if (Math.abs(d.value) >= 1000000000) {
@@ -4268,7 +4273,6 @@ export class Visual implements IVisual {
           });
           formattedvalue = iValueFormatter.format(d.value);
         } else if (Math.abs(d.value) >= 1000000) {
-          
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
             value: d.numberFormat ? 0 : 1e6,
@@ -4276,7 +4280,6 @@ export class Visual implements IVisual {
             format: d.numberFormat,
           });
           formattedvalue = iValueFormatter.format(d.value);
-         
         } else if (Math.abs(d.value) >= 1000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
@@ -4448,8 +4451,8 @@ export class Visual implements IVisual {
             value: 1e6,
             precision: decimalPlaces,
             format: formatString
-            ? `${formatString}${decimalPlaces}`
-            : formatString,
+              ? `${formatString}${decimalPlaces}`
+              : formatString,
           });
           formattedvalue = iValueFormatter.format(d);
         } else if (
@@ -4471,8 +4474,8 @@ export class Visual implements IVisual {
             value: 0,
             precision: decimalPlaces,
             format: formatString
-            ? `${formatString}${decimalPlaces}`
-            : formatString,
+              ? `${formatString}${decimalPlaces}`
+              : formatString,
           });
           formattedvalue = iValueFormatter.format(d);
         }
@@ -4527,7 +4530,7 @@ export class Visual implements IVisual {
     return formattedvalue;
   }
   private formatCategory(value: any, type: any, format: any) {
-    let iValueFormatter_XAxis;    
+    let iValueFormatter_XAxis;
     iValueFormatter_XAxis = valueFormatter.create({
       cultureSelector: this.locale,
       format: format,

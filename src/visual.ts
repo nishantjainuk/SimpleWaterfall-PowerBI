@@ -220,6 +220,7 @@ export class Visual implements IVisual {
       this.barChartData =
         this.getDataDrillableWaterfall(options)[allData.length - 1];
     }
+    // console.log({ type: this.visualType });
 
     this.createWaterfallGraph(options, allData);
     //Certification requirement to use rendering API//
@@ -377,8 +378,7 @@ export class Visual implements IVisual {
       : this.margin.left;
     this.svgYAxis.attr("width", yAxisMargin + this.yAxisWidth);
 
-    this.width =
-      this.width - this.margin.left - this.yAxisWidth - 5;
+    this.width = this.width - this.margin.left - this.yAxisWidth - 5;
 
     this.checkBarWidth(options);
     this.createXaxis(this.gScrollable, options, allData);
@@ -960,10 +960,12 @@ export class Visual implements IVisual {
 
   private createLabels(gParent) {
     var g = gParent.append("g").attr("class", "myBarLabels");
+
     var yPosition = (d, i) => {
       var yPosition;
       var nodeID = i;
       var heightAdjustment = 0;
+
       pillarLabelsg.each((d, i, nodes) => {
         if (nodeID == i) {
           heightAdjustment = nodes[i].getBoundingClientRect().height;
@@ -1019,6 +1021,7 @@ export class Visual implements IVisual {
           }
           break;
       }
+
       return yPosition;
     };
     var xScale = d3
@@ -1056,7 +1059,7 @@ export class Visual implements IVisual {
         (d, i) => `translate(${xScale(d.category)},${yPosition(d, i)})`
       );
     }
-    g.selectAll(".labels").call(this.labelFitToWidth);
+    // g.selectAll(".labels").call(this.labelFitToWidth);
     this.tooltipServiceWrapper.addTooltip(
       g.selectAll(".labels"),
       (tooltipEvent: TooltipEventArgs<number>) =>
@@ -2191,6 +2194,7 @@ export class Visual implements IVisual {
         ) {
           formatString = this.extractFormattingValue(dataView, indexMeasures);
         }
+
         data2Category = this.getDataForCategory(
           valueDifference,
           formatString,
@@ -2975,6 +2979,7 @@ export class Visual implements IVisual {
       data2["isPillar"],
       data2["value"]
     );
+
     return data2;
   }
 
@@ -4271,7 +4276,8 @@ export class Visual implements IVisual {
             value: d.numberFormat ? 0 : 1e9,
             precision: decimalPlaces,
           });
-          formattedvalue = iValueFormatter.format(d.value);
+
+          formattedvalue = this.getValueSimpleFormatted(iValueFormatter, d);
         } else if (Math.abs(d.value) >= 1000000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
@@ -4279,7 +4285,7 @@ export class Visual implements IVisual {
             precision: decimalPlaces,
             format: d.numberFormat,
           });
-          formattedvalue = iValueFormatter.format(d.value);
+          formattedvalue = this.getValueSimpleFormatted(iValueFormatter, d);
         } else if (Math.abs(d.value) >= 1000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
@@ -4287,7 +4293,7 @@ export class Visual implements IVisual {
             precision: decimalPlaces,
             format: d.numberFormat,
           });
-          formattedvalue = iValueFormatter.format(d.value);
+          formattedvalue = this.getValueSimpleFormatted(iValueFormatter, d);
         } else {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
@@ -4295,7 +4301,7 @@ export class Visual implements IVisual {
             precision: decimalPlaces,
             format: d.numberFormat,
           });
-          formattedvalue = iValueFormatter.format(d.value);
+          formattedvalue = this.getValueSimpleFormatted(iValueFormatter, d);
         }
         break;
       }
@@ -4333,13 +4339,33 @@ export class Visual implements IVisual {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
           format: d.numberFormat,
+          value: 0,
+          precision: decimalPlaces,
         });
-        formattedvalue = iValueFormatter.format(d.value);
+
+        formattedvalue = this.getValueSimpleFormatted(iValueFormatter, d);
+
         break;
       }
     }
+
     return formattedvalue;
   }
+
+  private getValueSimpleFormatted(iValueFormatter, d) {
+    const formattedvalueOriginal = iValueFormatter.format(d.value);
+    const formattedvalueNew = iValueFormatter.format(Math.abs(d.value));
+    return this.hasParentheses(formattedvalueOriginal) &&
+      !this.hasParentheses(formattedvalueNew)
+      ? `(${formattedvalueNew})`
+      : formattedvalueOriginal;
+  }
+
+  private hasParentheses(str) {
+    const regex = /\(.*\)/;
+    return regex.test(str); // Returns true if parentheses are found, otherwise false
+  }
+
   private formatValueforvalues(value, numberFormat) {
     var iValueFormatter;
     var decimalPlaces = this.visualSettings.LabelsFormatting.decimalPlaces;

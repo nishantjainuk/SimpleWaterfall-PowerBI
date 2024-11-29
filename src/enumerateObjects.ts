@@ -139,16 +139,16 @@ class enumerateObjects implements IEnumerateObjects {
         }
       }
     }
-    if (
-      this.visualType == "staticCategory" ||
-      this.visualType == "drillableCategory"
-    ) {
+    if (this.visualType == "staticCategory") {
       var hasPillar: boolean = false;
 
       var isPillarBoolean: boolean;
       for (var index = 0; index < this.barChartData.length; index++) {
         if (this.barChartData[index].category != "defaultBreakdownStepOther") {
-          if (this.barChartData[index].isPillar) {
+          if (
+            index != this.barChartData.length &&
+            !this.visualSettings.definePillars.Totalpillar
+          ) {
             // if the last pillar is the only pillar than treat it as no pillar
             isPillarBoolean = true;
             if (
@@ -184,15 +184,15 @@ class enumerateObjects implements IEnumerateObjects {
         });
       }
     }
-    // if (this.visualType == "drillableCategory") {
-    //     objectEnumeration.push({
-    //         objectName: objectName,
-    //         properties: {
-    //             Totalpillar: this.visualSettings.definePillars.Totalpillar
-    //         },
-    //         selector: null
-    //     });
-    // }
+    if (this.visualType == "drillableCategory") {
+      objectEnumeration.push({
+        objectName: objectName,
+        properties: {
+          Totalpillar: this.visualSettings.definePillars.Totalpillar,
+        },
+        selector: null,
+      });
+    }
   }
 
   private propertiesLegend(
@@ -393,7 +393,10 @@ class enumerateObjects implements IEnumerateObjects {
       },
       selector: null,
     });
-    if (this.barWidth > 21 && this.visualSettings.chartOrientation.orientation !== "Horizontal")
+    if (
+      this.barWidth > 21 &&
+      this.visualSettings.chartOrientation.orientation !== "Horizontal"
+    )
       objectEnumeration[objectEnumeration.length - 1].properties.fitToWidth =
         this.visualSettings.xAxisFormatting.fitToWidth;
 

@@ -940,7 +940,7 @@ export class Visual implements IVisual {
         (d, i) => `translate(${xScale(d.category)},${yPosition(d, i)})`
       );
     }
-    // g.selectAll(".labels").call(this.labelFitToWidth);
+    g.selectAll(".labels").call(this.labelFitToWidth);
     this.tooltipServiceWrapper.addTooltip(
       g.selectAll(".labels"),
       (tooltipEvent: TooltipEventArgs<number>) =>
@@ -1736,6 +1736,7 @@ export class Visual implements IVisual {
     //*******************************************************************
     var sortOrderIndex = 0;
     var orderIndex = 0;
+
     dataView.matrix.rows.root.children.forEach((x: DataViewMatrixNode) => {
       var checkforZero = false;
       if (
@@ -2584,13 +2585,11 @@ export class Visual implements IVisual {
       myxAxisParent
         .selectAll(".tick text")
         .data(currData)
-        .attr(
-          "transform",
-          (d, i) =>
-            `translate(${(xAxisrange[i + 1] - xAxisrange[i]) / 2},${
-              this.visualSettings.xAxisFormatting.padding
-            })`
-        );
+        .attr("transform", (d, i) => {
+          return `translate(${(xAxisrange[i + 1] - xAxisrange[i]) / 2},${
+            this.visualSettings.xAxisFormatting.padding
+          })`;
+        });
 
       myxAxisParent.selectAll("line").remove();
     } else {
@@ -2913,56 +2912,44 @@ export class Visual implements IVisual {
       // }
     });
   }
-  private labelWrapText(text, standardwidth) {
-    var width;
-
+  private labelWrapText(text, standardWidth) {
     text.each(function () {
-      var text = d3.select(this),
-        words = text.text().split(/\s+/).reverse(),
-        word,
-        line = [],
-        lineNumber = 0,
-        lineHeight = 1.1,
-        y = text.attr("y"),
-        dy = parseFloat(text.attr("dy")),
-        tspan = text
-          .text(null)
+      const textElement = d3.select(this);
+      const words = textElement.text().split(/\s+/); // Split words into an array
+      const y = textElement.attr("y") || 0; // Default y if not set
+      const dy = parseFloat(textElement.attr("dy")) || 0; // Default dy
+      const childrenCount = textElement.datum()["childrenCount"] || 1; // Fallback for childrenCount
+      const width = standardWidth * childrenCount;
+
+      // Clear existing text
+      textElement.text(null);
+
+      // Track line number for positioning
+      let lineNumber = 0;
+
+      words.forEach((word) => {
+        let truncatedWord = word;
+
+        // Truncate word if it exceeds the specified width
+        const tspan = textElement
           .append("tspan")
           .attr("x", 0)
           .attr("y", y)
-          .attr("dy", dy + "em");
-      width = standardwidth * text.datum()["childrenCount"];
+          .attr("dy", `${lineNumber * 1.1 + dy}em`) // Adjust line height
+          .text(truncatedWord);
 
-      while ((word = words.pop())) {
-        line.push(word);
-        tspan.text(line.join(" "));
-
+        // Check if the word exceeds the width and truncate if necessary
         if (tspan.node().getComputedTextLength() > width) {
-          if (line.length == 1) {
-            var currline = line[0].split("");
-            while (tspan.node().getComputedTextLength() > width) {
-              currline.pop();
-              line[0] = currline.join("");
-              tspan.text(line[0]);
-            }
-          } else {
-            line.pop();
-            tspan.text(line.join(" "));
-            line = [word];
-            tspan = text
-              .append("tspan")
-              .attr("x", 0)
-              .attr("y", y)
-              .attr("dy", ++lineNumber * lineHeight + dy + "em")
-              .text(word);
-            currline = tspan.text().split("");
-            while (tspan.node().getComputedTextLength() > width) {
-              currline.pop();
-              tspan.text(currline.join(""));
-            }
+          let chars = truncatedWord.split("");
+          while (tspan.node().getComputedTextLength() > width && chars.length) {
+            chars.pop(); // Remove one character at a time
+            truncatedWord = chars.join("") + "..."; // Add ellipsis
+            tspan.text(truncatedWord);
           }
         }
-      }
+
+        lineNumber++; // Increment line number for the next word
+      });
     });
   }
   private labelFitToWidth(text) {
@@ -4105,7 +4092,6 @@ export class Visual implements IVisual {
     var iValueFormatter;
     var decimalPlaces = this.visualSettings.LabelsFormatting.decimalPlaces;
     var formattedvalue;
-    // allowFormatBeautification: false,
 
     switch (this.visualSettings.LabelsFormatting.valueFormat) {
       case "Auto": {
@@ -4196,7 +4182,7 @@ export class Visual implements IVisual {
     const formattedvalueNew = iValueFormatter.format(Math.abs(d.value));
     return this.hasParentheses(formattedvalueOriginal) &&
       !this.hasParentheses(formattedvalueNew)
-      ? `(${formattedvalueNew})`
+      ? `(${formattedvalueNew.trim()})`
       : formattedvalueOriginal;
   }
 

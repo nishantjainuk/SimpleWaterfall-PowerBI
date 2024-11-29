@@ -145,7 +145,7 @@ class enumerateObjects implements IEnumerateObjects {
                             } else {
                                 isPillarBoolean = false;
                             }
-                            // if (!this.visualSettings.definePillars.Totalpillar) {
+                            if (!this.visualSettings.definePillars.Totalpillar) {
                                 objectEnumeration.push({
                                     objectName: "objectName",
                                     displayName: this.barChartData[index].category,
@@ -154,7 +154,7 @@ class enumerateObjects implements IEnumerateObjects {
                                     },
                                     selector: this.barChartData[index].selectionId.getSelector()
                                 });
-                            // }
+                            }
                         }
                     }
 
@@ -415,7 +415,7 @@ class enumerateObjects implements IEnumerateObjects {
                     fontSize: this.visualSettings.yAxisFormatting.fontSize,
                     fontColor: this.visualSettings.yAxisFormatting.fontColor,
                     YAxisValueFormatOption: this.visualSettings.yAxisFormatting.YAxisValueFormatOption,
-                    decimalPlaces: this.visualSettings.yAxisFormatting.decimalPlaces
+                    decimalPlaces: this.visualSettings.yAxisFormatting.decimalPlaces ?? "Auto"
 
                 },
                 selector: null
@@ -655,9 +655,9 @@ class enumerateObjects implements IEnumerateObjects {
                                 // Add this property with the value previously defined for the selector property
                                 altConstantValueSelector: this.barChartData[index].selectionId.getSelector(),
 
-                                propertyInstanceKind: {
-                                    fill: VisualEnumerationInstanceKinds.ConstantOrRule
-                                }
+                                // propertyInstanceKind: {
+                                //     fill: VisualEnumerationInstanceKinds.ConstantOrRule
+                                // }
 
                             });
                         } else {

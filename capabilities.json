@@ -685,8 +685,9 @@
           "displayName": "Value decimal places",
           "description": "Value decimal places",
           "type": {
-            "integer": true
-          }
+            "numeric": true
+          },
+          "placeHolderText": "Auto"
         },
         "useDefaultLabelPositioning": {
           "displayName": "Use Default Label Positioning",

@@ -220,6 +220,7 @@ export class Visual implements IVisual {
       this.barChartData =
         this.getDataDrillableWaterfall(options)[allData.length - 1];
     }
+    // console.log({ type: this.visualType });
 
     this.createWaterfallGraph(options, allData);
     //Certification requirement to use rendering API//
@@ -756,7 +757,9 @@ export class Visual implements IVisual {
 
       // adjust the left margin of the chart area according to the width of yaxis
       // yAxisWidth used to adjust the left margin
-      this.yAxisWidth = yAxis.node().getBoundingClientRect().width;
+      this.yAxisWidth = this.visualSettings.yAxisFormatting.showYAxisValues
+        ? yAxis.node().getBoundingClientRect().width
+        : 0;
       this.innerWidth = this.innerWidth - this.yAxisWidth;
     } else {
       this.yAxisWidth = 0;
@@ -838,10 +841,12 @@ export class Visual implements IVisual {
 
   private createLabels(gParent) {
     var g = gParent.append("g").attr("class", "myBarLabels");
+
     var yPosition = (d, i) => {
       var yPosition;
       var nodeID = i;
       var heightAdjustment = 0;
+
       pillarLabelsg.each((d, i, nodes) => {
         if (nodeID == i) {
           heightAdjustment = nodes[i].getBoundingClientRect().height;
@@ -897,6 +902,7 @@ export class Visual implements IVisual {
           }
           break;
       }
+
       return yPosition;
     };
     var xScale = d3
@@ -934,7 +940,7 @@ export class Visual implements IVisual {
         (d, i) => `translate(${xScale(d.category)},${yPosition(d, i)})`
       );
     }
-    g.selectAll(".labels").call(this.labelFitToWidth);
+    // g.selectAll(".labels").call(this.labelFitToWidth);
     this.tooltipServiceWrapper.addTooltip(
       g.selectAll(".labels"),
       (tooltipEvent: TooltipEventArgs<number>) =>
@@ -1746,7 +1752,7 @@ export class Visual implements IVisual {
         data2["numberFormat"] =
           this.extractFormattingValue(dataView, 0) ||
           dataView.matrix.valueSources[measureIndex].format;
-        
+
         data2["selectionId"] = this.host
           .createSelectionIdBuilder()
           .withMatrixNode(x, dataView.matrix.rows.levels)
@@ -2069,6 +2075,7 @@ export class Visual implements IVisual {
         ) {
           formatString = this.extractFormattingValue(dataView, indexMeasures);
         }
+
         data2Category = this.getDataForCategory(
           valueDifference,
           formatString,
@@ -2505,9 +2512,7 @@ export class Visual implements IVisual {
           percent = (this.innerHeight / 275) * 100;
           this.minLableVerticalHeight = (percent / 100) * 30;
         } else this.minLableVerticalHeight = 30;
-        if (
-          (d.displayName.length > 8 && !wrapText && columnWidth <= textWidth)
-        ) {
+        if (d.displayName.length > 8 && !wrapText && columnWidth <= textWidth) {
           let substringFactor = 9;
           if (this.innerHeight > 275) {
             substringFactor = Math.round((percent / 100) * 9);
@@ -2519,7 +2524,7 @@ export class Visual implements IVisual {
           return d.displayName;
         }
       });
-    if ((columnWidth <= textWidth && !wrapText)) {
+    if (columnWidth <= textWidth && !wrapText) {
       this.isLabelVertical = true;
     } else {
       this.isLabelVertical = false;
@@ -2601,7 +2606,7 @@ export class Visual implements IVisual {
       xAxislabels.attr(
         "transform",
         `translate(0,${this.visualSettings.xAxisFormatting.padding}) ${
-          (this.isLabelVertical && !wrapText) ? "rotate(-90)" : ""
+          this.isLabelVertical && !wrapText ? "rotate(-90)" : ""
         }`
       );
     }
@@ -2863,6 +2868,7 @@ export class Visual implements IVisual {
       data2["isPillar"],
       data2["value"]
     );
+
     return data2;
   }
 
@@ -4044,7 +4050,10 @@ export class Visual implements IVisual {
 
       // adjust the left margin of the chart area according to the width of yaxis
       // yAxisWidth used to adjust the left margin
-      this.yAxisHeightHorizontal = yAxis.node().getBoundingClientRect().height;
+      this.yAxisHeightHorizontal = this.visualSettings.yAxisFormatting
+        .showYAxisValues
+        ? yAxis.node().getBoundingClientRect().height
+        : 0;
     } else {
       this.yAxisHeightHorizontal = 0;
     }
@@ -4096,7 +4105,7 @@ export class Visual implements IVisual {
     var iValueFormatter;
     var decimalPlaces = this.visualSettings.LabelsFormatting.decimalPlaces;
     var formattedvalue;
-
+    // allowFormatBeautification: false,
 
     switch (this.visualSettings.LabelsFormatting.valueFormat) {
       case "Auto": {
@@ -4106,17 +4115,16 @@ export class Visual implements IVisual {
             value: d.numberFormat ? 0 : 1e9,
             precision: decimalPlaces,
           });
-          formattedvalue = iValueFormatter.format(d.value);
+
+          formattedvalue = this.getValueSimpleFormatted(iValueFormatter, d);
         } else if (Math.abs(d.value) >= 1000000) {
-          
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
             value: d.numberFormat ? 0 : 1e6,
             precision: decimalPlaces,
             format: d.numberFormat,
           });
-          formattedvalue = iValueFormatter.format(d.value);
-         
+          formattedvalue = this.getValueSimpleFormatted(iValueFormatter, d);
         } else if (Math.abs(d.value) >= 1000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
@@ -4124,7 +4132,7 @@ export class Visual implements IVisual {
             precision: decimalPlaces,
             format: d.numberFormat,
           });
-          formattedvalue = iValueFormatter.format(d.value);
+          formattedvalue = this.getValueSimpleFormatted(iValueFormatter, d);
         } else {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
@@ -4132,7 +4140,7 @@ export class Visual implements IVisual {
             precision: decimalPlaces,
             format: d.numberFormat,
           });
-          formattedvalue = iValueFormatter.format(d.value);
+          formattedvalue = this.getValueSimpleFormatted(iValueFormatter, d);
         }
         break;
       }
@@ -4170,13 +4178,33 @@ export class Visual implements IVisual {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
           format: d.numberFormat,
+          value: 0,
+          precision: decimalPlaces,
         });
-        formattedvalue = iValueFormatter.format(d.value);
+
+        formattedvalue = this.getValueSimpleFormatted(iValueFormatter, d);
+
         break;
       }
     }
+
     return formattedvalue;
   }
+
+  private getValueSimpleFormatted(iValueFormatter, d) {
+    const formattedvalueOriginal = iValueFormatter.format(d.value);
+    const formattedvalueNew = iValueFormatter.format(Math.abs(d.value));
+    return this.hasParentheses(formattedvalueOriginal) &&
+      !this.hasParentheses(formattedvalueNew)
+      ? `(${formattedvalueNew})`
+      : formattedvalueOriginal;
+  }
+
+  private hasParentheses(str) {
+    const regex = /\(.*\)/;
+    return regex.test(str); // Returns true if parentheses are found, otherwise false
+  }
+
   private formatValueforvalues(value, numberFormat) {
     var iValueFormatter;
     var decimalPlaces = this.visualSettings.LabelsFormatting.decimalPlaces;
@@ -4285,8 +4313,8 @@ export class Visual implements IVisual {
             value: 1e6,
             precision: decimalPlaces,
             format: formatString
-            ? `${formatString}${decimalPlaces}`
-            : formatString,
+              ? `${formatString}${decimalPlaces}`
+              : formatString,
           });
           formattedvalue = iValueFormatter.format(d);
         } else if (
@@ -4306,8 +4334,8 @@ export class Visual implements IVisual {
             value: 0,
             precision: decimalPlaces,
             format: formatString
-            ? `${formatString}${decimalPlaces}`
-            : formatString,
+              ? `${formatString}${decimalPlaces}`
+              : formatString,
           });
           formattedvalue = iValueFormatter.format(d);
         }
@@ -4361,7 +4389,7 @@ export class Visual implements IVisual {
     return formattedvalue;
   }
   private formatCategory(value: any, type: any, format: any) {
-    let iValueFormatter_XAxis;    
+    let iValueFormatter_XAxis;
     iValueFormatter_XAxis = valueFormatter.create({
       cultureSelector: this.locale,
       format: format,

@@ -127,11 +127,12 @@ class enumerateObjects implements IEnumerateObjects {
                     }
             }
         }
-        if (this.visualType == "staticCategory" || this.visualType == "drillableCategory") {
+        if (this.visualType == "staticCategory") {
             var hasPillar: boolean = false;
             switch (objectName) {
                 case 'definePillars':
                     var isPillarBoolean: boolean;
+                    
                     for (var index = 0; index < this.barChartData.length; index++) {                        
                         if (this.barChartData[index].category != "defaultBreakdownStepOther") {
                             if (this.barChartData[index].isPillar) {
@@ -169,15 +170,15 @@ class enumerateObjects implements IEnumerateObjects {
                    
             }
         }
-        // if (this.visualType == "drillableCategory") {
-        //     objectEnumeration.push({
-        //         objectName: "objectName",
-        //         properties: {
-        //             Totalpillar: this.visualSettings.definePillars.Totalpillar
-        //         },
-        //         selector: null
-        //     });
-        // }
+        if (this.visualType == "drillableCategory") {
+            objectEnumeration.push({
+                objectName: "objectName",
+                properties: {
+                    Totalpillar: this.visualSettings.definePillars.Totalpillar
+                },
+                selector: null
+            });
+        }
     }
 
     private propertiesLegend(objectName: string, objectEnumeration: VisualObjectInstance[]) {

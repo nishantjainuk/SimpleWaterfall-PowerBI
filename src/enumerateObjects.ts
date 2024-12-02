@@ -84,7 +84,6 @@ class enumerateObjects implements IEnumerateObjects {
   ): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
     let objectName: string = options.objectName;
     let objectEnumeration: VisualObjectInstance[] = [];
-
     switch (objectName) {
       case "chartOrientation":
         this.propertiesChartOrientation(objectName, objectEnumeration);
@@ -114,6 +113,7 @@ class enumerateObjects implements IEnumerateObjects {
 
     return objectEnumeration;
   }
+
   private propertiesDefinePillars(
     objectName: string,
     objectEnumeration: VisualObjectInstance[]
@@ -370,7 +370,7 @@ class enumerateObjects implements IEnumerateObjects {
       }
     } else {
       objectEnumeration.push({
-        objectName: objectName,
+        objectName: "objectName",
         properties: {
           orientation: this.visualSettings.chartOrientation.orientation,
         },
@@ -383,7 +383,7 @@ class enumerateObjects implements IEnumerateObjects {
     objectEnumeration: VisualObjectInstance[]
   ) {
     objectEnumeration.push({
-      objectName: objectName,
+      objectName: "objectName",
       properties: {
         fontSize: this.visualSettings.xAxisFormatting.fontSize,
         fontColor: this.visualSettings.xAxisFormatting.fontColor,
@@ -402,7 +402,7 @@ class enumerateObjects implements IEnumerateObjects {
 
     if (!this.visualSettings.xAxisFormatting.fitToWidth) {
       objectEnumeration.push({
-        objectName: objectName,
+        objectName: "objectName",
         properties: {
           barWidth: this.visualSettings.xAxisFormatting.barWidth,
         },
@@ -416,7 +416,7 @@ class enumerateObjects implements IEnumerateObjects {
     }
 
     objectEnumeration.push({
-      objectName: objectName,
+      objectName: "objectName",
       properties: {
         padding: this.visualSettings.xAxisFormatting.padding,
         showGridLine: this.visualSettings.xAxisFormatting.showGridLine,
@@ -429,7 +429,7 @@ class enumerateObjects implements IEnumerateObjects {
 
     if (this.visualSettings.xAxisFormatting.showGridLine) {
       objectEnumeration.push({
-        objectName: objectName,
+        objectName: "objectName",
         properties: {
           gridLineStrokeWidth: this.defaultXAxisGridlineStrokeWidth,
           gridLineColor: {
@@ -450,7 +450,7 @@ class enumerateObjects implements IEnumerateObjects {
     objectEnumeration: VisualObjectInstance[]
   ) {
     objectEnumeration.push({
-      objectName: objectName,
+      objectName: "objectName",
       properties: {
         show: this.visualSettings.yAxisFormatting.show,
         YAxisDataPointOption:
@@ -461,13 +461,14 @@ class enumerateObjects implements IEnumerateObjects {
     });
     if (this.visualSettings.yAxisFormatting.showYAxisValues) {
       objectEnumeration.push({
-        objectName: objectName,
+        objectName: "objectName",
         properties: {
           fontSize: this.visualSettings.yAxisFormatting.fontSize,
           fontColor: this.visualSettings.yAxisFormatting.fontColor,
           YAxisValueFormatOption:
             this.visualSettings.yAxisFormatting.YAxisValueFormatOption,
-          decimalPlaces: this.visualSettings.yAxisFormatting.decimalPlaces,
+          decimalPlaces:
+            this.visualSettings.yAxisFormatting.decimalPlaces ?? "Auto",
         },
         selector: null,
       });
@@ -476,7 +477,7 @@ class enumerateObjects implements IEnumerateObjects {
       };
     }
     objectEnumeration.push({
-      objectName: objectName,
+      objectName: "objectName",
       properties: {
         showGridLine: this.visualSettings.yAxisFormatting.showGridLine,
       },
@@ -484,7 +485,7 @@ class enumerateObjects implements IEnumerateObjects {
     });
     if (this.visualSettings.yAxisFormatting.showGridLine) {
       objectEnumeration.push({
-        objectName: objectName,
+        objectName: "objectName",
         properties: {
           gridLineStrokeWidth: this.defaultYAxisGridlineStrokeWidth,
           gridLineColor: {
@@ -514,7 +515,7 @@ class enumerateObjects implements IEnumerateObjects {
       };
     }
     objectEnumeration.push({
-      objectName: objectName,
+      objectName: "objectName",
       properties: {
         showZeroAxisGridLine:
           this.visualSettings.yAxisFormatting.showZeroAxisGridLine,
@@ -523,7 +524,7 @@ class enumerateObjects implements IEnumerateObjects {
     });
     if (this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
       objectEnumeration.push({
-        objectName: objectName,
+        objectName: "objectName",
         properties: {
           zeroLineStrokeWidth:
             this.visualSettings.yAxisFormatting.zeroLineStrokeWidth,
@@ -540,7 +541,7 @@ class enumerateObjects implements IEnumerateObjects {
       };
     }
     objectEnumeration.push({
-      objectName: objectName,
+      objectName: "objectName",
       properties: {
         joinBars: this.visualSettings.yAxisFormatting.joinBars,
       },
@@ -548,7 +549,7 @@ class enumerateObjects implements IEnumerateObjects {
     });
     if (this.visualSettings.yAxisFormatting.joinBars) {
       objectEnumeration.push({
-        objectName: objectName,
+        objectName: "objectName",
         properties: {
           joinBarsStrokeWidth:
             this.visualSettings.yAxisFormatting.joinBarsStrokeWidth,
@@ -600,7 +601,7 @@ class enumerateObjects implements IEnumerateObjects {
   ) {
     if (this.visualSettings.LabelsFormatting.show) {
       objectEnumeration.push({
-        objectName: objectName,
+        objectName: "objectName",
         properties: {
           show: this.visualSettings.LabelsFormatting.show,
           fontSize: this.visualSettings.LabelsFormatting.fontSize,
@@ -612,7 +613,7 @@ class enumerateObjects implements IEnumerateObjects {
 
       this.propertiesDefaultFontColor(objectName, objectEnumeration);
       objectEnumeration.push({
-        objectName: objectName,
+        objectName: "objectName",
         properties: {
           fontFamily: this.visualSettings.LabelsFormatting.fontFamily,
         },
@@ -620,7 +621,7 @@ class enumerateObjects implements IEnumerateObjects {
       });
 
       objectEnumeration.push({
-        objectName: objectName,
+        objectName: "objectName",
         properties: {
           useDefaultLabelPositioning:
             this.visualSettings.LabelsFormatting.useDefaultLabelPositioning,
@@ -631,7 +632,7 @@ class enumerateObjects implements IEnumerateObjects {
       this.propertiesDefaultLabelFormatting(objectName, objectEnumeration);
 
       objectEnumeration.push({
-        objectName: objectName,
+        objectName: "objectName",
         properties: {
           valueFormat: this.visualSettings.LabelsFormatting.valueFormat,
           decimalPlaces: this.visualSettings.LabelsFormatting.decimalPlaces,
@@ -642,7 +643,7 @@ class enumerateObjects implements IEnumerateObjects {
         decimalPlaces: { numberRange: { min: 0, max: 15 } },
       };
       objectEnumeration.push({
-        objectName: objectName,
+        objectName: "objectName",
         properties: {
           HideZeroBlankValues:
             this.visualSettings.LabelsFormatting.HideZeroBlankValues,
@@ -651,7 +652,7 @@ class enumerateObjects implements IEnumerateObjects {
       });
     } else {
       objectEnumeration.push({
-        objectName: objectName,
+        objectName: "objectName",
         properties: {
           show: this.visualSettings.LabelsFormatting.show,
         },
@@ -665,7 +666,7 @@ class enumerateObjects implements IEnumerateObjects {
   ) {
     if (this.visualSettings.LabelsFormatting.useDefaultLabelPositioning) {
       objectEnumeration.push({
-        objectName: objectName,
+        objectName: "objectName",
         properties: {
           labelPosition: this.visualSettings.LabelsFormatting.labelPosition,
         },
@@ -677,7 +678,7 @@ class enumerateObjects implements IEnumerateObjects {
         (this.visualType != "static" && this.visualType != "staticCategory")
       ) {
         objectEnumeration.push({
-          objectName: objectName,
+          objectName: "objectName",
           properties: {
             labelPositionTotal:
               this.visualSettings.LabelsFormatting.labelPositionTotal,
@@ -700,7 +701,7 @@ class enumerateObjects implements IEnumerateObjects {
               this.barChartData[index].category != "defaultBreakdownStepOther"
             ) {
               objectEnumeration.push({
-                objectName: objectName,
+                objectName: "objectName",
                 displayName: this.barChartData[index].category,
                 properties: {
                   labelPosition:
@@ -710,7 +711,7 @@ class enumerateObjects implements IEnumerateObjects {
               });
             } else {
               objectEnumeration.push({
-                objectName: objectName,
+                objectName: "objectName",
                 displayName: this.barChartData[index].displayName,
                 properties: {
                   labelPositionOther:
@@ -730,7 +731,7 @@ class enumerateObjects implements IEnumerateObjects {
   ) {
     if (this.visualSettings.LabelsFormatting.useDefaultFontColor) {
       objectEnumeration.push({
-        objectName: objectName,
+        objectName: "objectName",
         properties: {
           fontColor: this.visualSettings.LabelsFormatting.fontColor,
         },
@@ -742,7 +743,7 @@ class enumerateObjects implements IEnumerateObjects {
         (this.visualType != "static" && this.visualType != "staticCategory")
       ) {
         objectEnumeration.push({
-          objectName: objectName,
+          objectName: "objectName",
           properties: {
             sentimentFontColorTotal:
               this.visualSettings.LabelsFormatting.sentimentFontColorTotal,
@@ -765,7 +766,7 @@ class enumerateObjects implements IEnumerateObjects {
               this.barChartData[index].category != "defaultBreakdownStepOther"
             ) {
               objectEnumeration.push({
-                objectName: objectName,
+                objectName: "objectName",
                 displayName: this.barChartData[index].category,
                 properties: {
                   fill: {
@@ -789,9 +790,9 @@ class enumerateObjects implements IEnumerateObjects {
                 altConstantValueSelector:
                   this.barChartData[index].selectionId.getSelector(),
 
-                propertyInstanceKind: {
-                  fill: VisualEnumerationInstanceKinds.ConstantOrRule,
-                },
+                // propertyInstanceKind: {
+                //   fill: VisualEnumerationInstanceKinds.ConstantOrRule,
+                // },
               });
             } else {
               objectEnumeration.push({
@@ -815,7 +816,7 @@ class enumerateObjects implements IEnumerateObjects {
     objectEnumeration: VisualObjectInstance[]
   ) {
     objectEnumeration.push({
-      objectName: objectName,
+      objectName: "objectName",
       properties: {
         topMargin: this.visualSettings.margins.topMargin,
         bottomMargin: this.visualSettings.margins.bottomMargin,

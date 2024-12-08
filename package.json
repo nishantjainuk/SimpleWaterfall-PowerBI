@@ -19,5 +19,8 @@
         "powerbi-visuals-utils-tooltiputils": "^6.0.3",
         "powerbi-visuals-utils-typeutils": "^6.0.2",
         "regenerator-runtime": "^0.14.1"
+    },
+    "devDependencies": {
+        "typescript": "^5.7.2"
     }
 }

@@ -73,6 +73,9 @@ export class margins {
 
 export class xAxisFormatting {
   public fontSize: number = 9;
+  public fontBold: boolean = false;
+  public fontItalic: boolean = false;
+  public fontUnderline: boolean = false;
   public fontColor: string = "#777777";
   public fontFamily: string =
     '"Segoe UI", wf_segoe-ui_normal, helvetica, arial, sans-serif';
@@ -99,6 +102,7 @@ export class yAxisFormatting {
 
   public gridLineStrokeWidth: number = 1;
   public gridLineColor: string = "#777777";
+  public gridlineTransparency: number = 0;
   public gridLineStyle: string = "solid";
   public dashArray: string = "5,5,0,5"; // Default custom dash array
   public scaleByWidth: boolean = false; // Default to not scale
@@ -127,6 +131,7 @@ export class LabelsFormatting {
   public fontSize: number = 9;
   public useDefaultFontColor: boolean = true;
   public fontColor: string = "#777777";
+  public orientation: string = "horizontal";
   public sentimentFontColorTotal: string = "#777777";
   public sentimentFontColorFavourable: string = "#777777";
   public sentimentFontColorAdverse: string = "#777777";

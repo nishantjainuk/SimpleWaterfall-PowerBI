@@ -386,6 +386,9 @@ class enumerateObjects implements IEnumerateObjects {
       objectName: "objectName",
       properties: {
         fontSize: this.visualSettings.xAxisFormatting.fontSize,
+        fontBold: this.visualSettings.xAxisFormatting.fontBold,
+        fontItalic: this.visualSettings.xAxisFormatting.fontItalic,
+        fontUnderline: this.visualSettings.xAxisFormatting.fontUnderline,
         fontColor: this.visualSettings.xAxisFormatting.fontColor,
         fontFamily: this.visualSettings.xAxisFormatting.fontFamily,
         // fitToWidth: this.visualSettings.xAxisFormatting.fitToWidth,
@@ -493,6 +496,7 @@ class enumerateObjects implements IEnumerateObjects {
               color: this.visualSettings.yAxisFormatting.gridLineColor,
             },
           },
+          gridlineTransparency: this.visualSettings.yAxisFormatting.gridlineTransparency,
           gridLineStyle: this.visualSettings.yAxisFormatting.gridLineStyle,
           dashArray:
             this.visualSettings.yAxisFormatting.gridLineStyle === "custom"
@@ -512,6 +516,7 @@ class enumerateObjects implements IEnumerateObjects {
 
       objectEnumeration[objectEnumeration.length - 1].validValues = {
         gridLineStrokeWidth: { numberRange: { min: 1, max: 50 } },
+        gridlineTransparency: { numberRange: { min: 0, max: 100 } },
       };
     }
     objectEnumeration.push({
@@ -605,6 +610,7 @@ class enumerateObjects implements IEnumerateObjects {
         properties: {
           show: this.visualSettings.LabelsFormatting.show,
           fontSize: this.visualSettings.LabelsFormatting.fontSize,
+          orientation: this.visualSettings.LabelsFormatting.orientation,
           useDefaultFontColor:
             this.visualSettings.LabelsFormatting.useDefaultFontColor,
         },

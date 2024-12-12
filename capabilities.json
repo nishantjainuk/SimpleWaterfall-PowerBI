@@ -300,6 +300,18 @@
             }
           }
         },
+        "fontBold": {
+          "displayName": "Bold",
+          "type": { "bool": true }
+        },
+        "fontItalic": {
+          "displayName": "Italic",
+          "type": { "bool": true }
+        },
+        "fontUnderline": {
+          "displayName": "Underline",
+          "type": { "bool": true }
+        },
         "fontColor": {
           "displayName": "Font Color",
           "description": "The font color",
@@ -506,6 +518,14 @@
             }
           }
         },
+        "gridlineTransparency": {
+          "displayName": "Transparency",
+          "type": {
+            "numeric": true
+          },
+          "placeHolderText": "0-100",
+          "description": "Set gridline transparency (0% fully opaque, 100% fully transparent)"
+        },
         "gridLineStyle": {
           "displayName": "Grid Line Style",
           "type": {
@@ -667,6 +687,15 @@
         "show": {
           "displayName": "My Property Switch",
           "type": { "bool": true }
+        },
+        "orientation": {
+          "displayName": "Orientation",
+          "type": {
+            "enumeration": [
+              { "value": "horizontal", "displayName": "Horizontal" },
+              { "value": "vertical", "displayName": "Vertical" }
+            ]
+          }
         },
         "fontSize": {
           "displayName": "Font Size",

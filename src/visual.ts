@@ -763,10 +763,23 @@ export class Visual implements IVisual {
             )
           : this.visualSettings.yAxisFormatting.dashArray;
 
+        const gridlinesTransparency =
+          this.visualSettings.yAxisFormatting.gridlineTransparency || 0; // Default to 0% (opaque)
+
+        // Ensure value is between 0 and 100
+        const validTransparency = Math.min(
+          Math.max(gridlinesTransparency, 0),
+          100
+        );
+
+        // Convert transparency percentage to opacity (0 = fully opaque, 1 = fully transparent)
+        const opacity = 1 - validTransparency / 100;
+
         yAxis
           .selectAll("line")
           .style("fill", "none")
           .style("stroke", this.visualSettings.yAxisFormatting.gridLineColor)
+          .style("stroke-opacity", opacity)
           .style(
             "stroke-width",
             this.defaultYAxisGridlineStrokeWidth() / 10 + "pt"
@@ -960,7 +973,8 @@ export class Visual implements IVisual {
 
   private createLabels(gParent) {
     var g = gParent.append("g").attr("class", "myBarLabels");
-
+    const labelOrientation =
+      this.visualSettings.LabelsFormatting.orientation || "horizontal";
     var yPosition = (d, i) => {
       var yPosition;
       var nodeID = i;
@@ -992,6 +1006,9 @@ export class Visual implements IVisual {
           if (yPosition >= yScale(0)) {
             yPosition = this.getYPosition(d, i) - 5;
           }
+
+          yPosition += labelOrientation === "vertical" ? 10 : 0;
+
           break;
         case "Inside center":
           yPosition =
@@ -1058,6 +1075,14 @@ export class Visual implements IVisual {
         "transform",
         (d, i) => `translate(${xScale(d.category)},${yPosition(d, i)})`
       );
+
+      if (labelOrientation === "vertical") {
+        pillarLabels
+          .attr("transform", "rotate(-90)")
+          .attr("dy", xScale.bandwidth() / 2);
+      } else {
+        pillarLabels.attr("transform", "rotate(0)").attr("dy", "0em");
+      }
     }
     g.selectAll(".labels").call(this.labelFitToWidth);
     this.tooltipServiceWrapper.addTooltip(
@@ -2620,6 +2645,18 @@ export class Visual implements IVisual {
       .selectAll(".tick text")
       .data(currData)
       .style("padding", 20 + "px")
+      .style(
+        "font-weight",
+        this.visualSettings.xAxisFormatting.fontBold ? "bold" : "normal"
+      )
+      .style(
+        "font-style",
+        this.visualSettings.xAxisFormatting.fontItalic ? "italic" : "normal"
+      )
+      .style(
+        "text-decoration",
+        this.visualSettings.xAxisFormatting.fontUnderline ? "underline" : "none"
+      )
       .text((d) => d.displayName)
       .each(function (s) {
         var labelWidth = this.getBBox().width;

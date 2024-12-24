@@ -8,9 +8,10 @@
         "help": "pbiviz help",
         "lint": "tslint -c tslint.json -p tsconfig.json",
         "npmVersion": "npm list --depth=0",
-        "eslint": "npx eslint"
+        "eslint": "npx eslint . --ext .js,.jsx,.ts,.tsx"
     },
     "dependencies": {
+        "@typescript-eslint/eslint-plugin": "^8.18.2",
         "core-js": "^3.36.1",
         "d3": "^7.9.0",
         "eslint": "^8.57.1",

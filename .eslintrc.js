@@ -13,8 +13,8 @@ module.exports = {
     plugins: [
         "powerbi-visuals"
     ],
-    extends: [
-        "plugin:powerbi-visuals/recommended"
-    ],
+    // extends: [
+    //     "plugin:powerbi-visuals/recommended"
+    // ],
     rules: {},
 };

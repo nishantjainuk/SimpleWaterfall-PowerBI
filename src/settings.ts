@@ -97,6 +97,9 @@ export class yAxisFormatting {
   public fontColor: string = "#777777";
   public fontFamily: string =
     '"Segoe UI", wf_segoe-ui_normal, helvetica, arial, sans-serif';
+  public bold: boolean = false;
+  public italic: boolean = false;
+  public underline: boolean = false;
   public YAxisValueFormatOption: string = "Auto";
   public showGridLine: boolean = true;
 
@@ -120,7 +123,8 @@ export class yAxisFormatting {
   public titleText: string = "";
   public titleStyle: string = "Show Title Only";
   public titleColor: string = "#777777";
-  public titleFontFamily: string = '"Segoe UI", wf_segoe-ui_normal, helvetica, arial, sans-serif';
+  public titleFontFamily: string =
+    '"Segoe UI", wf_segoe-ui_normal, helvetica, arial, sans-serif';
   public titleFontSize: number = 9;
   public titleBold: boolean = false;
   public titleItalic: boolean = false;
@@ -131,6 +135,9 @@ export class LabelsFormatting {
   public fontSize: number = 9;
   public useDefaultFontColor: boolean = true;
   public fontColor: string = "#777777";
+  public bold: boolean = false;
+  public italic: boolean = false;
+  public underline: boolean = false;
   public orientation: string = "horizontal";
   public sentimentFontColorTotal: string = "#777777";
   public sentimentFontColorFavourable: string = "#777777";

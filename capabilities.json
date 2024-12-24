@@ -459,6 +459,18 @@
             }
           }
         },
+        "bold": {
+          "displayName": "Bold",
+          "type": { "bool": true }
+        },
+        "italic": {
+          "displayName": "Italic",
+          "type": { "bool": true }
+        },
+        "underline": {
+          "displayName": "Underline",
+          "type": { "bool": true }
+        },
         "YAxisValueFormatOption": {
           "displayName": "Value Format",
           "type": {
@@ -723,6 +735,18 @@
               }
             }
           }
+        },
+        "bold": {
+          "displayName": "Bold",
+          "type": { "bool": true }
+        },
+        "italic": {
+          "displayName": "Italic",
+          "type": { "bool": true }
+        },
+        "underline": {
+          "displayName": "Underline",
+          "type": { "bool": true }
         },
         "sentimentFontColorTotal": {
           "displayName": "Total",

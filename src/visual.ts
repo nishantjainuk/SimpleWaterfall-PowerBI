@@ -397,22 +397,26 @@ export class Visual implements IVisual {
     let title = "";
     switch (this.visualSettings.yAxisFormatting.titleStyle) {
       case "Show Title Only":
-        title = options.dataViews[0].matrix.valueSources
-          .map((v) => v.displayName)
-          .join(", ");
+        title =
+          this.visualSettings.yAxisFormatting.titleText ||
+          options.dataViews[0].matrix.valueSources
+            .map((v) => v.displayName)
+            .join(", ");
         break;
       case "Show Unit Only":
         title = this.yAxisUnit;
         break;
       case "Show Both":
-        title = `${options.dataViews[0].matrix.valueSources
-          .map((v) => v.displayName)
-          .join(", ")} (${this.yAxisUnit})`;
+        title = `${
+          this.visualSettings.yAxisFormatting.titleText ||
+          options.dataViews[0].matrix.valueSources
+            .map((v) => v.displayName)
+            .join(", ")
+        } (${this.yAxisUnit})`;
         break;
       default:
         break;
     }
-    title = this.visualSettings.yAxisFormatting.titleText || title;
 
     const titleSvg = svg
       .append("text")
@@ -685,18 +689,32 @@ export class Visual implements IVisual {
       : d3.axisLeft(yScale).tickValues(this.yScaleTickValues);
 
     if (this.visualSettings.yAxisFormatting.show) {
-      var yAxis = g
-        .append("g")
+      var yAxis = g.append("g").attr("class", "myYaxis");
+
+      yAxisScale.tickFormat((d) => this.formatValueforYAxis(d));
+      yAxis.call(yAxisScale);
+
+      yAxis
+        .selectAll("text")
         .style(
           "font",
           this.visualSettings.yAxisFormatting.fontSize + "pt times"
         )
         .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
         .style("color", this.visualSettings.yAxisFormatting.fontColor)
-        .attr("class", "myYaxis");
-      yAxisScale.tickFormat((d) => this.formatValueforYAxis(d));
+        .style(
+          "font-weight",
+          this.visualSettings.yAxisFormatting.bold ? "bold" : "normal"
+        )
+        .style(
+          "font-style",
+          this.visualSettings.yAxisFormatting.italic ? "italic" : "normal"
+        )
+        .style(
+          "text-decoration",
+          this.visualSettings.yAxisFormatting.underline ? "underline" : "none"
+        );
 
-      yAxis.call(yAxisScale);
       if (!this.visualSettings.yAxisFormatting.showYAxisValues) {
         yAxis.selectAll("text").style("visibility", "hidden");
       }
@@ -733,15 +751,7 @@ export class Visual implements IVisual {
       : d3.axisLeft(yScale).tickValues(this.yScaleTickValues);
 
     if (this.visualSettings.yAxisFormatting.show) {
-      var yAxis = g
-        .append("g")
-        .style(
-          "font",
-          this.visualSettings.yAxisFormatting.fontSize + "pt times"
-        )
-        .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
-        .style("color", this.visualSettings.yAxisFormatting.fontColor)
-        .attr("class", "myYaxis");
+      var yAxis = g.append("g").attr("class", "myYaxis");
       yAxisScale.tickFormat((d) => this.formatValueforYAxis(d));
 
       yAxis.call(yAxisScale);
@@ -782,7 +792,7 @@ export class Visual implements IVisual {
           .style("stroke-opacity", opacity)
           .style(
             "stroke-width",
-            this.defaultYAxisGridlineStrokeWidth() / 10 + "pt"
+            this.defaultYAxisGridlineStrokeWidth() / 10 + "px"
           )
           .style(
             "stroke-dasharray",
@@ -803,7 +813,7 @@ export class Visual implements IVisual {
           .selectAll("line")
           .style("fill", "none")
           .style("stroke", this.visualSettings.yAxisFormatting.gridLineColor)
-          .style("stroke-width", "0pt");
+          .style("stroke-width", "0px");
       }
       if (this.visualSettings.yAxisFormatting.showZeroAxisGridLine) {
         yAxis.selectAll("line").each((d, i, nodes) => {
@@ -817,7 +827,7 @@ export class Visual implements IVisual {
               .style(
                 "stroke-width",
                 this.visualSettings.yAxisFormatting.zeroLineStrokeWidth / 10 +
-                  "pt"
+                  "px"
               );
           }
         });
@@ -869,19 +879,31 @@ export class Visual implements IVisual {
       : d3.axisLeft(yScale).tickValues(this.yScaleTickValues);
 
     if (this.visualSettings.yAxisFormatting.show) {
-      var yAxis = g
-        .append("g")
+      var yAxis = g.append("g").attr("class", "myYaxis");
+
+      yAxisScale.tickFormat((d) => this.formatValueforYAxis(d));
+      yAxis.call(yAxisScale);
+
+      yAxis
+        .selectAll("text")
         .style(
           "font",
           this.visualSettings.yAxisFormatting.fontSize + "pt times"
         )
         .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
         .style("color", this.visualSettings.yAxisFormatting.fontColor)
-        .attr("class", "myYaxis");
-
-      yAxisScale.tickFormat((d) => this.formatValueforYAxis(d));
-
-      yAxis.call(yAxisScale);
+        .style(
+          "font-weight",
+          this.visualSettings.yAxisFormatting.bold ? "bold" : "normal"
+        )
+        .style(
+          "font-style",
+          this.visualSettings.yAxisFormatting.italic ? "italic" : "normal"
+        )
+        .style(
+          "text-decoration",
+          this.visualSettings.yAxisFormatting.underline ? "underline" : "none"
+        );
 
       // adjust the left margin of the chart area according to the width of yaxis
       // yAxisWidth used to adjust the left margin
@@ -1067,6 +1089,18 @@ export class Visual implements IVisual {
           this.visualSettings.LabelsFormatting.fontSize + "pt"
         )
         .style("font-family", this.visualSettings.LabelsFormatting.fontFamily)
+        .style(
+          "font-weight",
+          this.visualSettings.LabelsFormatting.bold ? "bold" : "normal"
+        )
+        .style(
+          "font-style",
+          this.visualSettings.LabelsFormatting.italic ? "italic" : "normal"
+        )
+        .style(
+          "text-decoration",
+          this.visualSettings.LabelsFormatting.underline ? "underline" : "none"
+        )
         .style("fill", (d) => {
           return d.customFontColor;
         });
@@ -3455,6 +3489,18 @@ export class Visual implements IVisual {
           this.visualSettings.LabelsFormatting.fontSize + "pt"
         )
         .style("font-family", this.visualSettings.LabelsFormatting.fontFamily)
+        .style(
+          "font-weight",
+          this.visualSettings.LabelsFormatting.bold ? "bold" : "normal"
+        )
+        .style(
+          "font-style",
+          this.visualSettings.LabelsFormatting.italic ? "italic" : "normal"
+        )
+        .style(
+          "text-decoration",
+          this.visualSettings.LabelsFormatting.underline ? "underline" : "none"
+        )
         .style("fill", (d) => {
           return d.customFontColor;
         });
@@ -4060,19 +4106,31 @@ export class Visual implements IVisual {
       : d3.axisTop(yScale).tickValues(this.yScaleTickValues);
 
     if (this.visualSettings.yAxisFormatting.show) {
-      var yAxis = g
-        .append("g")
+      var yAxis = g.append("g").attr("class", "myYaxis");
+
+      yAxisScale.tickFormat((d) => this.formatValueforYAxis(d));
+      yAxis.call(yAxisScale);
+
+      yAxis
+        .selectAll("text")
         .style(
           "font",
           this.visualSettings.yAxisFormatting.fontSize + "pt times"
         )
         .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
         .style("color", this.visualSettings.yAxisFormatting.fontColor)
-        .attr("class", "myYaxis");
-
-      yAxisScale.tickFormat((d) => this.formatValueforYAxis(d));
-
-      yAxis.call(yAxisScale);
+        .style(
+          "font-weight",
+          this.visualSettings.yAxisFormatting.bold ? "bold" : "normal"
+        )
+        .style(
+          "font-style",
+          this.visualSettings.yAxisFormatting.italic ? "italic" : "normal"
+        )
+        .style(
+          "text-decoration",
+          this.visualSettings.yAxisFormatting.underline ? "underline" : "none"
+        );
 
       if (!this.visualSettings.yAxisFormatting.showYAxisValues) {
         yAxis.selectAll("text").style("visibility", "hidden");
@@ -4216,19 +4274,31 @@ export class Visual implements IVisual {
       : d3.axisTop(yScale).tickValues(this.yScaleTickValues);
 
     if (this.visualSettings.yAxisFormatting.show) {
-      var yAxis = g
-        .append("g")
+      var yAxis = g.append("g").attr("class", "myYaxis");
+
+      yAxisScale.tickFormat((d) => this.formatValueforYAxis(d));
+      yAxis.call(yAxisScale);
+
+      yAxis
+        .selectAll("text")
         .style(
           "font",
           this.visualSettings.yAxisFormatting.fontSize + "pt times"
         )
         .style("font-family", this.visualSettings.yAxisFormatting.fontFamily)
         .style("color", this.visualSettings.yAxisFormatting.fontColor)
-        .attr("class", "myYaxis");
-
-      yAxisScale.tickFormat((d) => this.formatValueforYAxis(d));
-
-      yAxis.call(yAxisScale);
+        .style(
+          "font-weight",
+          this.visualSettings.yAxisFormatting.bold ? "bold" : "normal"
+        )
+        .style(
+          "font-style",
+          this.visualSettings.yAxisFormatting.italic ? "italic" : "normal"
+        )
+        .style(
+          "text-decoration",
+          this.visualSettings.yAxisFormatting.underline ? "underline" : "none"
+        );
 
       // adjust the left margin of the chart area according to the width of yaxis
       // yAxisWidth used to adjust the left margin

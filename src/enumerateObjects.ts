@@ -468,6 +468,10 @@ class enumerateObjects implements IEnumerateObjects {
         properties: {
           fontSize: this.visualSettings.yAxisFormatting.fontSize,
           fontColor: this.visualSettings.yAxisFormatting.fontColor,
+          fontFamily: this.visualSettings.yAxisFormatting.fontFamily,
+          bold: this.visualSettings.yAxisFormatting.bold,
+          italic: this.visualSettings.yAxisFormatting.italic,
+          underline: this.visualSettings.yAxisFormatting.underline,
           YAxisValueFormatOption:
             this.visualSettings.yAxisFormatting.YAxisValueFormatOption,
           decimalPlaces:
@@ -496,7 +500,8 @@ class enumerateObjects implements IEnumerateObjects {
               color: this.visualSettings.yAxisFormatting.gridLineColor,
             },
           },
-          gridlineTransparency: this.visualSettings.yAxisFormatting.gridlineTransparency,
+          gridlineTransparency:
+            this.visualSettings.yAxisFormatting.gridlineTransparency,
           gridLineStyle: this.visualSettings.yAxisFormatting.gridLineStyle,
           dashArray:
             this.visualSettings.yAxisFormatting.gridLineStyle === "custom"
@@ -610,6 +615,11 @@ class enumerateObjects implements IEnumerateObjects {
         properties: {
           show: this.visualSettings.LabelsFormatting.show,
           fontSize: this.visualSettings.LabelsFormatting.fontSize,
+          fontControl: {
+            bold: this.visualSettings.LabelsFormatting.bold,
+            italic: this.visualSettings.LabelsFormatting.italic,
+            underline: this.visualSettings.LabelsFormatting.underline,
+          },
           orientation: this.visualSettings.LabelsFormatting.orientation,
           useDefaultFontColor:
             this.visualSettings.LabelsFormatting.useDefaultFontColor,

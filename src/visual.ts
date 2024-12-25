@@ -59,10 +59,10 @@ import {
   valueFormatter,
 } from "powerbi-visuals-utils-formattingutils";
 import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
-import { VisualSettings, yAxisFormatting, chartOrientation } from "./settings";
+import { VisualSettings } from "./settings";
 import { IEnumerateObjects, createenumerateObjects } from "./enumerateObjects";
 import { dataRoleHelper } from "powerbi-visuals-utils-dataviewutils";
-import { AxisScale, AxisDomain } from "d3";
+import { BaseType, select } from "d3";
 
 interface BarChartDataPoint {
   value: PrimitiveValue;
@@ -223,6 +223,7 @@ export class Visual implements IVisual {
     // console.log({ type: this.visualType });
 
     this.createWaterfallGraph(options, allData);
+    this.handleContextMenu()
     //Certification requirement to use rendering API//
     //-------------------------------------------------------------------------
     this.events.renderingFinished(options);
@@ -332,19 +333,11 @@ export class Visual implements IVisual {
     }
   }
 
-  private createWaterfallGraphVertical(options, allData) {
-    if (this.visualSettings.yAxisFormatting.switchPosition) {
-      this.svg = this.chartContainer.append("svg");
-      this.svgYAxis = this.chartContainer.append("svg");
-    } else {
-      this.svgYAxis = this.chartContainer.append("svg");
-      this.svg = this.chartContainer.append("svg");
-    }
-
-    this.svg.on("contextmenu", (event) => {
-      const mouseEvent: MouseEvent = <MouseEvent>event;
+  private handleContextMenu() {
+    this.chartContainer.on("contextmenu", (event) => {
+      const mouseEvent: MouseEvent = event;
       const eventTarget: EventTarget = mouseEvent.target;
-      let dataPoint: any = d3.select(<d3.BaseType>eventTarget).datum();
+      const dataPoint: any = select(<BaseType>eventTarget).datum();
       this.selectionManager.showContextMenu(
         dataPoint ? dataPoint.selectionId : {},
         {
@@ -354,6 +347,16 @@ export class Visual implements IVisual {
       );
       mouseEvent.preventDefault();
     });
+  }
+
+  private createWaterfallGraphVertical(options, allData) {
+    if (this.visualSettings.yAxisFormatting.switchPosition) {
+      this.svg = this.chartContainer.append("svg");
+      this.svgYAxis = this.chartContainer.append("svg");
+    } else {
+      this.svgYAxis = this.chartContainer.append("svg");
+      this.svg = this.chartContainer.append("svg");
+    }
     this.chartContainer.attr("width", this.width);
     this.chartContainer.attr("height", this.height);
     this.svg.attr("height", this.height);
@@ -1146,7 +1149,7 @@ export class Visual implements IVisual {
       .attr("x", (d) => xScale(d.category))
       .attr("y", (d, i) => this.getYPosition(d, i))
       .attr("width", xScale.bandwidth())
-      .attr("height", (d, i) => this.getHeight(d, i))
+      .attr("height", (d, i) => this.getHeight(d, i) < 0 ? 0 : this.getHeight(d, i))
       .attr("fill", (d) => d.customBarColor);
 
     //line joinning the bars
@@ -3160,20 +3163,6 @@ export class Visual implements IVisual {
       this.svg = this.chartContainer.append("svg");
       this.svgYAxis = this.chartContainer.append("svg");
     }
-
-    this.svg.on("contextmenu", (event) => {
-      const mouseEvent: MouseEvent = <MouseEvent>event;
-      const eventTarget: EventTarget = mouseEvent.target;
-      let dataPoint: any = d3.select(<d3.BaseType>eventTarget).datum();
-      this.selectionManager.showContextMenu(
-        dataPoint ? dataPoint.selectionId : {},
-        {
-          x: mouseEvent.clientX,
-          y: mouseEvent.clientY,
-        }
-      );
-      mouseEvent.preventDefault();
-    });
     this.visualUpdateOptions = options;
 
     this.chartContainer.attr("width", this.width);
@@ -4665,4 +4654,7 @@ export class Visual implements IVisual {
     }
     return formattedValue;
   }
+}
+function d3Select(arg0: BaseType) {
+  throw new Error("Function not implemented.");
 }

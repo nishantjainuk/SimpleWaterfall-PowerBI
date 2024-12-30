@@ -204,11 +204,32 @@ class enumerateObjects implements IEnumerateObjects {
         objectName: objectName,
         properties: {
           show: this.visualSettings.Legend.show,
+          position: this.visualSettings.Legend.position,
           textFavourable: this.visualSettings.Legend.textFavourable,
           textAdverse: this.visualSettings.Legend.textAdverse,
+          showTitle: this.visualSettings.Legend.showTitle,
+        },
+        selector: null,
+      });
+
+      if (this.visualSettings.Legend.showTitle)
+        objectEnumeration.push({
+          objectName: objectName,
+          properties: {
+            title: this.visualSettings.Legend.title,
+          },
+          selector: null,
+        });
+
+      objectEnumeration.push({
+        objectName: objectName,
+        properties: {
           fontSize: this.visualSettings.Legend.fontSize,
           fontColor: this.visualSettings.Legend.fontColor,
           fontFamily: this.visualSettings.Legend.fontFamily,
+          bold: this.visualSettings.Legend.bold,
+          italic: this.visualSettings.Legend.italic,
+          underline: this.visualSettings.Legend.underline,
         },
         selector: null,
       });
@@ -392,16 +413,20 @@ class enumerateObjects implements IEnumerateObjects {
         fontColor: this.visualSettings.xAxisFormatting.fontColor,
         fontFamily: this.visualSettings.xAxisFormatting.fontFamily,
         // fitToWidth: this.visualSettings.xAxisFormatting.fitToWidth,
-        labelWrapText: this.visualSettings.xAxisFormatting.labelWrapText,
+        // labelWrapText: this.visualSettings.xAxisFormatting.labelWrapText,
       },
       selector: null,
     });
     if (
       this.barWidth > 21 &&
       this.visualSettings.chartOrientation.orientation !== "Horizontal"
-    )
+    ) {
       objectEnumeration[objectEnumeration.length - 1].properties.fitToWidth =
         this.visualSettings.xAxisFormatting.fitToWidth;
+
+      objectEnumeration[objectEnumeration.length - 1].properties.labelWrapText =
+        this.visualSettings.xAxisFormatting.labelWrapText;
+    }
 
     if (!this.visualSettings.xAxisFormatting.fitToWidth) {
       objectEnumeration.push({
@@ -615,17 +640,20 @@ class enumerateObjects implements IEnumerateObjects {
         properties: {
           show: this.visualSettings.LabelsFormatting.show,
           fontSize: this.visualSettings.LabelsFormatting.fontSize,
-          fontControl: {
-            bold: this.visualSettings.LabelsFormatting.bold,
-            italic: this.visualSettings.LabelsFormatting.italic,
-            underline: this.visualSettings.LabelsFormatting.underline,
-          },
+          bold: this.visualSettings.LabelsFormatting.bold,
+          italic: this.visualSettings.LabelsFormatting.italic,
+          underline: this.visualSettings.LabelsFormatting.underline,
+          transparency: this.visualSettings.LabelsFormatting.transparency,
           orientation: this.visualSettings.LabelsFormatting.orientation,
           useDefaultFontColor:
             this.visualSettings.LabelsFormatting.useDefaultFontColor,
         },
         selector: null,
       });
+
+      objectEnumeration[objectEnumeration.length - 1].validValues = {
+        transparency: { numberRange: { min: 0, max: 100 } },
+      };
 
       this.propertiesDefaultFontColor(objectName, objectEnumeration);
       objectEnumeration.push({

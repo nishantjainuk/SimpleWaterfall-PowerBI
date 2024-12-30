@@ -244,6 +244,33 @@
           "displayName": "Legend Show / Hide",
           "type": { "bool": true }
         },
+        "showTitle": {
+          "displayName": "Show Title",
+          "type": {
+            "bool": true
+          }
+        },
+        "title": {
+          "displayName": "Title",
+          "type": {
+            "text": true
+          }
+        },
+        "position": {
+          "displayName": "Position",
+          "type": {
+            "enumeration": [
+              { "value": "topLeft", "displayName": "Top Left" },
+              { "value": "topCenter", "displayName": "Top Center" },
+              { "value": "topRight", "displayName": "Top Right" },
+              { "value": "centerLeft", "displayName": "Center Left" },
+              { "value": "centerRight", "displayName": "Center Right" },
+              { "value": "bottomLeft", "displayName": "Bottom Left" },
+              { "value": "bottomCenter", "displayName": "Bottom Center" },
+              { "value": "bottomRight", "displayName": "Bottom Right" }
+            ]
+          }
+        },
         "textFavourable": {
           "displayName": "Sentiment - Favourable",
           "description": "Sentiment - Favourable Text",
@@ -285,6 +312,18 @@
               "fontFamily": true
             }
           }
+        },
+        "bold": {
+          "displayName": "Bold",
+          "type": { "bool": true }
+        },
+        "italic": {
+          "displayName": "Italic",
+          "type": { "bool": true }
+        },
+        "underline": {
+          "displayName": "Underline",
+          "type": { "bool": true }
         }
       }
     },
@@ -736,12 +775,16 @@
             }
           }
         },
+        "transparency": {
+          "displayName": "Transparency",
+          "type": { "numeric": true }
+        },
         "bold": {
           "displayName": "Bold",
           "type": { "bool": true }
         },
         "italic": {
-          "displayName": "Italic",
+          "displayName": "Italics",
           "type": { "bool": true }
         },
         "underline": {

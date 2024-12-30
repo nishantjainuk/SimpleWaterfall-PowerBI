@@ -51,12 +51,18 @@ export class definePillars {
 }
 export class Legend {
   public show: boolean = false;
+  public position: string = "topLeft";
+  public showTitle: boolean = false;
+  public title: string = "";
   public fontSize: number = 9;
   public fontColor: string = "#777777";
   public fontFamily: string =
     '"Segoe UI", wf_segoe-ui_normal, helvetica, arial, sans-serif';
   public textFavourable: string = "Favourable";
   public textAdverse: string = "Adverse";
+  public bold: boolean = false;
+  public italic: boolean = false;
+  public underline: boolean = false;
 }
 export class sentimentColor {
   public sentimentColorTotal: string = "#0000ff";
@@ -133,6 +139,7 @@ export class yAxisFormatting {
 export class LabelsFormatting {
   public show: boolean = true;
   public fontSize: number = 9;
+  public transparency: number = 0;
   public useDefaultFontColor: boolean = true;
   public fontColor: string = "#777777";
   public bold: boolean = false;

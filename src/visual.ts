@@ -100,7 +100,10 @@ export class Visual implements IVisual {
   private barChartData: BarChartDataPoint[];
   private barChartDataAll = [];
   private margin;
-  private legendHeight;
+  private legendHeight = 0;
+  private legendWidth = 0;
+  private isHorizontalLegend = false;
+  private isVerticalLegend = false;
   private host: IVisualHost;
   private selectionIdBuilder: ISelectionIdBuilder;
   private selectionManager: ISelectionManager;
@@ -126,7 +129,9 @@ export class Visual implements IVisual {
     this.host = options.host;
     this.mainContainer = d3
       .select<HTMLElement, any>(options.element)
-      .append("div");
+      .append("div")
+      .style("display", "flex") // Default flex layout
+      .style("flex-direction", "column"); // Stack elements vertically;
     this.legendContainer = this.mainContainer.append("div");
     this.chartContainer = this.mainContainer.append("div");
 
@@ -172,8 +177,13 @@ export class Visual implements IVisual {
     );
     this.chartContainer.selectAll("svg").remove();
     this.addLegend(options);
-    this.width = options.viewport.width;
-    this.height = options.viewport.height - this.legendHeight;
+
+    this.width =
+      options.viewport.width - (this.isVerticalLegend ? this.legendWidth : 0);
+    this.height =
+      options.viewport.height -
+      (this.isHorizontalLegend ? this.legendHeight : 0);
+
     this.xAxisPosition = 0;
     if (dataView.matrix.rows.levels.length != 1) {
       this.visualSettings.chartOrientation.limitBreakdown = false;
@@ -223,107 +233,174 @@ export class Visual implements IVisual {
     // console.log({ type: this.visualType });
 
     this.createWaterfallGraph(options, allData);
-    this.handleContextMenu()
+    this.updateContainerOrder();
+    this.handleContextMenu();
     //Certification requirement to use rendering API//
     //-------------------------------------------------------------------------
     this.events.renderingFinished(options);
     //-------------------------------------------------------------------------
   }
+
+  // Function to reorder containers dynamically
+  private updateContainerOrder() {
+    const position = this.visualSettings.Legend.position;
+    if (["bottomLeft", "bottomCenter", "bottomRight"].includes(position)) {
+      this.mainContainer.style("flex-direction", "column");
+      this.mainContainer.node().appendChild(this.legendContainer.node());
+    } else if (["topLeft", "topCenter", "topRight"].includes(position)) {
+      this.mainContainer.style("flex-direction", "column");
+      this.mainContainer.node().appendChild(this.chartContainer.node());
+    } else if (["centerLeft", "centerRight"].includes(position)) {
+      this.mainContainer.style("flex-direction", "row");
+      if (position === "centerLeft") {
+        this.mainContainer
+          .node()
+          .insertBefore(
+            this.legendContainer.node(),
+            this.chartContainer.node()
+          );
+      } else {
+        this.mainContainer.node().appendChild(this.legendContainer.node());
+      }
+    }
+  }
+
   private addLegend(options: VisualUpdateOptions) {
-    this.legendContainer.selectAll("svg").remove();
+    this.legendContainer.selectAll("div").remove();
+
     if (
       this.visualSettings.chartOrientation.useSentimentFeatures &&
       this.visualSettings.Legend.show
     ) {
-      //this.legendContainer.attr('width', options.viewport.width);
-      //this.legendContainer.attr('height', 0);
+      if (
+        !["centerLeft", "centerRight"].includes(
+          this.visualSettings.Legend.position
+        )
+      ) {
+        this.mainContainer
+          .style("flex-direction", "column")
+          .style("align-items", "unset");
+        this.mainContainer.node().appendChild(this.chartContainer.node());
+      } else {
+        this.mainContainer
+          .style("flex-direction", "row")
+          .style("align-items", "center");
+      }
+      // Update flex layout or container order based on position
+      const legendPosition = this.visualSettings.Legend.position;
+      this.isHorizontalLegend =
+        legendPosition === "topLeft" ||
+        legendPosition === "topCenter" ||
+        legendPosition === "topRight" ||
+        legendPosition === "bottomLeft" ||
+        legendPosition === "bottomCenter" ||
+        legendPosition === "bottomRight";
 
-      var circleFavourableSVG = this.legendContainer.append("svg");
+      this.isVerticalLegend =
+        legendPosition === "centerLeft" || legendPosition === "centerRight";
 
-      var circleFavourable = circleFavourableSVG.append("circle");
+      // Create a container for the legend
+      const legendDiv = this.legendContainer
+        .append("div")
+        .style("display", "flex")
+        .style("align-items", "center")
+        .style("justify-content", this.getLegendAlignment())
+        .style("gap", "10px")
+        .style("flex-wrap", "wrap")
+        .style("padding", "5px");
 
-      var textFavourableSVG = this.legendContainer.append("svg");
-      /* .attr('width', 10 + "pt")
-                .attr('height', 10 + "pt") */
-      /* .style('margin-left', 2 + "pt")
-                .style('margin-right', 2 + "pt") */ var textFavourable =
-        textFavourableSVG
-          .append("text")
-          .attr("x", 0)
-          .attr("y", "75%")
+      if (this.isVerticalLegend)
+        legendDiv
+          .style("flex-flow", "column")
+          .style("align-items", "flex-start");
+      else legendDiv.style("flex-flow", "row");
+
+      if (this.visualSettings.Legend.showTitle)
+        legendDiv
+          .append("div")
+          .text(this.visualSettings.Legend.title)
           .style("font-size", this.visualSettings.Legend.fontSize + "pt")
-          .text(this.visualSettings.Legend.textFavourable)
           .style("font-family", this.visualSettings.Legend.fontFamily)
-          .style("fill", this.visualSettings.Legend.fontColor);
+          .style("color", this.visualSettings.Legend.fontColor)
+          .style("font-weight", "bold");
 
-      var textBoxSize;
-      var textBoxSizeHeight;
-      var textBoxSizeWidth;
-      textBoxSize = textFavourable.node().getBoundingClientRect();
-      textBoxSizeHeight = textBoxSize.height;
-      textBoxSizeWidth = textBoxSize.width;
-      circleFavourableSVG
-        .attr("height", textBoxSizeHeight)
-        .attr("width", textBoxSizeHeight);
+      // Add Favourable legend
+      this.createLegendItem(
+        legendDiv,
+        this.visualSettings.sentimentColor.sentimentColorFavourable,
+        this.visualSettings.Legend.textFavourable
+      );
 
-      textFavourableSVG
-        .attr("width", textBoxSizeWidth)
-        .attr("height", textBoxSizeHeight);
+      // Add Adverse legend
+      this.createLegendItem(
+        legendDiv,
+        this.visualSettings.sentimentColor.sentimentColorAdverse,
+        this.visualSettings.Legend.textAdverse
+      );
 
-      circleFavourable
-        .attr("r", (textBoxSizeHeight / 2) * 0.6)
-        .attr("cx", textBoxSizeHeight / 2)
-        .attr("cy", textBoxSizeHeight / 2)
-        .attr(
-          "fill",
-          this.visualSettings.sentimentColor.sentimentColorFavourable
-        );
-
-      var circleAdverseSVG = this.legendContainer.append("svg");
-
-      var circleAdverse = circleAdverseSVG.append("circle");
-
-      var textAdverseSVG = this.legendContainer.append("svg");
-      /* .attr('width', 10)
-                .attr('height', 10) */
-      /* .style('margin-left', 2 + "pt")
-                .style('margin-right', 2+ "pt") */ var textAdverse =
-        textAdverseSVG
-          .append("text")
-          .attr("x", 0)
-          .attr("y", "75%")
-          .style("font-size", this.visualSettings.Legend.fontSize + "pt")
-          .text(this.visualSettings.Legend.textAdverse)
-          .style("font-family", this.visualSettings.Legend.fontFamily)
-          .style("fill", this.visualSettings.Legend.fontColor);
-
-      textBoxSize = textAdverse.node().getBoundingClientRect();
-      textBoxSizeHeight = textBoxSize.height;
-      textBoxSizeWidth = textBoxSize.width;
-      circleAdverseSVG
-        .attr("height", textBoxSizeHeight)
-        .attr("width", textBoxSizeHeight);
-
-      textAdverseSVG
-        .attr("width", textBoxSizeWidth)
-        .attr("height", textBoxSizeHeight);
-
-      circleAdverse
-        .attr("r", (textBoxSizeHeight / 2) * 0.6)
-        .attr("cx", textBoxSizeHeight / 2)
-        .attr("cy", textBoxSizeHeight / 2)
-        .attr("fill", this.visualSettings.sentimentColor.sentimentColorAdverse);
+      this.legendHeight = legendDiv.node().getBoundingClientRect().height;
+      this.legendWidth = this.isVerticalLegend
+        ? legendDiv.node().getBoundingClientRect().width
+        : options.viewport.width;
       this.legendContainer
-        //.style('width', options.viewport.width)
-        .style("height", textBoxSizeHeight + "pt");
-      this.legendHeight = textBoxSizeHeight;
+        // .style("width", this.legendWidth + "px")
+        .style("height", this.legendHeight + "px");
     } else {
       this.legendContainer
         //.style('width', options.viewport.width)
-        .style("height", 0 + "pt");
+        .style("height", 0 + "px");
       this.legendHeight = 0;
+      this.legendWidth = 0;
     }
   }
+
+  // Helper function to determine legend alignment
+  private getLegendAlignment() {
+    const position = this.visualSettings.Legend.position;
+
+    if (position.includes("Center")) {
+      return "center";
+    } else if (position.includes("Right")) {
+      return "flex-end";
+    } else {
+      return "flex-start";
+    }
+  }
+
+  // Helper function to create individual legend items
+  private createLegendItem(parent, color: string, text: string) {
+    const itemDiv = parent
+      .append("div")
+      .style("display", "flex")
+      .style("align-items", "center")
+      .style("gap", "5px");
+
+    // Add circle
+    itemDiv
+      .append("div")
+      .style("width", "12px")
+      .style("height", "12px")
+      .style("border-radius", "50%")
+      .style("background-color", color);
+
+    // Add text
+    itemDiv
+      .append("div")
+      .text(text)
+      .style("font-size", this.visualSettings.Legend.fontSize + "pt")
+      .style("font-family", this.visualSettings.Legend.fontFamily)
+      .style("color", this.visualSettings.Legend.fontColor)
+      .style("font-weight", this.visualSettings.Legend.bold ? "bold" : "normal")
+      .style(
+        "font-style",
+        this.visualSettings.Legend.italic ? "italic" : "normal"
+      )
+      .style(
+        "text-decoration",
+        this.visualSettings.Legend.underline ? "underline" : "none"
+      );
+  }
+
   private createWaterfallGraph(options, allData) {
     this.allowInteractions = true;
     if (this.visualSettings.chartOrientation.orientation == "Horizontal") {
@@ -1086,6 +1163,10 @@ export class Visual implements IVisual {
 
       var pillarLabelsText = pillarLabels.text((d) => labelFormatting(d));
 
+      const transparency =
+        this.visualSettings.LabelsFormatting.transparency || 0; // Default to 0% if not set
+      const opacity = 1 - transparency / 100;
+
       pillarLabelsText
         .style(
           "font-size",
@@ -1104,6 +1185,7 @@ export class Visual implements IVisual {
           "text-decoration",
           this.visualSettings.LabelsFormatting.underline ? "underline" : "none"
         )
+        .style("opacity", opacity)
         .style("fill", (d) => {
           return d.customFontColor;
         });
@@ -1149,7 +1231,9 @@ export class Visual implements IVisual {
       .attr("x", (d) => xScale(d.category))
       .attr("y", (d, i) => this.getYPosition(d, i))
       .attr("width", xScale.bandwidth())
-      .attr("height", (d, i) => this.getHeight(d, i) < 0 ? 0 : this.getHeight(d, i))
+      .attr("height", (d, i) =>
+        this.getHeight(d, i) < 0 ? 0 : this.getHeight(d, i)
+      )
       .attr("fill", (d) => d.customBarColor);
 
     //line joinning the bars
@@ -2613,7 +2697,7 @@ export class Visual implements IVisual {
         this.xAxisPosition -
         this.margin.bottom -
         this.scrollbarBreadth +
-        this.legendHeight
+        (this.isHorizontalLegend ? this.legendHeight : 0)
       })`
     );
 
@@ -2623,7 +2707,7 @@ export class Visual implements IVisual {
       this.margin.bottom -
       this.xAxisPosition -
       this.scrollbarBreadth +
-      this.legendHeight;
+      (this.isHorizontalLegend ? this.legendHeight : 0);
 
     if (this.isLabelVertical) this.innerHeight -= this.minLableVerticalHeight;
   }
@@ -2806,7 +2890,8 @@ export class Visual implements IVisual {
     myxAxisParent.selectAll("text").each((d, i, nodes) => {
       if (this.findBottom <= nodes[i].getBoundingClientRect().bottom) {
         this.findBottom =
-          nodes[i].getBoundingClientRect().bottom - this.legendHeight;
+          nodes[i].getBoundingClientRect().bottom -
+          (this.isHorizontalLegend ? this.legendHeight : 0);
       }
     });
     if (!this.isLabelVertical)
@@ -2863,6 +2948,7 @@ export class Visual implements IVisual {
         .select("path")
         .node()
         .getBoundingClientRect().top;
+
       myxAxisParent
         .selectAll(".text")
         .data(currData)
@@ -3471,6 +3557,9 @@ export class Visual implements IVisual {
       };
 
       var pillarLabelsText = pillarLabels.text((d) => labelFormatting(d));
+      const transparency =
+        this.visualSettings.LabelsFormatting.transparency || 0; // Default to 0% if not set
+      const opacity = 1 - transparency / 100;
 
       pillarLabelsText
         .style(
@@ -3490,6 +3579,7 @@ export class Visual implements IVisual {
           "text-decoration",
           this.visualSettings.LabelsFormatting.underline ? "underline" : "none"
         )
+        .style("opacity", opacity)
         .style("fill", (d) => {
           return d.customFontColor;
         });
@@ -3857,7 +3947,9 @@ export class Visual implements IVisual {
 
     g.selectAll("text").each((d, i, nodes) => {
       if (this.xAxisPosition >= nodes[i].getBoundingClientRect().left) {
-        this.xAxisPosition = nodes[i].getBoundingClientRect().left;
+        this.xAxisPosition =
+          nodes[i].getBoundingClientRect().left -
+          (this.isVerticalLegend ? this.legendWidth : 0);
       }
     });
 
@@ -3959,11 +4051,11 @@ export class Visual implements IVisual {
     //move the labels of all secondary axis to the right as they don't have pillars
 
     if (allDataIndex != levels - 1) {
-      if (this.visualSettings.xAxisFormatting.labelWrapText) {
-        myxAxisParent
-          .selectAll(".tick text")
-          .call(this.wrapHorizontal, xBaseScale.bandwidth());
-      }
+      // if (this.visualSettings.xAxisFormatting.labelWrapText) {
+      //   myxAxisParent
+      //     .selectAll(".tick text")
+      //     .call(this.wrapHorizontal, this.visualSettings.xAxisFormatting.barWidth);
+      // }
 
       myxAxisParent
         .selectAll(".tick text")
@@ -3978,11 +4070,11 @@ export class Visual implements IVisual {
 
       myxAxisParent.selectAll("line").remove();
     } else {
-      if (this.visualSettings.xAxisFormatting.labelWrapText) {
-        myxAxisParent
-          .selectAll(".tick text")
-          .call(this.wrapHorizontal, xBaseScale.bandwidth());
-      }
+      // if (this.visualSettings.xAxisFormatting.labelWrapText) {
+      //   myxAxisParent
+      //     .selectAll(".tick text")
+      //     .call(this.wrapHorizontal, this.visualSettings.xAxisFormatting.barWidth);
+      // }
       xAxislabels.attr(
         "transform",
         `translate(${-this.visualSettings.xAxisFormatting.padding},0)`
@@ -3991,7 +4083,9 @@ export class Visual implements IVisual {
 
     myxAxisParent.selectAll("text").each((d, i, nodes) => {
       if (this.findRightHorizontal >= nodes[i].getBoundingClientRect().left) {
-        this.findRightHorizontal = nodes[i].getBoundingClientRect().left;
+        this.findRightHorizontal =
+          nodes[i].getBoundingClientRect().left -
+          (this.isVerticalLegend ? this.legendWidth : 0);
       }
     });
 
@@ -4311,19 +4405,21 @@ export class Visual implements IVisual {
     var tspanAllowed = Math.floor(maxHeight / textHeight);
 
     text.each(function () {
-      var text = d3.select(this),
-        words = text.text().split(/\s+/).reverse(),
+      var txt = d3.select(this),
+        words = txt.text().split(/\s+/).reverse(),
         wordsPerLine = Math.ceil(words.length / tspanAllowed),
         word,
         line = [],
         lineNumber = 0,
         lineHeight = 1.1,
-        y = text.attr("y"),
+        y = txt.attr("y"),
         dy = parseFloat(text.attr("dy")),
-        tspan = text
+        x = parseFloat(txt.attr("x")) || 0, // Use the original x position
+        tspan = txt
           .text(null)
           .append("tspan")
-          .attr("x", 0)
+          .attr("x", x)
+          .style("text-anchor", "middle")
           .attr("y", y)
           .attr("dy", dy + "em");
 
@@ -4335,12 +4431,12 @@ export class Visual implements IVisual {
         if (counter + 1 > wordsPerLine && words.length > 0) {
           counter = 0;
           line = [];
-          tspan.attr("y", -textHeight / 2);
+          tspan.attr("y", y);
 
-          tspan = text
+          tspan = txt
             .append("tspan")
-            .attr("x", 0)
-            .attr("y", -textHeight / 2)
+            .attr("x", x)
+            .attr("y", y)
             .attr("dy", ++lineNumber * lineHeight + dy + "em");
         }
       }

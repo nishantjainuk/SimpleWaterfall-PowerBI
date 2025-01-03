@@ -320,9 +320,9 @@ class enumerateObjects implements IEnumerateObjects {
         });
       } else {
         for (var index = 0; index < this.barChartData.length; index++) {
-          // if (!this.barChartData[index].isPillar) {
-            // console.log(this.barChartData[index]);
-
+          if (
+            this.barChartData[index].category !== "defaultBreakdownStepOther1"
+          ) {
             objectEnumeration.push({
               objectName: objectName,
               displayName: this.barChartData[index].category,
@@ -354,7 +354,7 @@ class enumerateObjects implements IEnumerateObjects {
             });
           }
         }
-      // }
+      }
     } else {
       objectEnumeration.push({
         objectName: objectName,
@@ -391,7 +391,11 @@ class enumerateObjects implements IEnumerateObjects {
         },
         selector: null,
       });
-      if (this.visualType == "staticCategory") {
+      if (
+        // this.visualSettings.chartOrientation.useSentimentFeatures &&
+        this.visualType == "staticCategory" ||
+        this.dataView.matrix.rows.levels.length === 1
+      ) {
         objectEnumeration.push({
           objectName: objectName,
           properties: {

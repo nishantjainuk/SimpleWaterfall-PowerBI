@@ -104,9 +104,11 @@ export class Visual implements IVisual {
   private legendWidth = 0;
   private isHorizontalLegend = false;
   private isVerticalLegend = false;
+  private isOtherSelected = false;
   private host: IVisualHost;
   private selectionIdBuilder: ISelectionIdBuilder;
   private selectionManager: ISelectionManager;
+  private otherSelectionIds: ISelectionId[];
   private tooltipServiceWrapper: ITooltipServiceWrapper;
   private visualType: string;
   private visualUpdateOptions: VisualUpdateOptions;
@@ -1308,9 +1310,18 @@ export class Visual implements IVisual {
 
         // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
         if (this.allowInteractions) {
-          const isCtrlPressed: boolean = (<MouseEvent>d).ctrlKey;
+          let isCtrlPressed: boolean = (<MouseEvent>d).ctrlKey;
           if (this.selectionManager.hasSelection() && !isCtrlPressed) {
             this.bars.attr("fill-opacity", 1);
+          }
+
+          const selectedIds = this.selectionManager.getSelectionIds();
+          if (
+            this.isOtherSelected &&
+            this.barChartData[index].category === "defaultBreakdownStepOther1"
+          ) {
+            this.isOtherSelected = false;
+            isCtrlPressed = selectedIds.length === this.otherSelectionIds.length ? true: false;
           }
           this.selectionManager
             .select(this.barChartData[index].selectionId, isCtrlPressed)
@@ -1337,11 +1348,22 @@ export class Visual implements IVisual {
       bars.attr("fill-opacity", null);
       return;
     }
+
     bars.each((d, i, nodes) => {
-      const isSelected: boolean = this.isSelectionIdInArray(
+      let isSelected: boolean = this.isSelectionIdInArray(
         selectionIds,
         this.barChartData[i].selectionId
       );
+      if (
+        this.visualSettings.chartOrientation.limitBreakdown &&
+        this.barChartData[i].category === "defaultBreakdownStepOther1"
+      ) {
+        isSelected = this.isSelectionIdInArray(
+          selectionIds,
+          this.barChartData[i].selectionId[0]
+        );
+        this.isOtherSelected = isSelected;
+      }
       d3.select(nodes[i]).attr("fill-opacity", isSelected ? 1 : 0.5);
     });
   };
@@ -1356,6 +1378,7 @@ export class Visual implements IVisual {
       return currentSelectionId.includes(selectionId);
     });
   }
+
   private lineWidth(d, i) {
     var defaultwidth = this.defaultXAxisGridlineStrokeWidth() / 10 + "pt";
     if (d.displayName == "" || i == 0) {
@@ -1544,12 +1567,12 @@ export class Visual implements IVisual {
     displayName: string
   ) {
     var barColor: string = "#777777";
-
+    // console.log({ displayName, isPillar, dataView });
     if (isPillar == 1) {
       const x: any = dataView.matrix.valueSources.filter(
         (c) => c.displayName === displayName
       );
-      if (x[0] && x[0].objects) {
+      if (x[0] && x[0].objects && x[0].objects.sentimentColor) {
         barColor = x[0].objects.sentimentColor.fill.solid.color;
       } else {
         barColor = this.visualSettings.sentimentColor.sentimentColorTotal;
@@ -1579,6 +1602,7 @@ export class Visual implements IVisual {
         }
       }
     }
+    // console.log({ displayName, barColor });
     return barColor;
   }
   private getLabelFontColor(isPillar: number, value: number) {
@@ -1964,16 +1988,15 @@ export class Visual implements IVisual {
     if (this.visualSettings.chartOrientation.limitBreakdown) {
       const currDataClone = [...visualData];
       visualData = this.limitBreakdownsteps(options, visualData);
-      // const missing = currDataClone.filter(
-      //   (o1) => visualData.map((o2) => o2.category).indexOf(o1.category) === -1
-      // );
-      // const selectionIds: ISelectionId[] = missing.map(
-      //   (row) => row.selectionId
-      // );
-      // console.log({ selectionIds, currDataClone, visualData, missing });
-      // visualData.forEach((row) => {
-      //   if (!row.selectionId) row.selectionId = selectionIds;
-      // });
+      const missing = currDataClone.filter(
+        (o1) => visualData.map((o2) => o2.category).indexOf(o1.category) === -1
+      );
+      this.otherSelectionIds = missing.map((row) => row.selectionId);
+
+      visualData.forEach((row) => {
+        if (row.category === "defaultBreakdownStepOther1")
+          row.selectionId = this.otherSelectionIds;
+      });
     }
     // Sort the [visualData] in order of the display
     if (dataView.matrix.rows.levels.length === 1) {
@@ -3483,9 +3506,17 @@ export class Visual implements IVisual {
         // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
 
         if (this.allowInteractions) {
-          const isCtrlPressed: boolean = (<MouseEvent>d).ctrlKey;
+          let isCtrlPressed: boolean = (<MouseEvent>d).ctrlKey;
           if (this.selectionManager.hasSelection() && !isCtrlPressed) {
             this.bars.attr("fill-opacity", 1);
+          }
+          const selectedIds = this.selectionManager.getSelectionIds();
+          if (
+            this.isOtherSelected &&
+            this.barChartData[index].category === "defaultBreakdownStepOther1"
+          ) {
+            this.isOtherSelected = false;
+            isCtrlPressed = selectedIds.length === this.otherSelectionIds.length ? true: false;
           }
           this.selectionManager
             .select(this.barChartData[index].selectionId, isCtrlPressed)

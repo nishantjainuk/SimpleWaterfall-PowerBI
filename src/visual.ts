@@ -3406,6 +3406,7 @@ export class Visual implements IVisual {
       .append("rect")
       .attr("x", (d, i) => this.getXPositionHorizontal(d, i))
       .attr("y", (d) => xScale(d.category))
+      .attr("id", (d, i) => `bar_${i}`)
       .attr("width", (d, i) => this.getWidthHorizontal(d, i))
       .attr("height", xScale.bandwidth())
       .attr("fill", (d) => d.customBarColor);
@@ -3478,6 +3479,7 @@ export class Visual implements IVisual {
       this.visualType == "drillableCategory"
     ) {
       this.bars.on("click", (d) => {
+        const index = d.srcElement.id.split("_")[1];
         // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
 
         if (this.allowInteractions) {
@@ -3486,7 +3488,7 @@ export class Visual implements IVisual {
             this.bars.attr("fill-opacity", 1);
           }
           this.selectionManager
-            .select(d.selectionId, isCtrlPressed)
+            .select(this.barChartData[index].selectionId, isCtrlPressed)
             .then((ids: ISelectionId[]) => {
               this.syncSelectionState(this.bars, ids);
             });

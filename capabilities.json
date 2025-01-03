@@ -116,6 +116,12 @@
           "type": {
             "integer": true
           }
+        },
+        "otherTitle": {
+          "displayName": "Other Step Title",
+          "type": {
+            "text": true
+          }
         }
       }
     },

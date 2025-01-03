@@ -45,6 +45,7 @@ export class chartOrientation {
   public sortData: number = 1;
   public limitBreakdown: boolean = false;
   public maxBreakdown: number = 5;
+  public otherTitle: string = "Other";
 }
 export class definePillars {
   public Totalpillar: boolean = true;

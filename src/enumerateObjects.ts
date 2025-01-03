@@ -239,11 +239,10 @@ class enumerateObjects implements IEnumerateObjects {
     objectName: string,
     objectEnumeration: VisualObjectInstance[]
   ) {
+    console.log(this.barChartData);
+
     if (this.visualType == "static" || this.visualType == "staticCategory") {
-      if (
-        this.visualSettings.chartOrientation.useSentimentFeatures &&
-        (this.visualType == "static" || this.visualType == "staticCategory")
-      ) {
+      if (this.visualSettings.chartOrientation.useSentimentFeatures) {
         objectEnumeration.push({
           objectName: objectName,
           properties: {
@@ -305,6 +304,59 @@ class enumerateObjects implements IEnumerateObjects {
           }
         }
       }
+    } else if (this.visualType == "drillable") {
+      if (this.visualSettings.chartOrientation.useSentimentFeatures) {
+        objectEnumeration.push({
+          objectName: objectName,
+          properties: {
+            sentimentColorTotal:
+              this.visualSettings.sentimentColor.sentimentColorTotal,
+            sentimentColorFavourable:
+              this.visualSettings.sentimentColor.sentimentColorFavourable,
+            sentimentColorAdverse:
+              this.visualSettings.sentimentColor.sentimentColorAdverse,
+            sentimentColorOther:
+              this.visualSettings.sentimentColor.sentimentColorOther,
+          },
+          selector: null,
+        });
+      } else {
+        for (var index = 0; index < this.barChartData.length; index++) {
+          // if (!this.barChartData[index].isPillar) {
+            // console.log(this.barChartData[index]);
+
+            objectEnumeration.push({
+              objectName: objectName,
+              displayName: this.barChartData[index].category,
+              properties: {
+                fill: {
+                  solid: {
+                    color: this.barChartData[index].customBarColor,
+                  },
+                },
+              },
+              //selector: this.barChartData[index].selectionId.getSelector()
+
+              //More help on conditional formatting
+              //https://docs.microsoft.com/en-us/power-bi/developer/visuals/conditional-format
+
+              // Define whether the conditional formatting will apply to instances, totals, or both
+              selector: dataViewWildcard.createDataViewWildcardSelector(
+                dataViewWildcard.DataViewWildcardMatchingOption
+                  .InstancesAndTotals
+              ),
+
+              // Add this property with the value previously defined for the selector property
+              altConstantValueSelector:
+                this.barChartData[index].selectionId.getSelector(),
+
+              // propertyInstanceKind: {
+              //     fill: VisualEnumerationInstanceKinds.ConstantOrRule
+              // }
+            });
+          }
+        }
+      // }
     } else {
       objectEnumeration.push({
         objectName: objectName,
@@ -326,7 +378,13 @@ class enumerateObjects implements IEnumerateObjects {
     objectName: string,
     objectEnumeration: VisualObjectInstance[]
   ) {
-    if (this.visualType == "static" || this.visualType == "staticCategory") {
+    console.log({ visualType: this.visualType });
+
+    if (
+      this.visualType == "static" ||
+      this.visualType == "staticCategory" ||
+      this.visualType == "drillable"
+    ) {
       objectEnumeration.push({
         objectName: objectName,
         properties: {
@@ -350,6 +408,8 @@ class enumerateObjects implements IEnumerateObjects {
             objectName: objectName,
             properties: {
               maxBreakdown: this.visualSettings.chartOrientation.maxBreakdown,
+              otherTitle:
+                this.visualSettings.chartOrientation.otherTitle ?? "Other",
             },
             selector: null,
           });
@@ -358,37 +418,39 @@ class enumerateObjects implements IEnumerateObjects {
           };
         }
       }
-    } else if (
-      this.dataView.matrix.rows.levels.length ===
-      1 /* && this.visualType == "drillable" */
-    ) {
-      objectEnumeration.push({
-        objectName: objectName,
-        properties: {
-          orientation: this.visualSettings.chartOrientation.orientation,
-          sortData: this.visualSettings.chartOrientation.sortData,
-        },
-        selector: null,
-      });
-      objectEnumeration.push({
-        objectName: objectName,
-        properties: {
-          limitBreakdown: this.visualSettings.chartOrientation.limitBreakdown,
-        },
-        selector: null,
-      });
-      if (this.visualSettings.chartOrientation.limitBreakdown) {
-        objectEnumeration.push({
-          objectName: objectName,
-          properties: {
-            maxBreakdown: this.visualSettings.chartOrientation.maxBreakdown,
-          },
-          selector: null,
-        });
-        objectEnumeration[2].validValues = {
-          maxBreakdown: { numberRange: { min: 1, max: 100 } },
-        };
-      }
+      // }
+      // else if (
+      //   this.dataView.matrix.rows.levels.length ===
+      //   1 /* && this.visualType == "drillable" */
+      // ) {
+      //   objectEnumeration.push({
+      //     objectName: objectName,
+      //     properties: {
+      //       orientation: this.visualSettings.chartOrientation.orientation,
+      //       sortData: this.visualSettings.chartOrientation.sortData,
+      //     },
+      //     selector: null,
+      //   });
+      //   objectEnumeration.push({
+      //     objectName: objectName,
+      //     properties: {
+      //       limitBreakdown: this.visualSettings.chartOrientation.limitBreakdown,
+      //     },
+      //     selector: null,
+      //   });
+      //   if (this.visualSettings.chartOrientation.limitBreakdown) {
+      //     objectEnumeration.push({
+      //       objectName: objectName,
+      //       properties: {
+      //         maxBreakdown: this.visualSettings.chartOrientation.maxBreakdown,
+      //         otherTitle: this.visualSettings.chartOrientation.otherTitle ?? "Other",
+      //       },
+      //       selector: null,
+      //     });
+      //     objectEnumeration[2].validValues = {
+      //       maxBreakdown: { numberRange: { min: 1, max: 100 } },
+      //     };
+      //   }
     } else {
       objectEnumeration.push({
         objectName: "objectName",

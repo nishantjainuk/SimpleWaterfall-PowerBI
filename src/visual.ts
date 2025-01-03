@@ -1230,6 +1230,7 @@ export class Visual implements IVisual {
       .append("rect")
       .attr("x", (d) => xScale(d.category))
       .attr("y", (d, i) => this.getYPosition(d, i))
+      .attr("id", (d, i) => `bar_${i}`)
       .attr("width", xScale.bandwidth())
       .attr("height", (d, i) =>
         this.getHeight(d, i) < 0 ? 0 : this.getHeight(d, i)
@@ -1303,15 +1304,16 @@ export class Visual implements IVisual {
       this.visualType == "drillableCategory"
     ) {
       this.bars.on("click", (d) => {
-        // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
+        const index = d.srcElement.id.split("_")[1];
 
+        // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
         if (this.allowInteractions) {
           const isCtrlPressed: boolean = (<MouseEvent>d).ctrlKey;
           if (this.selectionManager.hasSelection() && !isCtrlPressed) {
             this.bars.attr("fill-opacity", 1);
           }
           this.selectionManager
-            .select(d.selectionId, isCtrlPressed)
+            .select(this.barChartData[index].selectionId, isCtrlPressed)
             .then((ids: ISelectionId[]) => {
               this.syncSelectionState(this.bars, ids);
             });
@@ -1338,7 +1340,7 @@ export class Visual implements IVisual {
     bars.each((d, i, nodes) => {
       const isSelected: boolean = this.isSelectionIdInArray(
         selectionIds,
-        d.selectionId
+        this.barChartData[i].selectionId
       );
       d3.select(nodes[i]).attr("fill-opacity", isSelected ? 1 : 0.5);
     });
@@ -1523,6 +1525,7 @@ export class Visual implements IVisual {
   };
   private getfillColor(isPillar: number, value: number) {
     var barColor: string = "#777777";
+
     if (isPillar == 1) {
       barColor = this.visualSettings.sentimentColor.sentimentColorTotal;
     } else {
@@ -1530,6 +1533,50 @@ export class Visual implements IVisual {
         barColor = this.visualSettings.sentimentColor.sentimentColorAdverse;
       } else {
         barColor = this.visualSettings.sentimentColor.sentimentColorFavourable;
+      }
+    }
+    return barColor;
+  }
+  private getfillColorWithoutSentiments(
+    dataView: DataView,
+    isPillar: number,
+    value: number,
+    displayName: string
+  ) {
+    var barColor: string = "#777777";
+
+    if (isPillar == 1) {
+      const x: any = dataView.matrix.valueSources.filter(
+        (c) => c.displayName === displayName
+      );
+      if (x[0] && x[0].objects) {
+        barColor = x[0].objects.sentimentColor.fill.solid.color;
+      } else {
+        barColor = this.visualSettings.sentimentColor.sentimentColorTotal;
+      }
+    } else {
+      let nameArr = displayName.split(", ");
+      let x: any = dataView.matrix.rows.root.children.filter(
+        (c) => c.value === displayName
+      );
+      if (nameArr.length > 1) {
+        const level = dataView.matrix.rows.root.children.filter(
+          (c) => c.value === nameArr[1]
+        );
+        if (level[0]) {
+          x = level[0].children.filter((c) => c.value === nameArr[0]);
+        }
+      }
+
+      if (x[0] && x[0].objects) {
+        barColor = x[0].objects.sentimentColor.fill.solid.color;
+      } else {
+        if (value < 0) {
+          barColor = this.visualSettings.sentimentColor.sentimentColorAdverse;
+        } else {
+          barColor =
+            this.visualSettings.sentimentColor.sentimentColorFavourable;
+        }
       }
     }
     return barColor;
@@ -1891,6 +1938,10 @@ export class Visual implements IVisual {
         dataView.matrix.valueSources[indexMeasures].displayName;
       toolTipDisplayValue2 = null;
       Measure1Value = totalValueofMeasure;
+      const selectionIdNew = this.host
+        .createSelectionIdBuilder()
+        .withMeasure(dataView.matrix.valueSources[indexMeasures].queryName)
+        .createSelectionId();
       Measure2Value = null;
       dataPillar = this.getDataForCategory(
         totalValueofMeasure,
@@ -1898,7 +1949,7 @@ export class Visual implements IVisual {
         dataView.matrix.valueSources[indexMeasures].displayName,
         dataView.matrix.valueSources[indexMeasures].displayName,
         1,
-        null,
+        selectionIdNew,
         sortOrderIndex - 1,
         1,
         toolTipDisplayValue1,
@@ -1909,8 +1960,20 @@ export class Visual implements IVisual {
       sortOrderIndex = sortOrderIndex + 2;
       visualData.push(dataPillar);
     }
+
     if (this.visualSettings.chartOrientation.limitBreakdown) {
+      const currDataClone = [...visualData];
       visualData = this.limitBreakdownsteps(options, visualData);
+      // const missing = currDataClone.filter(
+      //   (o1) => visualData.map((o2) => o2.category).indexOf(o1.category) === -1
+      // );
+      // const selectionIds: ISelectionId[] = missing.map(
+      //   (row) => row.selectionId
+      // );
+      // console.log({ selectionIds, currDataClone, visualData, missing });
+      // visualData.forEach((row) => {
+      //   if (!row.selectionId) row.selectionId = selectionIds;
+      // });
     }
     // Sort the [visualData] in order of the display
     if (dataView.matrix.rows.levels.length === 1) {
@@ -1952,13 +2015,14 @@ export class Visual implements IVisual {
         } else {
           newDisplayName = currCategoryText.split("|").reverse().join(", ");
         }
+
         childnode = this.getDataForCategory(
           currNode["value"],
           currNode["numberFormat"],
           newDisplayName,
           currCategoryText,
           currNode["isPillar"],
-          null,
+          currNode["selectionId"],
           currNode["sortOrderIndex"],
           childrenCount,
           currNode["toolTipDisplayValue1"],
@@ -2169,6 +2233,7 @@ export class Visual implements IVisual {
     var newOther = [];
     var otherTotalValue = 0;
     var othersortOrderIndex = 0;
+
     for (let index = 0; index < currData.length; index++) {
       /*currData[index]["showbreakdownstep"] = false;
             otherTotalValue = otherTotalValue + currData[index].value
@@ -2176,6 +2241,7 @@ export class Visual implements IVisual {
       if (currData[index].isPillar == 1) {
         currData[index]["showbreakdownstep"] = true;
         limitcounter = 0;
+
         if (otherTotalValue != 0) {
           newOther.push(
             this.addOtherBreakdownStep(
@@ -2223,6 +2289,7 @@ export class Visual implements IVisual {
         index--;
       }
     }
+
     currData.sort((a, b) => {
       if (
         a.sortOrderIndexforLimitBreakdown === b.sortOrderIndexforLimitBreakdown
@@ -2263,7 +2330,8 @@ export class Visual implements IVisual {
     data2["xAxisFormat"] = dataView.matrix.rows.levels[0].sources[0].format;
     data2["type"] = dataView.matrix.rows.levels[0].sources[0].type;
     data2["category"] = "defaultBreakdownStepOther" + sortOrderIndex;
-    data2["displayName"] = "Other";
+    data2["displayName"] =
+      this.visualSettings.chartOrientation.otherTitle || "Other";
     data2["customBarColor"] =
       this.visualSettings.sentimentColor.sentimentColorOther;
     if (this.visualSettings.LabelsFormatting.useDefaultFontColor) {
@@ -2287,6 +2355,7 @@ export class Visual implements IVisual {
     data2["sortOrderIndexforLimitBreakdown"] =
       sortOrderIndexforLimitBreakdown + 0.999999;
     data2["showbreakdownstep"] = true;
+
     return data2;
   }
   private getDataDrillableCategoryWaterfall(options: VisualUpdateOptions) {
@@ -3105,6 +3174,7 @@ export class Visual implements IVisual {
     Measure2Value: number
   ) {
     var data2 = [];
+    let dataView: DataView = this.visualUpdateOptions.dataViews[0];
     data2["value"] = value;
     data2["numberFormat"] = numberFormat;
     data2["isPillar"] = isPillar;
@@ -3126,10 +3196,21 @@ export class Visual implements IVisual {
     );
     data2["toolTipDisplayValue1"] = toolTipDisplayValue1;
     data2["toolTipDisplayValue2"] = toolTipDisplayValue2;
-    data2["customBarColor"] = this.getfillColor(
-      data2["isPillar"],
-      data2["value"]
-    );
+
+    if (!this.visualSettings.chartOrientation.useSentimentFeatures) {
+      data2["customBarColor"] = this.getfillColorWithoutSentiments(
+        dataView,
+        data2["isPillar"],
+        data2["value"],
+        data2["displayName"]
+      );
+    } else {
+      data2["customBarColor"] = this.getfillColor(
+        data2["isPillar"],
+        data2["value"]
+      );
+    }
+
     data2["customFontColor"] = this.getLabelFontColor(
       data2["isPillar"],
       data2["value"]

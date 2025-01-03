@@ -239,8 +239,6 @@ class enumerateObjects implements IEnumerateObjects {
     objectName: string,
     objectEnumeration: VisualObjectInstance[]
   ) {
-    console.log(this.barChartData);
-
     if (this.visualType == "static" || this.visualType == "staticCategory") {
       if (this.visualSettings.chartOrientation.useSentimentFeatures) {
         objectEnumeration.push({
@@ -378,8 +376,6 @@ class enumerateObjects implements IEnumerateObjects {
     objectName: string,
     objectEnumeration: VisualObjectInstance[]
   ) {
-    console.log({ visualType: this.visualType });
-
     if (
       this.visualType == "static" ||
       this.visualType == "staticCategory" ||

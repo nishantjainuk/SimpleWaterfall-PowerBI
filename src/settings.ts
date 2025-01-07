@@ -34,31 +34,36 @@ export class VisualSettings extends DataViewObjectsParser {
   public sentimentColor: sentimentColor = new sentimentColor();
   public margins: margins = new margins();
   public definePillars: definePillars = new definePillars();
-  public xAxisFormatting: xAxisFormatting = new xAxisFormatting();  
-  public yAxisFormatting: yAxisFormatting = new yAxisFormatting();  
+  public xAxisFormatting: xAxisFormatting = new xAxisFormatting();
+  public yAxisFormatting: yAxisFormatting = new yAxisFormatting();
   public LabelsFormatting: LabelsFormatting = new LabelsFormatting();
   public Legend: Legend = new Legend();
-  
 }
 export class chartOrientation {
   public orientation: string = "Vertical";
-  public useSentimentFeatures: boolean = true;  
+  public useSentimentFeatures: boolean = true;
   public sortData: number = 1;
   public limitBreakdown: boolean = false;
   public maxBreakdown: number = 5;
-  
+  public otherTitle: string = "Other";
 }
 export class definePillars {
   public Totalpillar: boolean = true;
-
 }
 export class Legend {
   public show: boolean = false;
+  public position: string = "topLeft";
+  public showTitle: boolean = false;
+  public title: string = "";
   public fontSize: number = 9;
   public fontColor: string = "#777777";
-  public fontFamily: string = "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif";
+  public fontFamily: string =
+    '"Segoe UI", wf_segoe-ui_normal, helvetica, arial, sans-serif';
   public textFavourable: string = "Favourable";
   public textAdverse: string = "Adverse";
+  public bold: boolean = false;
+  public italic: boolean = false;
+  public underline: boolean = false;
 }
 export class sentimentColor {
   public sentimentColorTotal: string = "#0000ff";
@@ -71,64 +76,91 @@ export class margins {
   public leftMargin: number = 0;
   public rightMargin: number = 0;
   public bottomMargin: number = 0;
-
 }
 
 export class xAxisFormatting {
   public fontSize: number = 9;
+  public fontBold: boolean = false;
+  public fontItalic: boolean = false;
+  public fontUnderline: boolean = false;
   public fontColor: string = "#777777";
-  public fontFamily: string = "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif";
+  public fontFamily: string =
+    '"Segoe UI", wf_segoe-ui_normal, helvetica, arial, sans-serif';
   public labelWrapText: boolean = true;
   public fitToWidth: boolean = true;
   public barWidth: number = 50;
-  public padding: number = 5;  
+  public padding: number = 5;
   public showGridLine: boolean = true;
   public gridLineStrokeWidth: number = 5;
-  public gridLineColor: string = "#777777";  
+  public gridLineColor: string = "#777777";
 }
 export class yAxisFormatting {
   public show: boolean = true;
   public YAxisDataPointOption: string = "Auto";
   public YAxisDataPointRangeStart: number = 0;
   public YAxisDataPointRangeEnd: number = 0;
-  public showYAxisValues: boolean = true;  
+  public showYAxisValues: boolean = true;
   public fontSize: number = 9;
   public fontColor: string = "#777777";
-  public fontFamily: string = "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif";
+  public fontFamily: string =
+    '"Segoe UI", wf_segoe-ui_normal, helvetica, arial, sans-serif';
+  public bold: boolean = false;
+  public italic: boolean = false;
+  public underline: boolean = false;
   public YAxisValueFormatOption: string = "Auto";
   public showGridLine: boolean = true;
-  
+
   public gridLineStrokeWidth: number = 1;
   public gridLineColor: string = "#777777";
+  public gridlineTransparency: number = 0;
+  public gridLineStyle: string = "solid";
+  public dashArray: string = "5,5,0,5"; // Default custom dash array
+  public scaleByWidth: boolean = false; // Default to not scale
+  public dashCap: string = "flat"; // Default to flat (was butt)
+
   public showZeroAxisGridLine: boolean = false;
   public zeroLineStrokeWidth: number = 1;
   public zeroLineColor: string = "#777777";
   public joinBars: boolean = false;
   public joinBarsStrokeWidth: number = 1;
-  public joinBarsColor: string = "#777777";  
+  public joinBarsColor: string = "#777777";
   public decimalPlaces: number = 0;
-  
+  public switchPosition: boolean = false;
+  public showTitle: boolean = false;
+  public titleText: string = "";
+  public titleStyle: string = "Show Title Only";
+  public titleColor: string = "#777777";
+  public titleFontFamily: string =
+    '"Segoe UI", wf_segoe-ui_normal, helvetica, arial, sans-serif';
+  public titleFontSize: number = 9;
+  public titleBold: boolean = false;
+  public titleItalic: boolean = false;
+  public titleUnderline: boolean = false;
 }
 export class LabelsFormatting {
   public show: boolean = true;
   public fontSize: number = 9;
+  public transparency: number = 0;
   public useDefaultFontColor: boolean = true;
   public fontColor: string = "#777777";
+  public bold: boolean = false;
+  public italic: boolean = false;
+  public underline: boolean = false;
+  public orientation: string = "horizontal";
   public sentimentFontColorTotal: string = "#777777";
   public sentimentFontColorFavourable: string = "#777777";
   public sentimentFontColorAdverse: string = "#777777";
   public sentimentFontColorOther: string = "#777777";
-  public fontFamily: string = "\"Segoe UI\", wf_segoe-ui_normal, helvetica, arial, sans-serif";
+  public fontFamily: string =
+    '"Segoe UI", wf_segoe-ui_normal, helvetica, arial, sans-serif';
   public valueFormat: string = "Auto";
   public useDefaultLabelPositioning: boolean = true;
   public labelPosition: string = "Outside end";
   public labelPositionTotal: string = "Outside end";
   public labelPositionFavourable: string = "Outside end";
   public labelPositionAdverse: string = "Outside end";
-  public labelPositionOther: string = "Outside end";  
+  public labelPositionOther: string = "Outside end";
   public negativeInBrackets: boolean = false;
   public HideZeroBlankValues: boolean = false;
   public decimalPlaces: number = null;
 }
-
-

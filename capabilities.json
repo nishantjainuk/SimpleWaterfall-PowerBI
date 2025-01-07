@@ -116,6 +116,12 @@
           "type": {
             "integer": true
           }
+        },
+        "otherTitle": {
+          "displayName": "Other Step Title",
+          "type": {
+            "text": true
+          }
         }
       }
     },
@@ -244,6 +250,33 @@
           "displayName": "Legend Show / Hide",
           "type": { "bool": true }
         },
+        "showTitle": {
+          "displayName": "Show Title",
+          "type": {
+            "bool": true
+          }
+        },
+        "title": {
+          "displayName": "Title",
+          "type": {
+            "text": true
+          }
+        },
+        "position": {
+          "displayName": "Position",
+          "type": {
+            "enumeration": [
+              { "value": "topLeft", "displayName": "Top Left" },
+              { "value": "topCenter", "displayName": "Top Center" },
+              { "value": "topRight", "displayName": "Top Right" },
+              { "value": "centerLeft", "displayName": "Center Left" },
+              { "value": "centerRight", "displayName": "Center Right" },
+              { "value": "bottomLeft", "displayName": "Bottom Left" },
+              { "value": "bottomCenter", "displayName": "Bottom Center" },
+              { "value": "bottomRight", "displayName": "Bottom Right" }
+            ]
+          }
+        },
         "textFavourable": {
           "displayName": "Sentiment - Favourable",
           "description": "Sentiment - Favourable Text",
@@ -285,6 +318,18 @@
               "fontFamily": true
             }
           }
+        },
+        "bold": {
+          "displayName": "Bold",
+          "type": { "bool": true }
+        },
+        "italic": {
+          "displayName": "Italic",
+          "type": { "bool": true }
+        },
+        "underline": {
+          "displayName": "Underline",
+          "type": { "bool": true }
         }
       }
     },
@@ -299,6 +344,18 @@
               "fontSize": true
             }
           }
+        },
+        "fontBold": {
+          "displayName": "Bold",
+          "type": { "bool": true }
+        },
+        "fontItalic": {
+          "displayName": "Italic",
+          "type": { "bool": true }
+        },
+        "fontUnderline": {
+          "displayName": "Underline",
+          "type": { "bool": true }
         },
         "fontColor": {
           "displayName": "Font Color",
@@ -447,6 +504,18 @@
             }
           }
         },
+        "bold": {
+          "displayName": "Bold",
+          "type": { "bool": true }
+        },
+        "italic": {
+          "displayName": "Italic",
+          "type": { "bool": true }
+        },
+        "underline": {
+          "displayName": "Underline",
+          "type": { "bool": true }
+        },
         "YAxisValueFormatOption": {
           "displayName": "Value Format",
           "type": {
@@ -506,6 +575,43 @@
             }
           }
         },
+        "gridlineTransparency": {
+          "displayName": "Transparency",
+          "type": {
+            "numeric": true
+          },
+          "placeHolderText": "0-100",
+          "description": "Set gridline transparency (0% fully opaque, 100% fully transparent)"
+        },
+        "gridLineStyle": {
+          "displayName": "Grid Line Style",
+          "type": {
+            "enumeration": [
+              { "value": "solid", "displayName": "Solid" },
+              { "value": "dashed", "displayName": "Dashed" },
+              { "value": "dotted", "displayName": "Dotted" },
+              { "value": "custom", "displayName": "Custom" }
+            ]
+          }
+        },
+        "dashArray": {
+          "displayName": "Dash Array",
+          "type": { "text": true }
+        },
+        "scaleByWidth": {
+          "displayName": "Scale by Width",
+          "type": { "bool": true }
+        },
+        "dashCap": {
+          "displayName": "Dash Cap",
+          "type": {
+            "enumeration": [
+              { "value": "flat", "displayName": "Flat" },
+              { "value": "round", "displayName": "Round" },
+              { "value": "square", "displayName": "Square" }
+            ]
+          }
+        },
         "showZeroAxisGridLine": {
           "displayName": "Show Zero Line",
           "description": "Show Zero Line",
@@ -555,6 +661,80 @@
               }
             }
           }
+        },
+        "switchPosition": {
+          "displayName": "Switch Y-Axis Position",
+          "type": { "bool": true }
+        },
+        "showTitle": {
+          "displayName": "Show Y-Axis Title",
+          "type": { "bool": true }
+        },
+        "titleText": {
+          "displayName": "Title Text",
+          "type": { "text": true },
+          "placeHolderText": "Auto"
+        },
+        "titleStyle": {
+          "displayName": "Title Style",
+          "type": {
+            "enumeration": [
+              {
+                "displayName": "Show Title Only",
+                "description": "Show Title Only",
+                "value": "Show Title Only"
+              },
+              {
+                "displayName": "Show Unit Only",
+                "description": "Show Unit Only",
+                "value": "Show Unit Only"
+              },
+              {
+                "displayName": "Show Both",
+                "description": "Show Both",
+                "value": "Show Both"
+              }
+            ]
+          }
+        },
+        "titleColor": {
+          "displayName": "Title Color",
+          "description": "Title color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "titleFontFamily": {
+          "displayName": "Title Font Family",
+          "type": {
+            "formatting": {
+              "fontFamily": true
+            }
+          }
+        },
+        "titleFontSize": {
+          "displayName": "Title Font Size",
+          "type": {
+            "formatting": {
+              "fontSize": true
+            }
+          }
+        },
+        "titleBold": {
+          "displayName": "Bold",
+          "type": { "bool": true }
+        },
+        "titleItalic": {
+          "displayName": "Italic",
+          "type": { "bool": true }
+        },
+        "titleUnderline": {
+          "displayName": "Underline",
+          "type": { "bool": true }
         }
       }
     },
@@ -564,6 +744,15 @@
         "show": {
           "displayName": "My Property Switch",
           "type": { "bool": true }
+        },
+        "orientation": {
+          "displayName": "Orientation",
+          "type": {
+            "enumeration": [
+              { "value": "horizontal", "displayName": "Horizontal" },
+              { "value": "vertical", "displayName": "Vertical" }
+            ]
+          }
         },
         "fontSize": {
           "displayName": "Font Size",
@@ -591,6 +780,22 @@
               }
             }
           }
+        },
+        "transparency": {
+          "displayName": "Transparency",
+          "type": { "numeric": true }
+        },
+        "bold": {
+          "displayName": "Bold",
+          "type": { "bool": true }
+        },
+        "italic": {
+          "displayName": "Italics",
+          "type": { "bool": true }
+        },
+        "underline": {
+          "displayName": "Underline",
+          "type": { "bool": true }
         },
         "sentimentFontColorTotal": {
           "displayName": "Total",

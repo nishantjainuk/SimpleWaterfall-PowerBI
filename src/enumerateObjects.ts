@@ -113,6 +113,7 @@ class enumerateObjects implements IEnumerateObjects {
 
     return objectEnumeration;
   }
+
   private propertiesDefinePillars(
     objectName: string,
     objectEnumeration: VisualObjectInstance[]
@@ -124,7 +125,9 @@ class enumerateObjects implements IEnumerateObjects {
 
           for (var index = 0; index < this.barChartData.length; index++) {
             if (
-              this.barChartData[index].category != "defaultBreakdownStepOther"
+              this.barChartData[index].category.indexOf(
+                "defaultBreakdownStepOther"
+              ) === -1
             ) {
               if (this.barChartData[index].isPillar) {
                 isPillarBoolean = true;
@@ -132,7 +135,7 @@ class enumerateObjects implements IEnumerateObjects {
                 isPillarBoolean = false;
               }
               objectEnumeration.push({
-                objectName: "objectName",
+                objectName: objectName,
                 displayName: this.barChartData[index].category,
                 properties: {
                   pillars: isPillarBoolean,
@@ -148,10 +151,11 @@ class enumerateObjects implements IEnumerateObjects {
       switch (objectName) {
         case "definePillars":
           var isPillarBoolean: boolean;
-
           for (var index = 0; index < this.barChartData.length; index++) {
             if (
-              this.barChartData[index].category != "defaultBreakdownStepOther"
+              this.barChartData[index].category.indexOf(
+                "defaultBreakdownStepOther"
+              ) === -1
             ) {
               if (this.barChartData[index].isPillar) {
                 // if the last pillar is the only pillar than treat it as no pillar
@@ -168,7 +172,7 @@ class enumerateObjects implements IEnumerateObjects {
               }
               if (!this.visualSettings.definePillars.Totalpillar) {
                 objectEnumeration.push({
-                  objectName: "objectName",
+                  objectName: objectName,
                   displayName: this.barChartData[index].category,
                   properties: {
                     pillars: isPillarBoolean,
@@ -178,10 +182,9 @@ class enumerateObjects implements IEnumerateObjects {
               }
             }
           }
-
           if (!hasPillar) {
             objectEnumeration.push({
-              objectName: "objectName",
+              objectName: objectName,
               properties: {
                 Totalpillar: this.visualSettings.definePillars.Totalpillar,
               },
@@ -192,7 +195,7 @@ class enumerateObjects implements IEnumerateObjects {
     }
     if (this.visualType == "drillableCategory") {
       objectEnumeration.push({
-        objectName: "objectName",
+        objectName: objectName,
         properties: {
           Totalpillar: this.visualSettings.definePillars.Totalpillar,
         },
@@ -207,14 +210,35 @@ class enumerateObjects implements IEnumerateObjects {
   ) {
     if (this.visualSettings.chartOrientation.useSentimentFeatures) {
       objectEnumeration.push({
-        objectName: "objectName",
+        objectName: objectName,
         properties: {
           show: this.visualSettings.Legend.show,
+          position: this.visualSettings.Legend.position,
           textFavourable: this.visualSettings.Legend.textFavourable,
           textAdverse: this.visualSettings.Legend.textAdverse,
+          showTitle: this.visualSettings.Legend.showTitle,
+        },
+        selector: null,
+      });
+
+      if (this.visualSettings.Legend.showTitle)
+        objectEnumeration.push({
+          objectName: objectName,
+          properties: {
+            title: this.visualSettings.Legend.title,
+          },
+          selector: null,
+        });
+
+      objectEnumeration.push({
+        objectName: objectName,
+        properties: {
           fontSize: this.visualSettings.Legend.fontSize,
           fontColor: this.visualSettings.Legend.fontColor,
           fontFamily: this.visualSettings.Legend.fontFamily,
+          bold: this.visualSettings.Legend.bold,
+          italic: this.visualSettings.Legend.italic,
+          underline: this.visualSettings.Legend.underline,
         },
         selector: null,
       });
@@ -225,12 +249,9 @@ class enumerateObjects implements IEnumerateObjects {
     objectEnumeration: VisualObjectInstance[]
   ) {
     if (this.visualType == "static" || this.visualType == "staticCategory") {
-      if (
-        this.visualSettings.chartOrientation.useSentimentFeatures &&
-        (this.visualType == "static" || this.visualType == "staticCategory")
-      ) {
+      if (this.visualSettings.chartOrientation.useSentimentFeatures) {
         objectEnumeration.push({
-          objectName: "objectName",
+          objectName: objectName,
           properties: {
             sentimentColorTotal:
               this.visualSettings.sentimentColor.sentimentColorTotal,
@@ -246,11 +267,20 @@ class enumerateObjects implements IEnumerateObjects {
       } else {
         for (var index = 0; index < this.barChartData.length; index++) {
           if (
-            this.barChartData[index].category != "defaultBreakdownStepOther"
+            this.barChartData[index].category.indexOf(
+              "defaultBreakdownStepOther"
+            ) === -1
           ) {
+            let label: any = this.barChartData[index].category;
+            label = label.split("|");
+
+            if (label.length === 2) label = label[1];
+            else if (label.length === 3) label = `${label[1]} | ${label[2]}`;
+            else label = label[0];
+
             objectEnumeration.push({
-              objectName: "objectName",
-              displayName: this.barChartData[index].category,
+              objectName: objectName,
+              displayName: label,
               properties: {
                 fill: {
                   solid: {
@@ -279,7 +309,82 @@ class enumerateObjects implements IEnumerateObjects {
             });
           } else {
             objectEnumeration.push({
-              objectName: "objectName",
+              objectName: objectName,
+              //displayName: this.barChartData[index].category,
+              properties: {
+                sentimentColorOther:
+                  this.visualSettings.sentimentColor.sentimentColorOther,
+              },
+              selector: null,
+            });
+          }
+        }
+      }
+    } else if (
+      this.visualType == "drillable" ||
+      this.visualType == "drillableCategory"
+    ) {
+      if (this.visualSettings.chartOrientation.useSentimentFeatures) {
+        objectEnumeration.push({
+          objectName: objectName,
+          properties: {
+            sentimentColorTotal:
+              this.visualSettings.sentimentColor.sentimentColorTotal,
+            sentimentColorFavourable:
+              this.visualSettings.sentimentColor.sentimentColorFavourable,
+            sentimentColorAdverse:
+              this.visualSettings.sentimentColor.sentimentColorAdverse,
+            sentimentColorOther:
+              this.visualSettings.sentimentColor.sentimentColorOther,
+          },
+          selector: null,
+        });
+      } else {
+        for (var index = 0; index < this.barChartData.length; index++) {
+          if (
+            this.barChartData[index].category.indexOf(
+              "defaultBreakdownStepOther"
+            ) === -1
+          ) {
+            let label: any = this.barChartData[index].category;
+            label = label.split("|");
+
+            if (label.length === 2) label = label[1];
+            else if (label.length === 3) label = `${label[1]} | ${label[2]}`;
+            else label = label[0];
+
+            objectEnumeration.push({
+              objectName: objectName,
+              displayName: label,
+              properties: {
+                fill: {
+                  solid: {
+                    color: this.barChartData[index].customBarColor,
+                  },
+                },
+              },
+              //selector: this.barChartData[index].selectionId.getSelector()
+
+              //More help on conditional formatting
+              //https://docs.microsoft.com/en-us/power-bi/developer/visuals/conditional-format
+
+              // Define whether the conditional formatting will apply to instances, totals, or both
+              selector: dataViewWildcard.createDataViewWildcardSelector(
+                dataViewWildcard.DataViewWildcardMatchingOption
+                  .InstancesAndTotals
+              ),
+
+              // Add this property with the value previously defined for the selector property
+              altConstantValueSelector:
+                this.barChartData[index].selectionId.getSelector(),
+
+              // propertyInstanceKind: {
+              //     fill: VisualEnumerationInstanceKinds.ConstantOrRule
+              // }
+            });
+          } else {
+            objectEnumeration.push({
+              objectName: objectName,
               //displayName: this.barChartData[index].category,
               properties: {
                 sentimentColorOther:
@@ -292,7 +397,7 @@ class enumerateObjects implements IEnumerateObjects {
       }
     } else {
       objectEnumeration.push({
-        objectName: "objectName",
+        objectName: objectName,
         properties: {
           sentimentColorTotal:
             this.visualSettings.sentimentColor.sentimentColorTotal,
@@ -311,52 +416,23 @@ class enumerateObjects implements IEnumerateObjects {
     objectName: string,
     objectEnumeration: VisualObjectInstance[]
   ) {
-    if (this.visualType == "static" || this.visualType == "staticCategory") {
-      objectEnumeration.push({
-        objectName: "objectName",
-        properties: {
-          orientation: this.visualSettings.chartOrientation.orientation,
-          useSentimentFeatures:
-            this.visualSettings.chartOrientation.useSentimentFeatures,
-          sortData: this.visualSettings.chartOrientation.sortData,
-        },
-        selector: null,
-      });
-      if (this.visualType == "staticCategory") {
-        objectEnumeration.push({
-          objectName: "objectName",
-          properties: {
-            limitBreakdown: this.visualSettings.chartOrientation.limitBreakdown,
-          },
-          selector: null,
-        });
-        if (this.visualSettings.chartOrientation.limitBreakdown) {
-          objectEnumeration.push({
-            objectName: "objectName",
-            properties: {
-              maxBreakdown: this.visualSettings.chartOrientation.maxBreakdown,
-            },
-            selector: null,
-          });
-          objectEnumeration[2].validValues = {
-            maxBreakdown: { numberRange: { min: 1, max: 100 } },
-          };
-        }
-      }
-    } else if (
-      this.dataView.matrix.rows.levels.length ===
-      1 /* && this.visualType == "drillable" */
+    objectEnumeration.push({
+      objectName: objectName,
+      properties: {
+        orientation: this.visualSettings.chartOrientation.orientation,
+        useSentimentFeatures:
+          this.visualSettings.chartOrientation.useSentimentFeatures,
+        sortData: this.visualSettings.chartOrientation.sortData,
+      },
+      selector: null,
+    });
+    if (
+      // this.visualSettings.chartOrientation.useSentimentFeatures &&
+      this.visualType == "staticCategory" ||
+      this.dataView.matrix.rows.levels.length === 1
     ) {
       objectEnumeration.push({
-        objectName: "objectName",
-        properties: {
-          orientation: this.visualSettings.chartOrientation.orientation,
-          sortData: this.visualSettings.chartOrientation.sortData,
-        },
-        selector: null,
-      });
-      objectEnumeration.push({
-        objectName: "objectName",
+        objectName: objectName,
         properties: {
           limitBreakdown: this.visualSettings.chartOrientation.limitBreakdown,
         },
@@ -364,9 +440,11 @@ class enumerateObjects implements IEnumerateObjects {
       });
       if (this.visualSettings.chartOrientation.limitBreakdown) {
         objectEnumeration.push({
-          objectName: "objectName",
+          objectName: objectName,
           properties: {
             maxBreakdown: this.visualSettings.chartOrientation.maxBreakdown,
+            otherTitle:
+              this.visualSettings.chartOrientation.otherTitle ?? "Other",
           },
           selector: null,
         });
@@ -374,14 +452,6 @@ class enumerateObjects implements IEnumerateObjects {
           maxBreakdown: { numberRange: { min: 1, max: 100 } },
         };
       }
-    } else {
-      objectEnumeration.push({
-        objectName: "objectName",
-        properties: {
-          orientation: this.visualSettings.chartOrientation.orientation,
-        },
-        selector: null,
-      });
     }
   }
   private propertiesXaxis(
@@ -392,16 +462,26 @@ class enumerateObjects implements IEnumerateObjects {
       objectName: "objectName",
       properties: {
         fontSize: this.visualSettings.xAxisFormatting.fontSize,
+        fontBold: this.visualSettings.xAxisFormatting.fontBold,
+        fontItalic: this.visualSettings.xAxisFormatting.fontItalic,
+        fontUnderline: this.visualSettings.xAxisFormatting.fontUnderline,
         fontColor: this.visualSettings.xAxisFormatting.fontColor,
         fontFamily: this.visualSettings.xAxisFormatting.fontFamily,
         // fitToWidth: this.visualSettings.xAxisFormatting.fitToWidth,
-        labelWrapText: this.visualSettings.xAxisFormatting.labelWrapText,
+        // labelWrapText: this.visualSettings.xAxisFormatting.labelWrapText,
       },
       selector: null,
     });
-    if (this.barWidth > 21)
+    if (
+      this.barWidth > 21 &&
+      this.visualSettings.chartOrientation.orientation !== "Horizontal"
+    ) {
       objectEnumeration[objectEnumeration.length - 1].properties.fitToWidth =
         this.visualSettings.xAxisFormatting.fitToWidth;
+
+      objectEnumeration[objectEnumeration.length - 1].properties.labelWrapText =
+        this.visualSettings.xAxisFormatting.labelWrapText;
+    }
 
     if (!this.visualSettings.xAxisFormatting.fitToWidth) {
       objectEnumeration.push({
@@ -468,6 +548,10 @@ class enumerateObjects implements IEnumerateObjects {
         properties: {
           fontSize: this.visualSettings.yAxisFormatting.fontSize,
           fontColor: this.visualSettings.yAxisFormatting.fontColor,
+          fontFamily: this.visualSettings.yAxisFormatting.fontFamily,
+          bold: this.visualSettings.yAxisFormatting.bold,
+          italic: this.visualSettings.yAxisFormatting.italic,
+          underline: this.visualSettings.yAxisFormatting.underline,
           YAxisValueFormatOption:
             this.visualSettings.yAxisFormatting.YAxisValueFormatOption,
           decimalPlaces:
@@ -496,11 +580,28 @@ class enumerateObjects implements IEnumerateObjects {
               color: this.visualSettings.yAxisFormatting.gridLineColor,
             },
           },
+          gridlineTransparency:
+            this.visualSettings.yAxisFormatting.gridlineTransparency,
+          gridLineStyle: this.visualSettings.yAxisFormatting.gridLineStyle,
+          dashArray:
+            this.visualSettings.yAxisFormatting.gridLineStyle === "custom"
+              ? this.visualSettings.yAxisFormatting.dashArray
+              : undefined,
+          scaleByWidth:
+            this.visualSettings.yAxisFormatting.gridLineStyle === "custom"
+              ? this.visualSettings.yAxisFormatting.scaleByWidth
+              : undefined,
+          dashCap:
+            this.visualSettings.yAxisFormatting.gridLineStyle === "custom"
+              ? this.visualSettings.yAxisFormatting.dashCap
+              : undefined,
         },
         selector: null,
       });
+
       objectEnumeration[objectEnumeration.length - 1].validValues = {
         gridLineStrokeWidth: { numberRange: { min: 1, max: 50 } },
+        gridlineTransparency: { numberRange: { min: 0, max: 100 } },
       };
     }
     objectEnumeration.push({
@@ -550,6 +651,39 @@ class enumerateObjects implements IEnumerateObjects {
         joinBarsStrokeWidth: { numberRange: { min: 1, max: 50 } },
       };
     }
+
+    objectEnumeration.push({
+      objectName: objectName,
+      properties: {
+        switchPosition: this.visualSettings.yAxisFormatting.switchPosition,
+      },
+      selector: null,
+    });
+
+    objectEnumeration.push({
+      objectName: objectName,
+      properties: {
+        showTitle: this.visualSettings.yAxisFormatting.showTitle,
+      },
+      selector: null,
+    });
+
+    if (this.visualSettings.yAxisFormatting.showTitle) {
+      objectEnumeration.push({
+        objectName: objectName,
+        properties: {
+          titleText: this.visualSettings.yAxisFormatting.titleText,
+          titleStyle: this.visualSettings.yAxisFormatting.titleStyle,
+          titleColor: this.visualSettings.yAxisFormatting.titleColor,
+          titleFontFamily: this.visualSettings.yAxisFormatting.titleFontFamily,
+          titleFontSize: this.visualSettings.yAxisFormatting.titleFontSize,
+          titleBold: this.visualSettings.yAxisFormatting.titleBold,
+          titleItalic: this.visualSettings.yAxisFormatting.titleItalic,
+          titleUnderline: this.visualSettings.yAxisFormatting.titleUnderline,
+        },
+        selector: null,
+      });
+    }
   }
   private propertiesLabelFormatting(
     objectName: string,
@@ -561,11 +695,20 @@ class enumerateObjects implements IEnumerateObjects {
         properties: {
           show: this.visualSettings.LabelsFormatting.show,
           fontSize: this.visualSettings.LabelsFormatting.fontSize,
+          bold: this.visualSettings.LabelsFormatting.bold,
+          italic: this.visualSettings.LabelsFormatting.italic,
+          underline: this.visualSettings.LabelsFormatting.underline,
+          transparency: this.visualSettings.LabelsFormatting.transparency,
+          orientation: this.visualSettings.LabelsFormatting.orientation,
           useDefaultFontColor:
             this.visualSettings.LabelsFormatting.useDefaultFontColor,
         },
         selector: null,
       });
+
+      objectEnumeration[objectEnumeration.length - 1].validValues = {
+        transparency: { numberRange: { min: 0, max: 100 } },
+      };
 
       this.propertiesDefaultFontColor(objectName, objectEnumeration);
       objectEnumeration.push({
@@ -654,7 +797,9 @@ class enumerateObjects implements IEnumerateObjects {
         ) {
           for (var index = 0; index < this.barChartData.length; index++) {
             if (
-              this.barChartData[index].category != "defaultBreakdownStepOther"
+              this.barChartData[index].category.indexOf(
+                "defaultBreakdownStepOther"
+              ) === -1
             ) {
               objectEnumeration.push({
                 objectName: "objectName",
@@ -719,7 +864,9 @@ class enumerateObjects implements IEnumerateObjects {
         ) {
           for (var index = 0; index < this.barChartData.length; index++) {
             if (
-              this.barChartData[index].category != "defaultBreakdownStepOther"
+              this.barChartData[index].category.indexOf(
+                "defaultBreakdownStepOther"
+              ) === -1
             ) {
               objectEnumeration.push({
                 objectName: "objectName",
@@ -747,12 +894,12 @@ class enumerateObjects implements IEnumerateObjects {
                   this.barChartData[index].selectionId.getSelector(),
 
                 // propertyInstanceKind: {
-                //     fill: VisualEnumerationInstanceKinds.ConstantOrRule
-                // }
+                //   fill: VisualEnumerationInstanceKinds.ConstantOrRule,
+                // },
               });
             } else {
               objectEnumeration.push({
-                objectName: "objectName",
+                objectName: objectName,
                 displayName: this.barChartData[index].displayName,
                 properties: {
                   sentimentFontColorOther:

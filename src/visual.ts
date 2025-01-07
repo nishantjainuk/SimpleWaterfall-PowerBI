@@ -1287,6 +1287,7 @@ export class Visual implements IVisual {
         this.selectionManager.clear().then(() => {
           this.selectionManager.registerOnSelectCallback(
             (ids: ISelectionId[]) => {
+              this.isOtherSelected = false;
               this.syncSelectionState(this.bars, ids);
             }
           );
@@ -1318,10 +1319,16 @@ export class Visual implements IVisual {
           const selectedIds = this.selectionManager.getSelectionIds();
           if (
             this.isOtherSelected &&
-            this.barChartData[index].category === "defaultBreakdownStepOther1"
+            (this.barChartData[index].category ===
+              "defaultBreakdownStepOther1" ||
+              this.barChartData[index].category ===
+                "defaultBreakdownStepOther0")
           ) {
             this.isOtherSelected = false;
-            isCtrlPressed = selectedIds.length === this.otherSelectionIds.length ? true: false;
+            isCtrlPressed =
+              selectedIds.length === this.otherSelectionIds.length
+                ? true
+                : false;
           }
           this.selectionManager
             .select(this.barChartData[index].selectionId, isCtrlPressed)
@@ -1356,7 +1363,8 @@ export class Visual implements IVisual {
       );
       if (
         this.visualSettings.chartOrientation.limitBreakdown &&
-        this.barChartData[i].category === "defaultBreakdownStepOther1"
+        (this.barChartData[i].category === "defaultBreakdownStepOther0" ||
+          this.barChartData[i].category === "defaultBreakdownStepOther1")
       ) {
         isSelected = this.isSelectionIdInArray(
           selectionIds,
@@ -1567,7 +1575,7 @@ export class Visual implements IVisual {
     displayName: string
   ) {
     var barColor: string = "#777777";
-    // console.log({ displayName, isPillar, dataView });
+
     if (isPillar == 1) {
       const x: any = dataView.matrix.valueSources.filter(
         (c) => c.displayName === displayName
@@ -1582,12 +1590,19 @@ export class Visual implements IVisual {
       let x: any = dataView.matrix.rows.root.children.filter(
         (c) => c.value === displayName
       );
+
       if (nameArr.length > 1) {
-        const level = dataView.matrix.rows.root.children.filter(
-          (c) => c.value === nameArr[1]
+        const level = dataView.matrix.rows.root.children.filter((c) =>
+          this.visualType === "drillableCategory"
+            ? c.value === nameArr[0]
+            : c.value === nameArr[1]
         );
         if (level[0]) {
-          x = level[0].children.filter((c) => c.value === nameArr[0]);
+          x = level[0].children.filter((c) =>
+            this.visualType === "drillableCategory"
+              ? c.value === nameArr[1]
+              : c.value === nameArr[0]
+          );
         }
       }
 
@@ -2224,7 +2239,18 @@ export class Visual implements IVisual {
       visualData.push(this.addTotalLine(visualData, options));
     }
     if (this.visualSettings.chartOrientation.limitBreakdown) {
+      const currDataClone = [...visualData];
       visualData = this.limitBreakdownsteps(options, visualData);
+      const missing = currDataClone.filter(
+        (o1) => visualData.map((o2) => o2.category).indexOf(o1.category) === -1
+      );
+      this.otherSelectionIds = missing.map((row) => row.selectionId);
+
+      visualData.forEach((row) => {
+        if (row.category === "defaultBreakdownStepOther0")
+          row.selectionId = this.otherSelectionIds;
+      });
+      // visualData = this.limitBreakdownsteps(options, visualData);
     }
     visualData = this.sortData(visualData);
 
@@ -2497,7 +2523,7 @@ export class Visual implements IVisual {
           newDisplayName,
           currCategoryText,
           currNode["isPillar"],
-          null,
+          currNode["selectionId"],
           currNode["sortOrderIndex"],
           childrenCount,
           currNode["toolTipDisplayValue1"],
@@ -3483,6 +3509,7 @@ export class Visual implements IVisual {
         this.selectionManager.clear().then(() => {
           this.selectionManager.registerOnSelectCallback(
             (ids: ISelectionId[]) => {
+              this.isOtherSelected = false;
               this.syncSelectionState(this.bars, ids);
             }
           );
@@ -3513,10 +3540,16 @@ export class Visual implements IVisual {
           const selectedIds = this.selectionManager.getSelectionIds();
           if (
             this.isOtherSelected &&
-            this.barChartData[index].category === "defaultBreakdownStepOther1"
+            (this.barChartData[index].category ===
+              "defaultBreakdownStepOther0" ||
+              this.barChartData[index].category ===
+                "defaultBreakdownStepOther1")
           ) {
             this.isOtherSelected = false;
-            isCtrlPressed = selectedIds.length === this.otherSelectionIds.length ? true: false;
+            isCtrlPressed =
+              selectedIds.length === this.otherSelectionIds.length
+                ? true
+                : false;
           }
           this.selectionManager
             .select(this.barChartData[index].selectionId, isCtrlPressed)

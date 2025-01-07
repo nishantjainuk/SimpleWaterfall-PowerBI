@@ -119,69 +119,74 @@ class enumerateObjects implements IEnumerateObjects {
     objectEnumeration: VisualObjectInstance[]
   ) {
     if (this.visualType == "static") {
-      var isPillarBoolean: boolean;
+      switch (objectName) {
+        case "definePillars":
+          var isPillarBoolean: boolean;
 
-      for (var index = 0; index < this.barChartData.length; index++) {
-        if (this.barChartData[index].category != "defaultBreakdownStepOther") {
-          if (this.barChartData[index].isPillar) {
-            isPillarBoolean = true;
-          } else {
-            isPillarBoolean = false;
+          for (var index = 0; index < this.barChartData.length; index++) {
+            if (
+              this.barChartData[index].category != "defaultBreakdownStepOther"
+            ) {
+              if (this.barChartData[index].isPillar) {
+                isPillarBoolean = true;
+              } else {
+                isPillarBoolean = false;
+              }
+              objectEnumeration.push({
+                objectName: objectName,
+                displayName: this.barChartData[index].category,
+                properties: {
+                  pillars: isPillarBoolean,
+                },
+                selector: this.barChartData[index].selectionId.getSelector(),
+              });
+            }
           }
-          objectEnumeration.push({
-            objectName: objectName,
-            displayName: this.barChartData[index].category,
-            properties: {
-              pillars: isPillarBoolean,
-            },
-            selector: this.barChartData[index].selectionId.getSelector(),
-          });
-        }
       }
     }
     if (this.visualType == "staticCategory") {
       var hasPillar: boolean = false;
-
-      var isPillarBoolean: boolean;
-      for (var index = 0; index < this.barChartData.length; index++) {
-        if (this.barChartData[index].category != "defaultBreakdownStepOther") {
-          if (
-            index != this.barChartData.length &&
-            !this.visualSettings.definePillars.Totalpillar
-          ) {
-            // if the last pillar is the only pillar than treat it as no pillar
-            isPillarBoolean = true;
+      switch (objectName) {
+        case "definePillars":
+          var isPillarBoolean: boolean;
+          for (var index = 0; index < this.barChartData.length; index++) {
             if (
-              index != this.barChartData.length &&
-              !this.visualSettings.definePillars.Totalpillar
+              this.barChartData[index].category != "defaultBreakdownStepOther"
             ) {
-              hasPillar = true;
+              if (this.barChartData[index].isPillar) {
+                // if the last pillar is the only pillar than treat it as no pillar
+                isPillarBoolean = true;
+                if (
+                  index != this.barChartData.length &&
+                  !this.visualSettings.definePillars.Totalpillar
+                ) {
+                  hasPillar = true;
+                }
+                //hasPillar = true;
+              } else {
+                isPillarBoolean = false;
+              }
+              if (!this.visualSettings.definePillars.Totalpillar) {
+                objectEnumeration.push({
+                  objectName: objectName,
+                  displayName: this.barChartData[index].category,
+                  properties: {
+                    pillars: isPillarBoolean,
+                  },
+                  selector: this.barChartData[index].selectionId.getSelector(),
+                });
+              }
             }
-            //hasPillar = true;
-          } else {
-            isPillarBoolean = false;
           }
-          // if (!this.visualSettings.definePillars.Totalpillar) {
-          objectEnumeration.push({
-            objectName: objectName,
-            displayName: this.barChartData[index].category,
-            properties: {
-              pillars: isPillarBoolean,
-            },
-            selector: this.barChartData[index].selectionId.getSelector(),
-          });
-          // }
-        }
-      }
-
-      if (!hasPillar) {
-        objectEnumeration.push({
-          objectName: objectName,
-          properties: {
-            Totalpillar: this.visualSettings.definePillars.Totalpillar,
-          },
-          selector: null,
-        });
+          if (!hasPillar) {
+            objectEnumeration.push({
+              objectName: objectName,
+              properties: {
+                Totalpillar: this.visualSettings.definePillars.Totalpillar,
+              },
+              selector: null,
+            });
+          }
       }
     }
     if (this.visualType == "drillableCategory") {
@@ -258,7 +263,8 @@ class enumerateObjects implements IEnumerateObjects {
       } else {
         for (var index = 0; index < this.barChartData.length; index++) {
           if (
-            this.barChartData[index].category != "defaultBreakdownStepOther"
+            this.barChartData[index].category != "defaultBreakdownStepOther" &&
+            this.barChartData[index].category !== "defaultBreakdownStepOther0"
           ) {
             let label: any = this.barChartData[index].category;
             label = label.split("|");
@@ -309,7 +315,10 @@ class enumerateObjects implements IEnumerateObjects {
           }
         }
       }
-    } else if (this.visualType == "drillable") {
+    } else if (
+      this.visualType == "drillable" ||
+      this.visualType == "drillableCategory"
+    ) {
       if (this.visualSettings.chartOrientation.useSentimentFeatures) {
         objectEnumeration.push({
           objectName: objectName,
@@ -366,6 +375,16 @@ class enumerateObjects implements IEnumerateObjects {
               //     fill: VisualEnumerationInstanceKinds.ConstantOrRule
               // }
             });
+          } else {
+            objectEnumeration.push({
+              objectName: objectName,
+              //displayName: this.barChartData[index].category,
+              properties: {
+                sentimentColorOther:
+                  this.visualSettings.sentimentColor.sentimentColorOther,
+              },
+              selector: null,
+            });
           }
         }
       }
@@ -390,89 +409,42 @@ class enumerateObjects implements IEnumerateObjects {
     objectName: string,
     objectEnumeration: VisualObjectInstance[]
   ) {
+    objectEnumeration.push({
+      objectName: objectName,
+      properties: {
+        orientation: this.visualSettings.chartOrientation.orientation,
+        useSentimentFeatures:
+          this.visualSettings.chartOrientation.useSentimentFeatures,
+        sortData: this.visualSettings.chartOrientation.sortData,
+      },
+      selector: null,
+    });
     if (
-      this.visualType == "static" ||
+      // this.visualSettings.chartOrientation.useSentimentFeatures &&
       this.visualType == "staticCategory" ||
-      this.visualType == "drillable"
+      this.dataView.matrix.rows.levels.length === 1
     ) {
       objectEnumeration.push({
         objectName: objectName,
         properties: {
-          orientation: this.visualSettings.chartOrientation.orientation,
-          useSentimentFeatures:
-            this.visualSettings.chartOrientation.useSentimentFeatures,
-          sortData: this.visualSettings.chartOrientation.sortData,
+          limitBreakdown: this.visualSettings.chartOrientation.limitBreakdown,
         },
         selector: null,
       });
-      if (
-        // this.visualSettings.chartOrientation.useSentimentFeatures &&
-        this.visualType == "staticCategory" ||
-        this.dataView.matrix.rows.levels.length === 1
-      ) {
+      if (this.visualSettings.chartOrientation.limitBreakdown) {
         objectEnumeration.push({
           objectName: objectName,
           properties: {
-            limitBreakdown: this.visualSettings.chartOrientation.limitBreakdown,
+            maxBreakdown: this.visualSettings.chartOrientation.maxBreakdown,
+            otherTitle:
+              this.visualSettings.chartOrientation.otherTitle ?? "Other",
           },
           selector: null,
         });
-        if (this.visualSettings.chartOrientation.limitBreakdown) {
-          objectEnumeration.push({
-            objectName: objectName,
-            properties: {
-              maxBreakdown: this.visualSettings.chartOrientation.maxBreakdown,
-              otherTitle:
-                this.visualSettings.chartOrientation.otherTitle ?? "Other",
-            },
-            selector: null,
-          });
-          objectEnumeration[2].validValues = {
-            maxBreakdown: { numberRange: { min: 1, max: 100 } },
-          };
-        }
+        objectEnumeration[2].validValues = {
+          maxBreakdown: { numberRange: { min: 1, max: 100 } },
+        };
       }
-      // }
-      // else if (
-      //   this.dataView.matrix.rows.levels.length ===
-      //   1 /* && this.visualType == "drillable" */
-      // ) {
-      //   objectEnumeration.push({
-      //     objectName: objectName,
-      //     properties: {
-      //       orientation: this.visualSettings.chartOrientation.orientation,
-      //       sortData: this.visualSettings.chartOrientation.sortData,
-      //     },
-      //     selector: null,
-      //   });
-      //   objectEnumeration.push({
-      //     objectName: objectName,
-      //     properties: {
-      //       limitBreakdown: this.visualSettings.chartOrientation.limitBreakdown,
-      //     },
-      //     selector: null,
-      //   });
-      //   if (this.visualSettings.chartOrientation.limitBreakdown) {
-      //     objectEnumeration.push({
-      //       objectName: objectName,
-      //       properties: {
-      //         maxBreakdown: this.visualSettings.chartOrientation.maxBreakdown,
-      //         otherTitle: this.visualSettings.chartOrientation.otherTitle ?? "Other",
-      //       },
-      //       selector: null,
-      //     });
-      //     objectEnumeration[2].validValues = {
-      //       maxBreakdown: { numberRange: { min: 1, max: 100 } },
-      //     };
-      //   }
-    } else {
-      objectEnumeration.push({
-        objectName: "objectName",
-        properties: {
-          orientation: this.visualSettings.chartOrientation.orientation,
-        },
-        selector: null,
-      });
     }
   }
   private propertiesXaxis(

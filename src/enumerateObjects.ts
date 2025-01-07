@@ -260,9 +260,16 @@ class enumerateObjects implements IEnumerateObjects {
           if (
             this.barChartData[index].category != "defaultBreakdownStepOther"
           ) {
+            let label: any = this.barChartData[index].category;
+            label = label.split("|");
+
+            if (label.length === 2) label = label[1];
+            else if (label.length === 3) label = `${label[1]} | ${label[2]}`;
+            else label = label[0];
+
             objectEnumeration.push({
               objectName: objectName,
-              displayName: this.barChartData[index].category,
+              displayName: label,
               properties: {
                 fill: {
                   solid: {
@@ -323,9 +330,16 @@ class enumerateObjects implements IEnumerateObjects {
           if (
             this.barChartData[index].category !== "defaultBreakdownStepOther1"
           ) {
+            let label: any = this.barChartData[index].category;
+            label = label.split("|");
+
+            if (label.length === 2) label = label[1];
+            else if (label.length === 3) label = `${label[1]} | ${label[2]}`;
+            else label = label[0];
+
             objectEnumeration.push({
               objectName: objectName,
-              displayName: this.barChartData[index].category,
+              displayName: label,
               properties: {
                 fill: {
                   solid: {

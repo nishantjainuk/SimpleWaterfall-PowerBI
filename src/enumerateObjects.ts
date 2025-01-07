@@ -125,7 +125,9 @@ class enumerateObjects implements IEnumerateObjects {
 
           for (var index = 0; index < this.barChartData.length; index++) {
             if (
-              this.barChartData[index].category != "defaultBreakdownStepOther"
+              this.barChartData[index].category.indexOf(
+                "defaultBreakdownStepOther"
+              ) === -1
             ) {
               if (this.barChartData[index].isPillar) {
                 isPillarBoolean = true;
@@ -151,7 +153,9 @@ class enumerateObjects implements IEnumerateObjects {
           var isPillarBoolean: boolean;
           for (var index = 0; index < this.barChartData.length; index++) {
             if (
-              this.barChartData[index].category != "defaultBreakdownStepOther"
+              this.barChartData[index].category.indexOf(
+                "defaultBreakdownStepOther"
+              ) === -1
             ) {
               if (this.barChartData[index].isPillar) {
                 // if the last pillar is the only pillar than treat it as no pillar
@@ -263,8 +267,9 @@ class enumerateObjects implements IEnumerateObjects {
       } else {
         for (var index = 0; index < this.barChartData.length; index++) {
           if (
-            this.barChartData[index].category != "defaultBreakdownStepOther" &&
-            this.barChartData[index].category !== "defaultBreakdownStepOther0"
+            this.barChartData[index].category.indexOf(
+              "defaultBreakdownStepOther"
+            ) === -1
           ) {
             let label: any = this.barChartData[index].category;
             label = label.split("|");
@@ -337,7 +342,9 @@ class enumerateObjects implements IEnumerateObjects {
       } else {
         for (var index = 0; index < this.barChartData.length; index++) {
           if (
-            this.barChartData[index].category !== "defaultBreakdownStepOther1"
+            this.barChartData[index].category.indexOf(
+              "defaultBreakdownStepOther"
+            ) === -1
           ) {
             let label: any = this.barChartData[index].category;
             label = label.split("|");
@@ -790,7 +797,9 @@ class enumerateObjects implements IEnumerateObjects {
         ) {
           for (var index = 0; index < this.barChartData.length; index++) {
             if (
-              this.barChartData[index].category != "defaultBreakdownStepOther"
+              this.barChartData[index].category.indexOf(
+                "defaultBreakdownStepOther"
+              ) === -1
             ) {
               objectEnumeration.push({
                 objectName: "objectName",
@@ -855,7 +864,9 @@ class enumerateObjects implements IEnumerateObjects {
         ) {
           for (var index = 0; index < this.barChartData.length; index++) {
             if (
-              this.barChartData[index].category != "defaultBreakdownStepOther"
+              this.barChartData[index].category.indexOf(
+                "defaultBreakdownStepOther"
+              ) === -1
             ) {
               objectEnumeration.push({
                 objectName: "objectName",

@@ -1319,10 +1319,9 @@ export class Visual implements IVisual {
           const selectedIds = this.selectionManager.getSelectionIds();
           if (
             this.isOtherSelected &&
-            (this.barChartData[index].category ===
-              "defaultBreakdownStepOther1" ||
-              this.barChartData[index].category ===
-                "defaultBreakdownStepOther0")
+            this.barChartData[index].category.indexOf(
+              "defaultBreakdownStepOther"
+            ) !== -1
           ) {
             this.isOtherSelected = false;
             isCtrlPressed =
@@ -1363,8 +1362,8 @@ export class Visual implements IVisual {
       );
       if (
         this.visualSettings.chartOrientation.limitBreakdown &&
-        (this.barChartData[i].category === "defaultBreakdownStepOther0" ||
-          this.barChartData[i].category === "defaultBreakdownStepOther1")
+        this.barChartData[i].category.indexOf("defaultBreakdownStepOther") !==
+          -1
       ) {
         isSelected = this.isSelectionIdInArray(
           selectionIds,
@@ -2009,7 +2008,7 @@ export class Visual implements IVisual {
       this.otherSelectionIds = missing.map((row) => row.selectionId);
 
       visualData.forEach((row) => {
-        if (row.category === "defaultBreakdownStepOther1")
+        if (row.category.indexOf("defaultBreakdownStepOther") !== -1)
           row.selectionId = this.otherSelectionIds;
       });
     }
@@ -2244,10 +2243,11 @@ export class Visual implements IVisual {
       const missing = currDataClone.filter(
         (o1) => visualData.map((o2) => o2.category).indexOf(o1.category) === -1
       );
+
       this.otherSelectionIds = missing.map((row) => row.selectionId);
 
       visualData.forEach((row) => {
-        if (row.category === "defaultBreakdownStepOther0")
+        if (row.category.indexOf("defaultBreakdownStepOther") !== -1)
           row.selectionId = this.otherSelectionIds;
       });
       // visualData = this.limitBreakdownsteps(options, visualData);
@@ -3540,10 +3540,9 @@ export class Visual implements IVisual {
           const selectedIds = this.selectionManager.getSelectionIds();
           if (
             this.isOtherSelected &&
-            (this.barChartData[index].category ===
-              "defaultBreakdownStepOther0" ||
-              this.barChartData[index].category ===
-                "defaultBreakdownStepOther1")
+            this.barChartData[index].category.indexOf(
+              "defaultBreakdownStepOther"
+            ) !== -1
           ) {
             this.isOtherSelected = false;
             isCtrlPressed =

@@ -126,6 +126,7 @@ export class Visual implements IVisual {
   private currentBarWidth: number;
   private isLabelVertical = false;
   private minLableVerticalHeight = 30;
+  private bboxHeight = 0;
 
   constructor(options: VisualConstructorOptions) {
     this.host = options.host;
@@ -1616,7 +1617,6 @@ export class Visual implements IVisual {
         }
       }
     }
-    // console.log({ displayName, barColor });
     return barColor;
   }
   private getLabelFontColor(isPillar: number, value: number) {
@@ -2803,8 +2803,18 @@ export class Visual implements IVisual {
     }
 
     g.selectAll("text").each((d, i, nodes) => {
-      if (this.xAxisPosition <= nodes[i].getBoundingClientRect().bottom) {
-        this.xAxisPosition = nodes[i].getBoundingClientRect().bottom;
+      if (
+        this.isLabelVertical &&
+        this.xAxisPosition < nodes[i].getBBox().width
+      ) {
+        this.xAxisPosition = nodes[i].getBBox().width;
+      } else {
+        if (
+          this.xAxisPosition < nodes[i].getBBox().height &&
+          !this.isLabelVertical
+        ) {
+          this.xAxisPosition = nodes[i].getBBox().height;
+        }
       }
     });
 
@@ -2815,17 +2825,18 @@ export class Visual implements IVisual {
         this.xAxisPosition -
         this.margin.bottom -
         this.scrollbarBreadth +
-        (this.isHorizontalLegend ? this.legendHeight : 0)
+        (this.isHorizontalLegend && this.isLabelVertical
+          ? this.legendHeight
+          : 0)
       })`
     );
-
     this.innerHeight =
       this.height -
       this.margin.top -
       this.margin.bottom -
       this.xAxisPosition -
       this.scrollbarBreadth +
-      (this.isHorizontalLegend ? this.legendHeight : 0);
+      (this.isHorizontalLegend && this.isLabelVertical ? this.legendHeight : 0);
 
     if (this.isLabelVertical) this.innerHeight -= this.minLableVerticalHeight;
   }
@@ -3006,11 +3017,14 @@ export class Visual implements IVisual {
     }
 
     myxAxisParent.selectAll("text").each((d, i, nodes) => {
-      if (this.findBottom <= nodes[i].getBoundingClientRect().bottom) {
+      if (
+        this.findBottom <= nodes[i].getBoundingClientRect().bottom &&
+        this.isLabelVertical
+      ) {
         this.findBottom =
           nodes[i].getBoundingClientRect().bottom -
           (this.isHorizontalLegend ? this.legendHeight : 0);
-      }
+      } else this.findBottom = 0;
     });
     if (!this.isLabelVertical)
       this.currentAxisGridlines(

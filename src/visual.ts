@@ -947,6 +947,7 @@ export class Visual implements IVisual {
       .append("rect")
       .attr("x", (d) => xScale(d.category))
       .attr("y", (d, i) => this.getYPosition(d, i))
+      .attr("id", (d, i) => `bar_${i}`)
       .attr("width", xScale.bandwidth())
       .attr("height", (d, i) => this.getHeight(d, i))
       .attr("fill", (d) => d.customBarColor);
@@ -1012,6 +1013,7 @@ export class Visual implements IVisual {
       this.bars,
       <ISelectionId[]>this.selectionManager.getSelectionIds()
     );
+
     if (
       this.visualType == "drillable" ||
       this.visualType == "staticCategory" ||
@@ -1019,14 +1021,14 @@ export class Visual implements IVisual {
     ) {
       this.bars.on("click", (d) => {
         // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
-
+        const index = d.srcElement.id.split("_")[1];
         if (this.allowInteractions) {
           const isCtrlPressed: boolean = (<MouseEvent>d).ctrlKey;
           if (this.selectionManager.hasSelection() && !isCtrlPressed) {
             this.bars.attr("fill-opacity", 1);
           }
           this.selectionManager
-            .select(d.selectionId, isCtrlPressed)
+            .select(this.barChartData[index].selectionId, isCtrlPressed)
             .then((ids: ISelectionId[]) => {
               this.syncSelectionState(this.bars, ids);
             });
@@ -1053,7 +1055,7 @@ export class Visual implements IVisual {
     bars.each((d, i, nodes) => {
       const isSelected: boolean = this.isSelectionIdInArray(
         selectionIds,
-        d.selectionId
+        this.barChartData[i].selectionId
       );
       d3.select(nodes[i]).attr("fill-opacity", isSelected ? 1 : 0.5);
     });
@@ -1575,6 +1577,10 @@ export class Visual implements IVisual {
         dataView.matrix.valueSources[indexMeasures].displayName;
       toolTipDisplayValue2 = null;
       Measure1Value = totalValueofMeasure;
+      const selectionIdNew = this.host
+        .createSelectionIdBuilder()
+        .withMeasure(dataView.matrix.valueSources[indexMeasures].queryName)
+        .createSelectionId();
       Measure2Value = null;
       dataPillar = this.getDataForCategory(
         totalValueofMeasure,
@@ -1582,7 +1588,7 @@ export class Visual implements IVisual {
         dataView.matrix.valueSources[indexMeasures].displayName,
         dataView.matrix.valueSources[indexMeasures].displayName,
         1,
-        null,
+        selectionIdNew,
         sortOrderIndex - 1,
         1,
         toolTipDisplayValue1,
@@ -1636,7 +1642,7 @@ export class Visual implements IVisual {
           newDisplayName,
           currCategoryText,
           currNode["isPillar"],
-          null,
+          currNode["selectionId"],
           currNode["sortOrderIndex"],
           childrenCount,
           currNode["toolTipDisplayValue1"],
@@ -2056,7 +2062,7 @@ export class Visual implements IVisual {
           newDisplayName,
           currCategoryText,
           currNode["isPillar"],
-          null,
+          currNode["selectionId"],
           currNode["sortOrderIndex"],
           childrenCount,
           currNode["toolTipDisplayValue1"],

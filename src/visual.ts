@@ -4612,7 +4612,7 @@ export class Visual implements IVisual {
         if (Math.abs(d.value) >= 1000000000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
-            value: d.numberFormat ? 0 : 1e9,
+            value: 1e9,
             precision: decimalPlaces,
           });
 
@@ -4620,7 +4620,7 @@ export class Visual implements IVisual {
         } else if (Math.abs(d.value) >= 1000000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
-            value: d.numberFormat ? 0 : 1e6,
+            value: 1e6,
             precision: decimalPlaces,
             format: d.numberFormat,
           });
@@ -4628,7 +4628,7 @@ export class Visual implements IVisual {
         } else if (Math.abs(d.value) >= 1000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
-            value: d.numberFormat ? 0 : 1001,
+            value: 1001,
             precision: decimalPlaces,
             format: d.numberFormat,
           });
@@ -4679,7 +4679,7 @@ export class Visual implements IVisual {
           cultureSelector: this.locale,
           format: d.numberFormat,
           value: 0,
-          precision: decimalPlaces,
+          // precision: decimalPlaces,
         });
 
         formattedvalue = this.getValueSimpleFormatted(iValueFormatter, d);

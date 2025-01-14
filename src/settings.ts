@@ -162,5 +162,5 @@ export class LabelsFormatting {
   public labelPositionOther: string = "Outside end";
   public negativeInBrackets: boolean = false;
   public HideZeroBlankValues: boolean = false;
-  public decimalPlaces: number = null;
+  public decimalPlaces: number = 0;
 }

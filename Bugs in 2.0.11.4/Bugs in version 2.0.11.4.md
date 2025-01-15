@@ -3,18 +3,17 @@
 We are aware of the following bugs in the latest version 2.0.11.4 of Simple waterfall. As part of our commitment to keep the visual up to date on the Microsoft Appsource, we had updated the simple waterfall visual to the latest Microsoft API for Power BI custom visuals. However, this update resulted in few bugs, and we are actively working on fixing them. As it would take some time to fix and release an updated version, you can follow the work around list below as a temporary fix.
 ## Known Bugs in version 2.1.0.4
 1.	Label Formatting:
-	1. https://github.com/nishantjainuk/SimpleWaterfall-PowerBI/issues/152
-    2. https://github.com/nishantjainuk/SimpleWaterfall-PowerBI/issues/150
+	1. [Issue 152](https://github.com/nishantjainuk/SimpleWaterfall-PowerBI/issues/152)
+	2. [Issue 150](https://github.com/nishantjainuk/SimpleWaterfall-PowerBI/issues/150)
 2.	Bar no longer are interactive
-    1. https://github.com/nishantjainuk/SimpleWaterfall-PowerBI/issues/149
+	1. [Issue 149](https://github.com/nishantjainuk/SimpleWaterfall-PowerBI/issues/149)
 3.	X-axis label issue
-	1. https://github.com/nishantjainuk/SimpleWaterfall-PowerBI/issues/148
-	2. https://github.com/nishantjainuk/SimpleWaterfall-PowerBI/issues/144
+	1. [Issue 148](https://github.com/nishantjainuk/SimpleWaterfall-PowerBI/issues/148)
+	2. [Issue 144](https://github.com/nishantjainuk/SimpleWaterfall-PowerBI/issues/144)
 4.	Small Chart Width:
-	1. https://github.com/nishantjainuk/SimpleWaterfall-PowerBI/issues/146
-
+	1. [Issue 146](https://github.com/nishantjainuk/SimpleWaterfall-PowerBI/issues/146)
 5.	Mac Compatibility:
-	1. https://github.com/nishantjainuk/SimpleWaterfall-PowerBI/issues/145
+	1. [Issue 145](https://github.com/nishantjainuk/SimpleWaterfall-PowerBI/issues/145)
 
 ## Temporary workaround for bugs in version 2.0.11.4
 

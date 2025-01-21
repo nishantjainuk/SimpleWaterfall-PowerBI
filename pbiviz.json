@@ -1,25 +1,25 @@
 {
-    "visual": {
-        "name": "Simple Waterfall",
-        "displayName": "Simple Waterfall",
-        "guid": "SimpleWaterfall",
-        "visualClassName": "Visual",
-        "version": "2.0.11.0",
-        "description": "A simple waterfall allowing users to create multi step waterfall",
-        "supportUrl": "https://nishantjain.co.uk/simple-waterfall-support/",
-        "gitHubUrl": ""
-    },
-    "apiVersion": "5.11.0",
-    "author": {
-        "name": "Nishant Jain",
-        "email": "nishant@datanomy.uk"
-    },
-    "assets": {
-        "icon": "assets/icon-visual.png"
-    },
-    "externalJS": null,
-    "style": "style/visual.less",
-    "capabilities": "capabilities.json",
-    "dependencies": null,
-    "stringResources": []
+  "visual": {
+    "name": "Simple Waterfall Temp",
+    "displayName": "Simple Waterfall Temp",
+    "guid": "SimpleWaterfallTemp",
+    "visualClassName": "Visual",
+    "version": "1.1.0.0",
+    "description": "A simple waterfall (temporary) allowing users to create multi step waterfall",
+    "supportUrl": "https://nishantjain.co.uk/simple-waterfall-support/",
+    "gitHubUrl": ""
+  },
+  "apiVersion": "5.11.0",
+  "author": {
+    "name": "Nishant Jain",
+    "email": "nishant@datanomy.uk"
+  },
+  "assets": {
+    "icon": "assets/icon-visual.png"
+  },
+  "externalJS": null,
+  "style": "style/visual.less",
+  "capabilities": "capabilities.json",
+  "dependencies": null,
+  "stringResources": []
 }

@@ -88,6 +88,7 @@ export class xAxisFormatting {
     '"Segoe UI", wf_segoe-ui_normal, helvetica, arial, sans-serif';
   public labelWrapText: boolean = true;
   public fitToWidth: boolean = true;
+  public concatenateLabels: boolean = false;
   public barWidth: number = 50;
   public padding: number = 5;
   public showGridLine: boolean = true;

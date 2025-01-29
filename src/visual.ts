@@ -233,7 +233,7 @@ export class Visual implements IVisual {
       this.barChartData =
         this.getDataDrillableWaterfall(options)[allData.length - 1];
     }
-    // console.log({ type: this.visualType });
+    console.log({ type: this.visualType });
 
     this.createWaterfallGraph(options, allData);
     this.updateContainerOrder();
@@ -2446,9 +2446,11 @@ export class Visual implements IVisual {
           allMeasureValues[indexMeasures][nodeItems].category.toString();
         var displayName: string =
           allMeasureValues[indexMeasures][nodeItems].displayName;
-        var category: string =
-          // dataView.matrix.valueSources[indexMeasures].displayName +
-          allMeasureValues[indexMeasures][nodeItems].category.toString();
+        var category: string = `${
+          this.visualSettings.xAxisFormatting.concatenateLabels
+            ? dataView.matrix.valueSources[indexMeasures].displayName
+            : ""
+        }${allMeasureValues[indexMeasures][nodeItems].category.toString()}`;
         var selectionId =
           allMeasureValues[indexMeasures][nodeItems].selectionId;
         var formatString: string =
@@ -2497,7 +2499,10 @@ export class Visual implements IVisual {
         var currCategoryText: string = currNode["category"];
         var currCategoryArray: string[] = currCategoryText.split("|");
         var newDisplayName;
-        if (this.visualSettings.chartOrientation.orientation == "Horizontal") {
+        if (
+          this.visualSettings.chartOrientation.orientation == "Horizontal" ||
+          !this.visualSettings.xAxisFormatting.concatenateLabels
+        ) {
           newDisplayName = currCategoryArray[levelItems + 1];
 
           if (currNode["isPillar"] == 1 || nodeItems == 0) {
@@ -2549,7 +2554,8 @@ export class Visual implements IVisual {
     // final array that contains all the values as the last array, while all the other array are only for additional x-axis
     if (
       dataView.matrix.rows.levels.length === 1 ||
-      this.visualSettings.chartOrientation.orientation == "Horizontal"
+      this.visualSettings.chartOrientation.orientation == "Horizontal" ||
+      !this.visualSettings.xAxisFormatting.concatenateLabels
     )
       totalData.push(visualData);
     return totalData;
@@ -2760,6 +2766,8 @@ export class Visual implements IVisual {
         fullWidth / (allDatatemp[allDatatemp.length - 1].length - 1);
     }
 
+    console.log({ levels });
+
     for (var allDataIndex = levels - 1; allDataIndex >= 0; allDataIndex--) {
       var currData = [];
 
@@ -2782,22 +2790,79 @@ export class Visual implements IVisual {
       }
       this.findBottom = 0;
       var myWidth = currChildCount + myBandwidth;
-      if (allDataIndex == levels - 1) {
-        var myxAxisParent;
-        this.createAxis(
-          myxAxisParent,
-          g,
-          true,
-          myWidth,
-          1,
-          xScale,
-          xBaseScale,
-          currData,
-          allDataIndex,
-          levels,
-          xAxisrange,
-          myAxisParentHeight
-        );
+      var myxAxisParent;
+      if (this.visualSettings.xAxisFormatting.concatenateLabels) {
+        if (allDataIndex == levels - 1) {
+          this.createAxisConcatenatedLabels(
+            myxAxisParent,
+            g,
+            xScale,
+            xBaseScale,
+            currData,
+            allDataIndex,
+            levels,
+            xAxisrange
+          );
+        }
+      } else {
+        if (allDataIndex != levels - 1) {
+          if (dataView.matrix.valueSources.length == 1) {
+            var myxAxisParent;
+
+            this.createAxis(
+              myxAxisParent,
+              g,
+              false,
+              myWidth,
+              0,
+              xScale,
+              xBaseScale,
+              currData,
+              allDataIndex,
+              levels,
+              xAxisrange,
+              myAxisParentHeight
+            );
+          } else {
+            for (
+              let index = 1;
+              index < dataView.matrix.valueSources.length;
+              index++
+            ) {
+              var myxAxisParent;
+              this.createAxis(
+                myxAxisParent,
+                g,
+                false,
+                myWidth,
+                index,
+                xScale,
+                xBaseScale,
+                currData,
+                allDataIndex,
+                levels,
+                xAxisrange,
+                myAxisParentHeight
+              );
+            }
+          }
+        } else {
+          var myxAxisParent;
+          this.createAxis(
+            myxAxisParent,
+            g,
+            true,
+            myWidth,
+            1,
+            xScale,
+            xBaseScale,
+            currData,
+            allDataIndex,
+            levels,
+            xAxisrange,
+            myAxisParentHeight
+          );
+        }
       }
       myAxisParentHeight = this.findBottom;
     }
@@ -2855,6 +2920,163 @@ export class Visual implements IVisual {
     levels,
     xAxisrange,
     myAxisParentHeight
+  ) {
+    var myxAxisParentx = d3.axisBottom(xScale).tickSize(0);
+    myxAxisParentx.tickSizeOuter(0);
+    myxAxisParent = g
+      .append("g")
+      .style("font", this.visualSettings.xAxisFormatting.fontSize + "pt times")
+      .style("font-family", this.visualSettings.xAxisFormatting.fontFamily)
+      .style("color", this.visualSettings.xAxisFormatting.fontColor)
+      .attr("class", "myXaxis")
+      .call(myxAxisParentx);
+    if (baseAxis) {
+      myxAxisParent
+        .attr("transform", `translate(0,${myAxisParentHeight})`)
+        .selectAll("path")
+        .style("fill", "none")
+        .style("stroke", this.visualSettings.yAxisFormatting.gridLineColor);
+    } else if (index == 0) {
+      myxAxisParent
+        .attr(
+          "transform",
+          `translate(${
+            xBaseScale.step() * xBaseScale.padding() * 0.5
+          },${myAxisParentHeight})`
+        )
+        .selectAll("path")
+        .style("fill", "none")
+        .style("stroke", this.visualSettings.yAxisFormatting.gridLineColor);
+    } else {
+      myxAxisParent
+        .attr(
+          "transform",
+          `translate(${
+            xBaseScale.bandwidth() +
+            xBaseScale.step() * xBaseScale.padding() * 1.5 +
+            myWidth * (index - 1)
+          },${myAxisParentHeight})`
+        )
+        .selectAll("path")
+        .style("fill", "none")
+        .style("stroke", this.visualSettings.yAxisFormatting.gridLineColor);
+    }
+    var xAxislabels = myxAxisParent
+      .selectAll(".tick text")
+      .data(currData)
+      .style("padding", 20 + "px")
+      .style(
+        "font-weight",
+        this.visualSettings.xAxisFormatting.fontBold ? "bold" : "normal"
+      )
+      .style(
+        "font-style",
+        this.visualSettings.xAxisFormatting.fontItalic ? "italic" : "normal"
+      )
+      .style(
+        "text-decoration",
+        this.visualSettings.xAxisFormatting.fontUnderline ? "underline" : "none"
+      )
+      .text((d) => d.displayName);
+    if (
+      this.visualType == "drillable" ||
+      this.visualType == "staticCategory" ||
+      this.visualType == "drillableCategory"
+    ) {
+      xAxislabels.on("click", (d) => {
+        // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
+        if (this.allowInteractions) {
+          const isCtrlPressed: boolean = (<MouseEvent>d).ctrlKey;
+          if (this.selectionManager.hasSelection() && !isCtrlPressed) {
+            this.bars.attr("fill-opacity", 1);
+          }
+          this.selectionManager
+            .select(d.selectionId, isCtrlPressed)
+            .then((ids: ISelectionId[]) => {
+              this.syncSelectionState(this.bars, ids);
+            });
+          (<Event>d).stopPropagation();
+        }
+      });
+    }
+    //tooltip for x-axis labels
+    this.tooltipServiceWrapper.addTooltip(
+      myxAxisParent.selectAll(".tick text"),
+      (tooltipEvent: TooltipEventArgs<number>) =>
+        this.getTooltipXaxis(tooltipEvent.data),
+      (tooltipEvent: TooltipEventArgs<number>) => null
+    );
+
+    //move the labels of all secondary axis to the right as they don't have pillars
+
+    if (allDataIndex != levels - 1) {
+      if (this.visualSettings.xAxisFormatting.labelWrapText) {
+        myxAxisParent
+          .selectAll(".tick text")
+          .call(this.labelWrapText, xBaseScale.bandwidth());
+      } else {
+        myxAxisParent
+          .selectAll(".tick text")
+          .call(this.labelNoWrapText, xBaseScale.bandwidth());
+      }
+
+      myxAxisParent
+        .selectAll(".tick text")
+        .data(currData)
+        .attr(
+          "transform",
+          (d, i) =>
+            `translate(${(xAxisrange[i + 1] - xAxisrange[i]) / 2},${
+              this.visualSettings.xAxisFormatting.padding
+            })`
+        );
+
+      myxAxisParent.selectAll("line").remove();
+    } else {
+      if (this.visualSettings.xAxisFormatting.labelWrapText) {
+        myxAxisParent
+          .selectAll(".tick text")
+          .call(this.labelWrapText, xBaseScale.bandwidth());
+      } else {
+        myxAxisParent
+          .selectAll(".tick text")
+          .call(this.labelNoWrapText, xBaseScale.bandwidth());
+      }
+      xAxislabels.attr(
+        "transform",
+        `translate(0,${this.visualSettings.xAxisFormatting.padding})`
+      );
+    }
+
+    myxAxisParent.selectAll("text").each((d, i, nodes) => {
+      if (this.findBottom <= nodes[i].getBoundingClientRect().bottom) {
+        console.log({
+          height: nodes[i].getBBox().height,
+          bottom: nodes[i].getBoundingClientRect().bottom,
+        });
+        this.findBottom = nodes[i].getBoundingClientRect().bottom - 0;
+        // (this.isHorizontalLegend ? this.legendHeight : 0);
+      }
+    });
+    this.currentAxisGridlines(
+      myxAxisParent,
+      currData,
+      allDataIndex,
+      levels,
+      xScale,
+      xAxisrange
+    );
+  }
+
+  private createAxisConcatenatedLabels(
+    myxAxisParent,
+    g,
+    xScale,
+    xBaseScale,
+    currData,
+    allDataIndex,
+    levels,
+    xAxisrange
   ) {
     var myxAxisParentx = d3.axisBottom(xScale).tickSize(0);
     const wrapText = this.visualSettings.xAxisFormatting.labelWrapText;
@@ -2981,11 +3203,11 @@ export class Visual implements IVisual {
       if (wrapText && !this.isLabelVertical) {
         myxAxisParent
           .selectAll(".tick text")
-          .call(this.labelWrapText, xBaseScale.bandwidth());
+          .call(this.labelWrapTextConcat, xBaseScale.bandwidth());
       } else {
         myxAxisParent
           .selectAll(".tick text")
-          .call(this.labelNoWrapText, xBaseScale.bandwidth());
+          .call(this.labelNoWrapTextConcat, xBaseScale.bandwidth());
       }
 
       myxAxisParent
@@ -3002,11 +3224,11 @@ export class Visual implements IVisual {
       if (wrapText && !this.isLabelVertical) {
         myxAxisParent
           .selectAll(".tick text")
-          .call(this.labelWrapText, xBaseScale.bandwidth());
+          .call(this.labelWrapTextConcat, xBaseScale.bandwidth());
       } else {
         myxAxisParent
           .selectAll(".tick text")
-          .call(this.labelNoWrapText, xBaseScale.bandwidth());
+          .call(this.labelNoWrapTextConcat, xBaseScale.bandwidth());
       }
       xAxislabels.attr(
         "transform",
@@ -3105,7 +3327,8 @@ export class Visual implements IVisual {
           }
           return x1;
         })
-        .attr("y2", this.height - this.margin.bottom)
+        // .attr("y2", this.height - this.margin.bottom)
+        .attr("y2", this.findBottom - myAxisTop)
         .attr("stroke-width", (d, i) => this.lineWidth(d, i))
         .attr("stroke", this.visualSettings.xAxisFormatting.gridLineColor);
     } else {
@@ -3300,6 +3523,57 @@ export class Visual implements IVisual {
 
       width = standardwidth * text.datum()["childrenCount"];
       joinwith = "";
+      var words = text.text().split("").reverse();
+
+      var tspan = text
+        .text(null)
+        .append("tspan")
+        .attr("x", 0)
+        .attr("y", y)
+        .attr("dy", dy + "em");
+      while ((word = words.pop())) {
+        line.push(word);
+        tspan.text(line.join(joinwith));
+        if (tspan.node().getComputedTextLength() > width) {
+          // if the 3 lines goes over the standard width, then add "..." and stop adding any more lines
+          if (line.length != 1) {
+            if (lineNumber == 2) {
+              tspan.text(
+                tspan.text().substring(0, tspan.text().length - 3) + "..."
+              );
+              break;
+            } else {
+              line.pop();
+              tspan.text(line.join(joinwith));
+              line = [word];
+              tspan = text
+                .append("tspan")
+                .attr("x", 0)
+                .attr("y", y)
+                .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                .text(word);
+            }
+          } else {
+          }
+        }
+      }
+    });
+  }
+
+  private labelNoWrapTextConcat(text, standardwidth) {
+    var width;
+    text.each(function () {
+      var text = d3.select(this),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1,
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")),
+        joinwith = "";
+
+      width = standardwidth * text.datum()["childrenCount"];
+      joinwith = "";
       // var words = text.text().split("").reverse();
 
       // var tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
@@ -3327,7 +3601,59 @@ export class Visual implements IVisual {
       // }
     });
   }
-  private labelWrapText(text, standardWidth) {
+  private labelWrapText(text, standardwidth) {
+    var width;
+    text.each(function () {
+      var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1.1,
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")),
+        tspan = text
+          .text(null)
+          .append("tspan")
+          .attr("x", 0)
+          .attr("y", y)
+          .attr("dy", dy + "em");
+      width = standardwidth * text.datum()["childrenCount"];
+
+      while ((word = words.pop())) {
+        line.push(word);
+        tspan.text(line.join(" "));
+
+        if (tspan.node().getComputedTextLength() > width) {
+          if (line.length == 1) {
+            var currline = line[0].split("");
+            while (tspan.node().getComputedTextLength() > width) {
+              currline.pop();
+              line[0] = currline.join("");
+              tspan.text(line[0]);
+            }
+          } else {
+            line.pop();
+            tspan.text(line.join(" "));
+            line = [word];
+            tspan = text
+              .append("tspan")
+              .attr("x", 0)
+              .attr("y", y)
+              .attr("dy", ++lineNumber * lineHeight + dy + "em")
+              .text(word);
+            currline = tspan.text().split("");
+            while (tspan.node().getComputedTextLength() > width) {
+              currline.pop();
+              tspan.text(currline.join(""));
+            }
+          }
+        }
+      }
+    });
+  }
+
+  private labelWrapTextConcat(text, standardWidth) {
     text.each(function () {
       const textElement = d3.select(this);
       const words = textElement.text().split(/\s+/); // Split words into an array
@@ -4603,10 +4929,11 @@ export class Visual implements IVisual {
     });
   }
   private formatValueforLabels(d: any) {
+    console.log({ d, locale: this.locale });
+
     var iValueFormatter;
     var decimalPlaces = this.visualSettings.LabelsFormatting.decimalPlaces;
     var formattedvalue;
-
     switch (this.visualSettings.LabelsFormatting.valueFormat) {
       case "Auto": {
         if (Math.abs(d.value) >= 1000000000) {
@@ -4615,32 +4942,28 @@ export class Visual implements IVisual {
             value: 1e9,
             precision: decimalPlaces,
           });
-
-          formattedvalue = this.getValueSimpleFormatted(iValueFormatter, d);
+          formattedvalue = iValueFormatter.format(d.value);
         } else if (Math.abs(d.value) >= 1000000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
             value: 1e6,
             precision: decimalPlaces,
-            format: d.numberFormat,
           });
-          formattedvalue = this.getValueSimpleFormatted(iValueFormatter, d);
+          formattedvalue = iValueFormatter.format(d.value);
         } else if (Math.abs(d.value) >= 1000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
             value: 1001,
             precision: decimalPlaces,
-            format: d.numberFormat,
           });
-          formattedvalue = this.getValueSimpleFormatted(iValueFormatter, d);
+          formattedvalue = iValueFormatter.format(d.value);
         } else {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
             value: 0,
             precision: decimalPlaces,
-            format: d.numberFormat,
           });
-          formattedvalue = this.getValueSimpleFormatted(iValueFormatter, d);
+          formattedvalue = iValueFormatter.format(d.value);
         }
         break;
       }
@@ -4676,18 +4999,15 @@ export class Visual implements IVisual {
       }
       default: {
         iValueFormatter = valueFormatter.create({
-          cultureSelector: this.locale,
+          cultureSelector: "pt-BR",
           format: d.numberFormat,
-          value: 0,
-          // precision: decimalPlaces,
         });
-
-        formattedvalue = this.getValueSimpleFormatted(iValueFormatter, d);
+        formattedvalue = iValueFormatter.format(d.value);
+        console.log({ formattedvalue });
 
         break;
       }
     }
-
     return formattedvalue;
   }
 

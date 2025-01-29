@@ -481,6 +481,9 @@ class enumerateObjects implements IEnumerateObjects {
 
       objectEnumeration[objectEnumeration.length - 1].properties.labelWrapText =
         this.visualSettings.xAxisFormatting.labelWrapText;
+
+      objectEnumeration[objectEnumeration.length - 1].properties.concatenateLabels =
+        this.visualSettings.xAxisFormatting.concatenateLabels;
     }
 
     if (!this.visualSettings.xAxisFormatting.fitToWidth) {

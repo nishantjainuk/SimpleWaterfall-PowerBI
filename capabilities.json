@@ -390,6 +390,13 @@
             "bool": true
           }
         },
+        "concatenateLabels": {
+          "displayName": "Concatenate labels",
+          "description": "Concatenate labels",
+          "type": {
+            "bool": true
+          }
+        },
         "barWidth": {
           "displayName": "Minimum Bar Width",
           "description": "Enter a numeric value to specify the minimum bar width (min:10; max: 100)",

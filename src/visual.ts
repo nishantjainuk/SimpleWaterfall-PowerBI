@@ -233,7 +233,6 @@ export class Visual implements IVisual {
       this.barChartData =
         this.getDataDrillableWaterfall(options)[allData.length - 1];
     }
-    console.log({ type: this.visualType });
 
     this.createWaterfallGraph(options, allData);
     this.updateContainerOrder();
@@ -2766,8 +2765,6 @@ export class Visual implements IVisual {
         fullWidth / (allDatatemp[allDatatemp.length - 1].length - 1);
     }
 
-    console.log({ levels });
-
     for (var allDataIndex = levels - 1; allDataIndex >= 0; allDataIndex--) {
       var currData = [];
 
@@ -2803,12 +2800,13 @@ export class Visual implements IVisual {
             levels,
             xAxisrange
           );
+          myAxisParentHeight =
+            d3.select(".myXaxis").node().getBBox().height -
+            -(this.isHorizontalLegend ? this.legendHeight : 0);
         }
       } else {
         if (allDataIndex != levels - 1) {
           if (dataView.matrix.valueSources.length == 1) {
-            var myxAxisParent;
-
             this.createAxis(
               myxAxisParent,
               g,
@@ -2863,26 +2861,10 @@ export class Visual implements IVisual {
             myAxisParentHeight
           );
         }
+        myAxisParentHeight =
+          this.findBottom - (this.isHorizontalLegend ? this.legendHeight : 0);
       }
-      myAxisParentHeight = this.findBottom;
     }
-
-    g.selectAll("text").each((d, i, nodes) => {
-      if (
-        this.isLabelVertical &&
-        this.xAxisPosition < nodes[i].getBBox().width
-      ) {
-        this.xAxisPosition = nodes[i].getBBox().width;
-      } else {
-        if (
-          this.xAxisPosition < nodes[i].getBBox().height &&
-          !this.isLabelVertical
-        ) {
-          this.xAxisPosition = nodes[i].getBBox().height;
-        }
-      }
-    });
-
     g.attr(
       "transform",
       `translate(${0},${
@@ -3050,12 +3032,7 @@ export class Visual implements IVisual {
 
     myxAxisParent.selectAll("text").each((d, i, nodes) => {
       if (this.findBottom <= nodes[i].getBoundingClientRect().bottom) {
-        console.log({
-          height: nodes[i].getBBox().height,
-          bottom: nodes[i].getBoundingClientRect().bottom,
-        });
-        this.findBottom = nodes[i].getBoundingClientRect().bottom - 0;
-        // (this.isHorizontalLegend ? this.legendHeight : 0);
+        this.findBottom = nodes[i].getBoundingClientRect().bottom;
       }
     });
     this.currentAxisGridlines(
@@ -3066,6 +3043,8 @@ export class Visual implements IVisual {
       xScale,
       xAxisrange
     );
+    const gHeight = myxAxisParent.node().getBBox().height;
+    this.xAxisPosition = this.xAxisPosition + gHeight;
   }
 
   private createAxisConcatenatedLabels(
@@ -3243,9 +3222,7 @@ export class Visual implements IVisual {
         this.findBottom <= nodes[i].getBoundingClientRect().bottom &&
         this.isLabelVertical
       ) {
-        this.findBottom =
-          nodes[i].getBoundingClientRect().bottom -
-          (this.isHorizontalLegend ? this.legendHeight : 0);
+        this.findBottom = nodes[i].getBoundingClientRect().bottom;
       } else this.findBottom = 0;
     });
     if (!this.isLabelVertical)
@@ -3257,6 +3234,20 @@ export class Visual implements IVisual {
         xScale,
         xAxisrange
       );
+    const gHeight = g.node().getBBox().height;
+    const tickTextWidth = myxAxisParent
+      .select(".tick text")
+      .node()
+      .getBBox().width;
+    if (this.isLabelVertical) {
+      if (this.xAxisPosition < tickTextWidth) {
+        this.xAxisPosition = tickTextWidth;
+      }
+    } else {
+      if (this.xAxisPosition < gHeight) {
+        this.xAxisPosition = gHeight;
+      }
+    }
   }
   private getColumnWidth(
     currData: any,
@@ -4929,8 +4920,6 @@ export class Visual implements IVisual {
     });
   }
   private formatValueforLabels(d: any) {
-    console.log({ d, locale: this.locale });
-
     var iValueFormatter;
     var decimalPlaces = this.visualSettings.LabelsFormatting.decimalPlaces;
     var formattedvalue;
@@ -5003,7 +4992,6 @@ export class Visual implements IVisual {
           format: d.numberFormat,
         });
         formattedvalue = iValueFormatter.format(d.value);
-        console.log({ formattedvalue });
 
         break;
       }

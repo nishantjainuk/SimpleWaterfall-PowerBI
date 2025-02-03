@@ -3621,7 +3621,7 @@ export class Visual implements IVisual {
             var currline = line[0].split("");
             while (tspan.node().getComputedTextLength() > width) {
               currline.pop();
-              line[0] = currline.join("");
+              line[0] = currline.join("") + "...";
               tspan.text(line[0]);
             }
           } else {
@@ -4988,6 +4988,8 @@ export class Visual implements IVisual {
         break;
       }
       default: {
+        
+        console.log({locale: this.locale});
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
           format: d.numberFormat,
@@ -5080,7 +5082,7 @@ export class Visual implements IVisual {
         formattedvalue = iValueFormatter.format(value);
         break;
       }
-      default: {
+      default: {        
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
           format: numberFormat,

@@ -3035,6 +3035,7 @@ export class Visual implements IVisual {
         this.findBottom = nodes[i].getBoundingClientRect().bottom;
       }
     });
+
     this.currentAxisGridlines(
       myxAxisParent,
       currData,
@@ -4988,11 +4989,10 @@ export class Visual implements IVisual {
       }
       default: {
         iValueFormatter = valueFormatter.create({
-          cultureSelector: "pt-BR",
+          cultureSelector: this.locale,
           format: d.numberFormat,
         });
         formattedvalue = iValueFormatter.format(d.value);
-
         break;
       }
     }
@@ -5218,7 +5218,4 @@ export class Visual implements IVisual {
     }
     return formattedValue;
   }
-}
-function d3Select(arg0: BaseType) {
-  throw new Error("Function not implemented.");
 }

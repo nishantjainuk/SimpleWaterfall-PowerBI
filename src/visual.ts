@@ -191,6 +191,9 @@ export class Visual implements IVisual {
     if (dataView.matrix.rows.levels.length != 1) {
       this.visualSettings.chartOrientation.limitBreakdown = false;
     }
+    if (this.visualSettings.xAxisFormatting.concatenateLabels) {
+      this.visualSettings.xAxisFormatting.labelWrapText = false;
+    }
     if (dataView.matrix.rows.levels.length == 0) {
       this.visualType = "static";
       this.barChartData = this.getDataStaticWaterfall({ ...options });
@@ -4988,8 +4991,7 @@ export class Visual implements IVisual {
         break;
       }
       default: {
-        
-        console.log({locale: this.locale});
+        // console.log({ locale: this.locale });
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
           format: d.numberFormat,
@@ -4999,20 +5001,6 @@ export class Visual implements IVisual {
       }
     }
     return formattedvalue;
-  }
-
-  private getValueSimpleFormatted(iValueFormatter, d) {
-    const formattedvalueOriginal = iValueFormatter.format(d.value);
-    const formattedvalueNew = iValueFormatter.format(Math.abs(d.value));
-    return this.hasParentheses(formattedvalueOriginal) &&
-      !this.hasParentheses(formattedvalueNew)
-      ? `(${formattedvalueNew.trim()})`
-      : formattedvalueOriginal;
-  }
-
-  private hasParentheses(str) {
-    const regex = /\(.*\)/;
-    return regex.test(str); // Returns true if parentheses are found, otherwise false
   }
 
   private formatValueforvalues(value, numberFormat) {
@@ -5082,7 +5070,7 @@ export class Visual implements IVisual {
         formattedvalue = iValueFormatter.format(value);
         break;
       }
-      default: {        
+      default: {
         iValueFormatter = valueFormatter.create({
           cultureSelector: this.locale,
           format: numberFormat,

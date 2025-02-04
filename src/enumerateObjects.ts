@@ -476,14 +476,19 @@ class enumerateObjects implements IEnumerateObjects {
       this.barWidth > 21 &&
       this.visualSettings.chartOrientation.orientation !== "Horizontal"
     ) {
+      objectEnumeration[
+        objectEnumeration.length - 1
+      ].properties.concatenateLabels =
+        this.visualSettings.xAxisFormatting.concatenateLabels;
+
+      if (!this.visualSettings.xAxisFormatting.concatenateLabels)
+        objectEnumeration[
+          objectEnumeration.length - 1
+        ].properties.labelWrapText =
+          this.visualSettings.xAxisFormatting.labelWrapText;
+
       objectEnumeration[objectEnumeration.length - 1].properties.fitToWidth =
         this.visualSettings.xAxisFormatting.fitToWidth;
-
-      objectEnumeration[objectEnumeration.length - 1].properties.labelWrapText =
-        this.visualSettings.xAxisFormatting.labelWrapText;
-
-      objectEnumeration[objectEnumeration.length - 1].properties.concatenateLabels =
-        this.visualSettings.xAxisFormatting.concatenateLabels;
     }
 
     if (!this.visualSettings.xAxisFormatting.fitToWidth) {

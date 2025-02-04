@@ -745,6 +745,8 @@ export class Visual implements IVisual {
       // yAxisWidth used to adjust the left margin
       this.yAxisWidth = yAxis.node().getBoundingClientRect().width;
       this.innerWidth = this.innerWidth - this.yAxisWidth;
+    } else {
+      this.yAxisWidth = 0;
     }
     g.remove();
   }
@@ -4042,11 +4044,12 @@ export class Visual implements IVisual {
         break;
       }
       default: {
-        iValueFormatter = valueFormatter.create({
-          cultureSelector: this.locale,
-          format: d.numberFormat,
-        });
-        formattedvalue = iValueFormatter.format(d.value);
+        // iValueFormatter = valueFormatter.create({
+        //   cultureSelector: this.locale,
+        //   format: d.numberFormat,
+        // });
+        // formattedvalue = iValueFormatter.format(d.value);
+        formattedvalue = new Intl.NumberFormat(this.locale).format(d.value)
         break;
       }
     }

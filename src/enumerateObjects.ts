@@ -266,9 +266,9 @@ class enumerateObjects implements IEnumerateObjects {
               altConstantValueSelector:
                 this.barChartData[index].selectionId.getSelector(),
 
-              propertyInstanceKind: {
-                fill: VisualEnumerationInstanceKinds.ConstantOrRule,
-              },
+              // propertyInstanceKind: {
+              //   fill: VisualEnumerationInstanceKinds.ConstantOrRule,
+              // },
             });
           } else {
             objectEnumeration.push({

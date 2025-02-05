@@ -192,6 +192,10 @@ export class Visual implements IVisual {
       this.visualSettings.chartOrientation.limitBreakdown = false;
     }
     if (this.visualSettings.xAxisFormatting.concatenateLabels) {
+      this.visualSettings.xAxisFormatting.verticalLabels = false;
+      this.visualSettings.xAxisFormatting.labelWrapText = false;
+    }
+    if (this.visualSettings.xAxisFormatting.verticalLabels) {
       this.visualSettings.xAxisFormatting.labelWrapText = false;
     }
     if (dataView.matrix.rows.levels.length == 0) {
@@ -2804,7 +2808,7 @@ export class Visual implements IVisual {
             xAxisrange
           );
           myAxisParentHeight =
-            d3.select(".myXaxis").node().getBBox().height -
+            d3.select(".myXaxisVertical").node().getBBox().height -
             -(this.isHorizontalLegend ? this.legendHeight : 0);
         }
       } else {
@@ -2849,20 +2853,32 @@ export class Visual implements IVisual {
           }
         } else {
           var myxAxisParent;
-          this.createAxis(
-            myxAxisParent,
-            g,
-            true,
-            myWidth,
-            1,
-            xScale,
-            xBaseScale,
-            currData,
-            allDataIndex,
-            levels,
-            xAxisrange,
-            myAxisParentHeight
-          );
+          if (this.visualSettings.xAxisFormatting.verticalLabels) {
+            this.createAxisConcatenatedLabels(
+              myxAxisParent,
+              g,
+              xScale,
+              xBaseScale,
+              currData,
+              allDataIndex,
+              levels,
+              xAxisrange
+            );
+          } else
+            this.createAxis(
+              myxAxisParent,
+              g,
+              true,
+              myWidth,
+              1,
+              xScale,
+              xBaseScale,
+              currData,
+              allDataIndex,
+              levels,
+              xAxisrange,
+              myAxisParentHeight
+            );
         }
         myAxisParentHeight =
           this.findBottom - (this.isHorizontalLegend ? this.legendHeight : 0);
@@ -3078,7 +3094,7 @@ export class Visual implements IVisual {
       .style("font", this.visualSettings.xAxisFormatting.fontSize + "pt times")
       .style("font-family", this.visualSettings.xAxisFormatting.fontFamily)
       .style("color", this.visualSettings.xAxisFormatting.fontColor)
-      .attr("class", "myXaxis")
+      .attr("class", "myXaxisVertical")
       .call(myxAxisParentx);
     // if (baseAxis) {
     //     myxAxisParent
@@ -3227,7 +3243,8 @@ export class Visual implements IVisual {
         this.isLabelVertical
       ) {
         this.findBottom = nodes[i].getBoundingClientRect().bottom;
-      } else this.findBottom = 0;
+      }
+      // else this.findBottom = 0;
     });
     if (!this.isLabelVertical)
       this.currentAxisGridlines(

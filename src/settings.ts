@@ -89,6 +89,7 @@ export class xAxisFormatting {
   public labelWrapText: boolean = true;
   public fitToWidth: boolean = true;
   public concatenateLabels: boolean = false;
+  public verticalLabels: boolean = false;
   public barWidth: number = 50;
   public padding: number = 5;
   public showGridLine: boolean = true;

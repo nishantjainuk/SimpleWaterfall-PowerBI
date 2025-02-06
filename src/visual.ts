@@ -1576,9 +1576,20 @@ export class Visual implements IVisual {
               allMeasureValues[indexMeasures][nodeItems].category.toString();
             var selectionId =
               allMeasureValues[indexMeasures][nodeItems].selectionId;
+            var formatString: string =
+              dataView.matrix.valueSources[indexMeasures]?.format;
+            if (
+              !formatString &&
+              this.extractFormattingValue(dataView, indexMeasures)
+            ) {
+              formatString = this.extractFormattingValue(
+                dataView,
+                indexMeasures
+              );
+            }
             data2Category = this.getDataForCategory(
               valueDifference,
-              dataView.matrix.valueSources[indexMeasures].format,
+              formatString,
               displayName,
               category,
               0,
@@ -2030,9 +2041,17 @@ export class Visual implements IVisual {
           allMeasureValues[indexMeasures][nodeItems].category.toString();
         var selectionId =
           allMeasureValues[indexMeasures][nodeItems].selectionId;
+        var formatString: string =
+          dataView.matrix.valueSources[indexMeasures]?.format;
+        if (
+          !formatString &&
+          this.extractFormattingValue(dataView, indexMeasures)
+        ) {
+          formatString = this.extractFormattingValue(dataView, indexMeasures);
+        }
         data2Category = this.getDataForCategory(
           valueDifference,
-          dataView.matrix.valueSources[indexMeasures].format,
+          formatString,
           displayName,
           category,
           0,

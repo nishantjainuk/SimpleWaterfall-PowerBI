@@ -1301,7 +1301,9 @@ export class Visual implements IVisual {
         if (checkforZero == false) {
           var data2 = [];
           data2["value"] = +x.values[index].value;
-          data2["numberFormat"] = dataView.matrix.valueSources[index].format;
+          data2["numberFormat"] =
+            this.extractFormattingValue(dataView, 0) ||
+            dataView.metadata.columns[index].format;
           data2["selectionId"] = this.host
             .createSelectionIdBuilder()
             .withMeasure(dataView.matrix.valueSources[index].queryName)
@@ -1500,6 +1502,23 @@ export class Visual implements IVisual {
     return visualData;
   }
 
+  private extractFormattingValue(dataView, index) {
+    const data = dataView.matrix.rows.root?.children[index];
+
+    if (data) {
+      const formatString1 = data.values?.[0]?.objects?.general?.formatString;
+      if (formatString1) return formatString1;
+
+      const formatString2 =
+        data.children?.[0]?.values?.[0]?.objects?.general?.formatString;
+      if (formatString2) return formatString2;
+
+      return undefined;
+    }
+
+    return undefined;
+  }
+
   private getDataDrillableWaterfall(options: VisualUpdateOptions) {
     let dataView: DataView = options.dataViews[0];
     var totalData = [];
@@ -1696,6 +1715,7 @@ export class Visual implements IVisual {
         data2["value"] = +x.values[measureIndex].value;
 
         data2["numberFormat"] =
+          this.extractFormattingValue(dataView, 0) ||
           dataView.matrix.valueSources[measureIndex].format;
         data2["selectionId"] = this.host
           .createSelectionIdBuilder()
@@ -3980,26 +4000,28 @@ export class Visual implements IVisual {
     var iValueFormatter;
     var decimalPlaces = this.visualSettings.LabelsFormatting.decimalPlaces;
     var formattedvalue;
+console.log({numberFormat: d.numberFormat});
+
     switch (this.visualSettings.LabelsFormatting.valueFormat) {
       case "Auto": {
         if (Math.abs(d.value) >= 1000000000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
-            value: 1e9,
+            value: d.numberFormat ? 0 : 1e9,
             precision: decimalPlaces,
           });
           formattedvalue = iValueFormatter.format(d.value);
         } else if (Math.abs(d.value) >= 1000000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
-            value: 1e6,
+            value: d.numberFormat ? 0 : 1e6,
             precision: decimalPlaces,
           });
           formattedvalue = iValueFormatter.format(d.value);
         } else if (Math.abs(d.value) >= 1000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
-            value: 1001,
+            value: d.numberFormat ? 0 : 1001,
             precision: decimalPlaces,
           });
           formattedvalue = iValueFormatter.format(d.value);
@@ -4044,15 +4066,16 @@ export class Visual implements IVisual {
         break;
       }
       default: {
-        // iValueFormatter = valueFormatter.create({
-        //   cultureSelector: this.locale,
-        //   format: d.numberFormat,
-        // });
-        // formattedvalue = iValueFormatter.format(d.value);
-        formattedvalue = new Intl.NumberFormat(this.locale).format(d.value)
+        iValueFormatter = valueFormatter.create({
+          cultureSelector: this.locale,
+          format: d.numberFormat,
+        });
+        formattedvalue = iValueFormatter.format(d.value);
+        // formattedvalue = new Intl.NumberFormat(this.locale).format(d.value)
         break;
       }
     }
+
     return formattedvalue;
   }
   private formatValueforvalues(value, numberFormat) {

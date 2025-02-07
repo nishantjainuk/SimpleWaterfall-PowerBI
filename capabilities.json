@@ -470,6 +470,10 @@
               {
                 "displayName": "Billions",
                 "value": "Billions"
+              },
+              {
+                "displayName": "Trillions",
+                "value": "Trillions"
               }
             ]
           }
@@ -677,6 +681,10 @@
               {
                 "displayName": "Billions",
                 "value": "Billions"
+              },
+              {
+                "displayName": "Trillions",
+                "value": "Trillions"
               }
             ]
           }

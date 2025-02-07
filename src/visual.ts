@@ -4019,28 +4019,27 @@ export class Visual implements IVisual {
     var iValueFormatter;
     var decimalPlaces = this.visualSettings.LabelsFormatting.decimalPlaces;
     var formattedvalue;
-console.log({numberFormat: d.numberFormat});
 
     switch (this.visualSettings.LabelsFormatting.valueFormat) {
       case "Auto": {
         if (Math.abs(d.value) >= 1000000000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
-            value: d.numberFormat ? 0 : 1e9,
+            value: 1e9,
             precision: decimalPlaces,
           });
           formattedvalue = iValueFormatter.format(d.value);
         } else if (Math.abs(d.value) >= 1000000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
-            value: d.numberFormat ? 0 : 1e6,
+            value: 1e6,
             precision: decimalPlaces,
           });
           formattedvalue = iValueFormatter.format(d.value);
         } else if (Math.abs(d.value) >= 1000) {
           iValueFormatter = valueFormatter.create({
             cultureSelector: this.locale,
-            value: d.numberFormat ? 0 : 1001,
+            value: 1001,
             precision: decimalPlaces,
           });
           formattedvalue = iValueFormatter.format(d.value);
@@ -4079,6 +4078,16 @@ console.log({numberFormat: d.numberFormat});
           cultureSelector: this.locale,
           format: d.numberFormat,
           value: 1e9,
+          precision: decimalPlaces,
+        });
+        formattedvalue = iValueFormatter.format(d.value);
+        break;
+      }
+      case "Trillions": {
+        iValueFormatter = valueFormatter.create({
+          cultureSelector: this.locale,
+          format: d.numberFormat,
+          value: 1e12,
           precision: decimalPlaces,
         });
         formattedvalue = iValueFormatter.format(d.value);
@@ -4159,6 +4168,16 @@ console.log({numberFormat: d.numberFormat});
           cultureSelector: this.locale,
           format: numberFormat,
           value: 1e9,
+          precision: decimalPlaces,
+        });
+        formattedvalue = iValueFormatter.format(value);
+        break;
+      }
+      case "Trillions": {
+        iValueFormatter = valueFormatter.create({
+          cultureSelector: this.locale,
+          format: numberFormat,
+          value: 1e12,
           precision: decimalPlaces,
         });
         formattedvalue = iValueFormatter.format(value);
@@ -4247,6 +4266,16 @@ console.log({numberFormat: d.numberFormat});
           cultureSelector: this.locale,
           value: 1e9,
           format: this.barChartData[0].numberFormat,
+          precision: decimalPlaces,
+        });
+        formattedvalue = iValueFormatter.format(d);
+        break;
+      }
+      case "Trillions": {
+        iValueFormatter = valueFormatter.create({
+          cultureSelector: this.locale,
+          format: this.barChartData[0].numberFormat,
+          value: 1e12,
           precision: decimalPlaces,
         });
         formattedvalue = iValueFormatter.format(d);

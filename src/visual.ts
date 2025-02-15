@@ -124,7 +124,7 @@ export class Visual implements IVisual {
   private locale: string;
   private allowInteractions: boolean;
   private currentBarWidth: number;
-  private isLabelVertical = false;
+  // private isLabelVertical = false;
   private minLableVerticalHeight = 30;
   private bboxHeight = 0;
 
@@ -2890,10 +2890,10 @@ export class Visual implements IVisual {
         this.height -
         this.xAxisPosition -
         this.margin.bottom -
-        this.scrollbarBreadth +
-        (this.isHorizontalLegend && this.isLabelVertical
-          ? this.legendHeight
-          : 0)
+        this.scrollbarBreadth
+        // + (this.isHorizontalLegend && this.visualSettings.xAxisFormatting.verticalLabels
+        //     ? this.legendHeight
+        //     : 0)
       })`
     );
     this.innerHeight =
@@ -2901,10 +2901,27 @@ export class Visual implements IVisual {
       this.margin.top -
       this.margin.bottom -
       this.xAxisPosition -
-      this.scrollbarBreadth +
-      (this.isHorizontalLegend && this.isLabelVertical ? this.legendHeight : 0);
+      this.scrollbarBreadth;
+    console.log(
+      "this.innerHeight: ",
+      this.innerHeight,
 
-    if (this.isLabelVertical) this.innerHeight -= this.minLableVerticalHeight;
+      // {
+      //   "this.height": this.height,
+      //   "this.margin.top": this.margin.top,
+      //   "this.margin.bottom": this.margin.bottom,
+      //   "this.xAxisPosition": this.xAxisPosition,
+      //   "this.scrollbarBreadth": this.scrollbarBreadth,
+      // }
+    );
+    // +  (this.isHorizontalLegend && this.visualSettings.xAxisFormatting.verticalLabels ? this.legendHeight : 0);
+
+    if (this.visualSettings.xAxisFormatting.verticalLabels) this.innerHeight -= this.minLableVerticalHeight;
+    console.log(
+      "this.innerHeight: second",
+      this.innerHeight,
+      this.visualSettings.xAxisFormatting.verticalLabels
+    );
   }
   private findBottom;
 
@@ -3153,9 +3170,9 @@ export class Visual implements IVisual {
         }
       });
     if (columnWidth <= textWidth && !wrapText) {
-      this.isLabelVertical = true;
+      this.visualSettings.xAxisFormatting.verticalLabels = true;
     } else {
-      this.isLabelVertical = false;
+      this.visualSettings.xAxisFormatting.verticalLabels = false;
     }
 
     myxAxisParent
@@ -3163,7 +3180,7 @@ export class Visual implements IVisual {
       .attr(
         "transform",
         `translate(0,${
-          this.isLabelVertical ? `-${this.minLableVerticalHeight}` : "0"
+          this.visualSettings.xAxisFormatting.verticalLabels ? `-${this.minLableVerticalHeight}` : "0"
         })`
       );
 
@@ -3199,7 +3216,7 @@ export class Visual implements IVisual {
     //move the labels of all secondary axis to the right as they don't have pillars
 
     if (allDataIndex != levels - 1) {
-      if (wrapText && !this.isLabelVertical) {
+      if (wrapText && !this.visualSettings.xAxisFormatting.verticalLabels) {
         myxAxisParent
           .selectAll(".tick text")
           .call(this.labelWrapTextConcat, xBaseScale.bandwidth());
@@ -3220,7 +3237,7 @@ export class Visual implements IVisual {
 
       myxAxisParent.selectAll("line").remove();
     } else {
-      if (wrapText && !this.isLabelVertical) {
+      if (wrapText && !this.visualSettings.xAxisFormatting.verticalLabels) {
         myxAxisParent
           .selectAll(".tick text")
           .call(this.labelWrapTextConcat, xBaseScale.bandwidth());
@@ -3232,7 +3249,7 @@ export class Visual implements IVisual {
       xAxislabels.attr(
         "transform",
         `translate(0,${this.visualSettings.xAxisFormatting.padding}) ${
-          this.isLabelVertical && !wrapText ? "rotate(-90)" : ""
+          this.visualSettings.xAxisFormatting.verticalLabels && !wrapText ? "rotate(-90)" : ""
         }`
       );
     }
@@ -3240,13 +3257,13 @@ export class Visual implements IVisual {
     myxAxisParent.selectAll("text").each((d, i, nodes) => {
       if (
         this.findBottom <= nodes[i].getBoundingClientRect().bottom &&
-        this.isLabelVertical
+        this.visualSettings.xAxisFormatting.verticalLabels
       ) {
         this.findBottom = nodes[i].getBoundingClientRect().bottom;
       }
       // else this.findBottom = 0;
     });
-    if (!this.isLabelVertical)
+    if (!this.visualSettings.xAxisFormatting.verticalLabels)
       this.currentAxisGridlines(
         myxAxisParent,
         currData,
@@ -3255,20 +3272,38 @@ export class Visual implements IVisual {
         xScale,
         xAxisrange
       );
-    const gHeight = g.node().getBBox().height;
-    const tickTextWidth = myxAxisParent
-      .select(".tick text")
-      .node()
-      .getBBox().width;
-    if (this.isLabelVertical) {
-      if (this.xAxisPosition < tickTextWidth) {
-        this.xAxisPosition = tickTextWidth;
+    // const gHeight = g.node().getBBox().height;
+    // const tickTextWidth = myxAxisParent
+    //   .select(".tick text")
+    //   .node()
+    //   .getBBox().width;
+    // if (this.visualSettings.xAxisFormatting.verticalLabels) {
+    //   if (this.xAxisPosition < tickTextWidth) {
+    //     this.xAxisPosition = tickTextWidth;
+    //   }
+    // } else {
+    //   if (this.xAxisPosition < gHeight) {
+    //     this.xAxisPosition = gHeight;
+    //   }
+    // }
+
+    g.selectAll("text").each((d, i, nodes) => {
+      const node = nodes[i];
+      const rect = node.getBoundingClientRect();
+      const svgElement = node.ownerSVGElement;
+
+      if (!svgElement) return;
+
+      // Get the bounding rect of the entire SVG
+      const svgRect = svgElement.getBoundingClientRect();
+
+      // Calculate the relative position within the SVG
+      const relativeBottom = rect.bottom - svgRect.top;
+
+      if (this.xAxisPosition <= relativeBottom) {
+        this.xAxisPosition = relativeBottom;
       }
-    } else {
-      if (this.xAxisPosition < gHeight) {
-        this.xAxisPosition = gHeight;
-      }
-    }
+    });
   }
   private getColumnWidth(
     currData: any,

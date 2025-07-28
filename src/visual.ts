@@ -171,6 +171,7 @@ export class Visual implements IVisual {
   public update(options: VisualUpdateOptions) {
     //Certification requirement to use rendering API//
     //-------------------------------------------------------------------------
+    console.log("det", this.barChartData);
     this.events.renderingStarted(options);
     //-------------------------------------------------------------------------
     this.visualUpdateOptions = options;
@@ -188,6 +189,7 @@ export class Visual implements IVisual {
       (this.isHorizontalLegend ? this.legendHeight : 0);
 
     this.xAxisPosition = 0;
+     this.visualSettings.xAxisFormatting.verticalLabels = true;
     if (dataView.matrix.rows.levels.length != 1) {
       this.visualSettings.chartOrientation.limitBreakdown = false;
     }
@@ -240,7 +242,6 @@ export class Visual implements IVisual {
       this.barChartData =
         this.getDataDrillableWaterfall(options)[allData.length - 1];
     }
-
     this.createWaterfallGraph(options, allData);
     this.updateContainerOrder();
     this.handleContextMenu();
@@ -496,12 +497,11 @@ export class Visual implements IVisual {
         title = this.yAxisUnit;
         break;
       case "Show Both":
-        title = `${
-          this.visualSettings.yAxisFormatting.titleText ||
+        title = `${this.visualSettings.yAxisFormatting.titleText ||
           options.dataViews[0].matrix.valueSources
             .map((v) => v.displayName)
             .join(", ")
-        } (${this.yAxisUnit})`;
+          } (${this.yAxisUnit})`;
         break;
       default:
         break;
@@ -590,7 +590,7 @@ export class Visual implements IVisual {
         var dragStartPosition = 0;
         var dragScrollBarXStartposition = 0;
         var scrollbarwidth = (this.width * this.width) / this.innerWidth;
-
+        console.log("inner height :", this.innerHeight);
         var scrollbar = scrollBarGroup
           .append("rect")
           .attr("width", scrollbarwidth)
@@ -614,9 +614,9 @@ export class Visual implements IVisual {
             if (
               dragScrollBarXStartposition + scrollBarMovement >= 0 &&
               dragScrollBarXStartposition +
-                scrollBarMovement +
-                scrollbarwidth <=
-                this.width
+              scrollBarMovement +
+              scrollbarwidth <=
+              this.width
             ) {
               scrollbar.attr(
                 "x",
@@ -624,11 +624,10 @@ export class Visual implements IVisual {
               );
               this.gScrollable.attr(
                 "transform",
-                `translate(${
-                  ((dragScrollBarXStartposition + scrollBarMovement) /
-                    (this.width - scrollbarwidth)) *
-                  (this.innerWidth - this.width) *
-                  -1
+                `translate(${((dragScrollBarXStartposition + scrollBarMovement) /
+                  (this.width - scrollbarwidth)) *
+                (this.innerWidth - this.width) *
+                -1
                 },${0})`
               );
             }
@@ -659,10 +658,9 @@ export class Visual implements IVisual {
           scrollbar.attr("x", scrollBarMovement);
           this.gScrollable.attr(
             "transform",
-            `translate(${
-              (scrollBarMovement / (this.width - scrollbarwidth)) *
-              (this.innerWidth - this.width) *
-              -1
+            `translate(${(scrollBarMovement / (this.width - scrollbarwidth)) *
+            (this.innerWidth - this.width) *
+            -1
             },${0})`
           );
         });
@@ -822,8 +820,7 @@ export class Visual implements IVisual {
 
     g.attr(
       "transform",
-      `translate(${
-        this.visualSettings.yAxisFormatting.switchPosition ? 0 : adjustLeft
+      `translate(${this.visualSettings.yAxisFormatting.switchPosition ? 0 : adjustLeft
       },${this.margin.top})`
     );
   }
@@ -857,9 +854,9 @@ export class Visual implements IVisual {
         // Scale dash array by visual width if enabled
         const scaledDashArray = this.visualSettings.yAxisFormatting.scaleByWidth
           ? this.scaleDashArray(
-              this.visualSettings.yAxisFormatting.dashArray,
-              this.innerWidth
-            )
+            this.visualSettings.yAxisFormatting.dashArray,
+            this.innerWidth
+          )
           : this.visualSettings.yAxisFormatting.dashArray;
 
         const gridlinesTransparency =
@@ -888,8 +885,8 @@ export class Visual implements IVisual {
             this.visualSettings.yAxisFormatting.gridLineStyle === "custom"
               ? scaledDashArray
               : this.getLineDashArray(
-                  this.visualSettings.yAxisFormatting.gridLineStyle
-                )
+                this.visualSettings.yAxisFormatting.gridLineStyle
+              )
           )
           .style(
             "stroke-linecap",
@@ -916,7 +913,7 @@ export class Visual implements IVisual {
               .style(
                 "stroke-width",
                 this.visualSettings.yAxisFormatting.zeroLineStrokeWidth / 10 +
-                  "px"
+                "px"
               );
           }
         });
@@ -926,8 +923,7 @@ export class Visual implements IVisual {
     }
     g.attr(
       "transform",
-      `translate(${
-        this.visualSettings.yAxisFormatting.switchPosition ? 0 : adjustLeft
+      `translate(${this.visualSettings.yAxisFormatting.switchPosition ? 0 : adjustLeft
       },${this.margin.top})`
     );
   }
@@ -1245,7 +1241,6 @@ export class Visual implements IVisual {
         this.getHeight(d, i) < 0 ? 0 : this.getHeight(d, i)
       )
       .attr("fill", (d) => d.customBarColor);
-
     //line joinning the bars
     if (this.visualSettings.yAxisFormatting.joinBars) {
       this.bars.each((d, i, nodes) => {
@@ -1255,7 +1250,7 @@ export class Visual implements IVisual {
             .style(
               "stroke-width",
               this.visualSettings.yAxisFormatting.joinBarsStrokeWidth / 10 +
-                "pt"
+              "pt"
             )
             .attr(
               "x1",
@@ -1370,7 +1365,7 @@ export class Visual implements IVisual {
       if (
         this.visualSettings.chartOrientation.limitBreakdown &&
         this.barChartData[i].category.indexOf("defaultBreakdownStepOther") !==
-          -1
+        -1
       ) {
         isSelected = this.isSelectionIdInArray(
           selectionIds,
@@ -2268,7 +2263,7 @@ export class Visual implements IVisual {
     currData.sort((a, b) => {
       if (
         Math.round(a.sortOrderIndexforLimitBreakdown) ===
-          Math.round(b.sortOrderIndexforLimitBreakdown) &&
+        Math.round(b.sortOrderIndexforLimitBreakdown) &&
         a.isPillar != 1
       ) {
         return (
@@ -2317,11 +2312,11 @@ export class Visual implements IVisual {
       } else if (
         (index != currData.length - 1 &&
           currData[index].sortOrderIndex ==
-            currData[index + 1].sortOrderIndex &&
+          currData[index + 1].sortOrderIndex &&
           limitcounter < limit) ||
         (index != 0 &&
           currData[index].sortOrderIndex ==
-            currData[index - 1].sortOrderIndex &&
+          currData[index - 1].sortOrderIndex &&
           limitcounter < limit)
       ) {
         limitcounter++;
@@ -2452,11 +2447,10 @@ export class Visual implements IVisual {
           allMeasureValues[indexMeasures][nodeItems].category.toString();
         var displayName: string =
           allMeasureValues[indexMeasures][nodeItems].displayName;
-        var category: string = `${
-          this.visualSettings.xAxisFormatting.concatenateLabels
-            ? dataView.matrix.valueSources[indexMeasures].displayName
-            : ""
-        }${allMeasureValues[indexMeasures][nodeItems].category.toString()}`;
+        var category: string = `${this.visualSettings.xAxisFormatting.concatenateLabels
+          ? dataView.matrix.valueSources[indexMeasures].displayName
+          : ""
+          }${allMeasureValues[indexMeasures][nodeItems].category.toString()}`;
         var selectionId =
           allMeasureValues[indexMeasures][nodeItems].selectionId;
         var formatString: string =
@@ -2593,8 +2587,8 @@ export class Visual implements IVisual {
             getChildLevel(
               child,
               parentText +
-                "|" +
-                getFormatCategory.formatCategory(child.value, type, format),
+              "|" +
+              getFormatCategory.formatCategory(child.value, type, format),
               indexMeasures,
               false
             );
@@ -2886,14 +2880,13 @@ export class Visual implements IVisual {
     }
     g.attr(
       "transform",
-      `translate(${0},${
-        this.height -
-        this.xAxisPosition -
-        this.margin.bottom -
-        this.scrollbarBreadth
-        // + (this.isHorizontalLegend && this.visualSettings.xAxisFormatting.verticalLabels
-        //     ? this.legendHeight
-        //     : 0)
+      `translate(${0},${this.height -
+      this.xAxisPosition -
+      this.margin.bottom -
+      this.scrollbarBreadth
+      // + (this.isHorizontalLegend && this.visualSettings.xAxisFormatting.verticalLabels
+      //     ? this.legendHeight
+      //     : 0)
       })`
     );
     this.innerHeight =
@@ -2958,8 +2951,7 @@ export class Visual implements IVisual {
       myxAxisParent
         .attr(
           "transform",
-          `translate(${
-            xBaseScale.step() * xBaseScale.padding() * 0.5
+          `translate(${xBaseScale.step() * xBaseScale.padding() * 0.5
           },${myAxisParentHeight})`
         )
         .selectAll("path")
@@ -2969,10 +2961,9 @@ export class Visual implements IVisual {
       myxAxisParent
         .attr(
           "transform",
-          `translate(${
-            xBaseScale.bandwidth() +
-            xBaseScale.step() * xBaseScale.padding() * 1.5 +
-            myWidth * (index - 1)
+          `translate(${xBaseScale.bandwidth() +
+          xBaseScale.step() * xBaseScale.padding() * 1.5 +
+          myWidth * (index - 1)
           },${myAxisParentHeight})`
         )
         .selectAll("path")
@@ -3044,8 +3035,7 @@ export class Visual implements IVisual {
         .attr(
           "transform",
           (d, i) =>
-            `translate(${(xAxisrange[i + 1] - xAxisrange[i]) / 2},${
-              this.visualSettings.xAxisFormatting.padding
+            `translate(${(xAxisrange[i + 1] - xAxisrange[i]) / 2},${this.visualSettings.xAxisFormatting.padding
             })`
         );
 
@@ -3179,8 +3169,7 @@ export class Visual implements IVisual {
       .selectAll("path")
       .attr(
         "transform",
-        `translate(0,${
-          this.visualSettings.xAxisFormatting.verticalLabels ? `-${this.minLableVerticalHeight}` : "0"
+        `translate(0,${this.visualSettings.xAxisFormatting.verticalLabels ? `-${this.minLableVerticalHeight}` : "0"
         })`
       );
 
@@ -3230,9 +3219,8 @@ export class Visual implements IVisual {
         .selectAll(".tick text")
         .data(currData)
         .attr("transform", (d, i) => {
-          return `translate(${(xAxisrange[i + 1] - xAxisrange[i]) / 2},${
-            this.visualSettings.xAxisFormatting.padding
-          })`;
+          return `translate(${(xAxisrange[i + 1] - xAxisrange[i]) / 2},${this.visualSettings.xAxisFormatting.padding
+            })`;
         });
 
       myxAxisParent.selectAll("line").remove();
@@ -3248,13 +3236,12 @@ export class Visual implements IVisual {
       }
       xAxislabels.attr(
         "transform",
-        `translate(0,${this.visualSettings.xAxisFormatting.padding}) ${
-          this.visualSettings.xAxisFormatting.verticalLabels && !wrapText ? "rotate(-90)" : ""
-        }`
+        `translate(-6,${this.visualSettings.xAxisFormatting.padding}) 
+        ${this.visualSettings.xAxisFormatting.verticalLabels && !wrapText ? "rotate(-90)" : ""
+        }` // padding change 0 to -6
       );
     }
-
-    myxAxisParent.selectAll("text").each((d, i, nodes) => {
+    myxAxisParent.selectAll("text").each((d, i, nodes) => { 
       if (
         this.findBottom <= nodes[i].getBoundingClientRect().bottom &&
         this.visualSettings.xAxisFormatting.verticalLabels
@@ -3291,19 +3278,85 @@ export class Visual implements IVisual {
       const node = nodes[i];
       const rect = node.getBoundingClientRect();
       const svgElement = node.ownerSVGElement;
+      console.log("Node text:", node.textContent);
+      console.log("Rect:", rect);
 
-      if (!svgElement) return;
+      if (!svgElement) {
+        console.log("No svg");
+        return;
+      }
 
       // Get the bounding rect of the entire SVG
       const svgRect = svgElement.getBoundingClientRect();
+      console.log("svg rect:", svgRect);
 
       // Calculate the relative position within the SVG
       const relativeBottom = rect.bottom - svgRect.top;
+      console.log("relative bottom for:", node.textContent, ":", relativeBottom);
 
       if (this.xAxisPosition <= relativeBottom) {
+        console.log("updating xAxisPos from:", this.xAxisPosition, "to", relativeBottom);
         this.xAxisPosition = relativeBottom;
       }
+      const categories = currData; // or your array where category and country are accessible
+      console.log("currdata:", currData[0]);
+      // imp
+      if (levels > 1 && this.visualSettings.xAxisFormatting.showGridLine) {
+        myxAxisParent.selectAll(".category-gridline").remove(); // Remove old gridlines if any
+
+        for (let i = 1; i < currData.length - 1; i++) { //change 0 to 1
+          // Get current and next segment name
+          const currentSegment = currData[i].category.split("|")[0] || currData[i].category;
+          const nextSegment = currData[i + 1].category.split("|")[0] || currData[i + 1].category;
+
+          if (currentSegment !== nextSegment) {
+                  let x1;
+            if (allDataIndex == levels - 1) {
+              x1 = xScale(currData[i].category) - (xScale.padding() * xScale.step()) / 2;
+            } else {
+              x1 = xAxisrange[i];
+            }
+            //let xPos = xScale(currData[i].category) + xScale.bandwidth();
+            myxAxisParent
+              .append("line")
+              .attr("class", "category-gridline")
+              .attr("x1", x1)
+              .attr("x2", x1)
+              .attr("y1", this.xAxisPosition)
+              //.attr("y2", this.xAxisPosition) // End at bottom of chart area
+              .attr("y2", -this.minLableVerticalHeight) // Start at top of axis group
+              .attr("stroke-width", 1)
+              .attr("stroke", this.visualSettings.xAxisFormatting.gridLineColor)
+              .attr("opacity", 0.5);
+          }
+        }
+      }
+      //imp end
+
+      // code 3
+      // if (levels > 1 && this.visualSettings.xAxisFormatting.showGridLine) {
+      //   myxAxisParent.selectAll(".category-gridline").remove();
+
+      //   for (let i = 0; i < currData.length; i++) {
+      //    
+      //     if (currData[i].displayName.trim() === "United States") {
+      //       let xPos = xScale(currData[i].category) + xScale.bandwidth();
+      //       myxAxisParent
+      //         .append("line")
+      //         .attr("class", "category-gridline")
+      //         .attr("x1", xPos)
+      //         .attr("x2", xPos)
+      //         .attr("y1", 0)
+      //         .attr("y2", this.xAxisPosition)
+      //         .attr("stroke-width", 1)
+      //         .attr("stroke", this.visualSettings.xAxisFormatting.gridLineColor)
+      //         .attr("opacity", 0.5);
+      //     }
+      //   }
+      // }
+      // code 3 end
     });
+    console.log("final x axis position:", this.xAxisPosition);
   }
   private getColumnWidth(
     currData: any,
@@ -3349,7 +3402,9 @@ export class Visual implements IVisual {
         .select("path")
         .node()
         .getBoundingClientRect().top;
-
+      var xAxisY = myxAxisParent
+        .select("path")
+        .node().getBBox().y;
       myxAxisParent
         .selectAll(".text")
         .data(currData)
@@ -3378,6 +3433,39 @@ export class Visual implements IVisual {
         .attr("y2", this.findBottom - myAxisTop)
         .attr("stroke-width", (d, i) => this.lineWidth(d, i))
         .attr("stroke", this.visualSettings.xAxisFormatting.gridLineColor);
+      //console.log("currData sample for debug:", currData[0]);
+
+      //start
+      // myxAxisParent
+      // .selectAll(".text")
+      // .data(currData)
+      // .enter()
+      // .append("line")
+      // .attr("x1", (d, i) => {
+      //   var x1;
+      //   if (allDataIndex == levels - 1) {
+      //     x1 = xScale(d.category) - (xScale.padding() * xScale.step()) / 2;
+      //   } 
+      //   else {
+      //     x1 = xAxisrange[i];
+      //   }
+      //   return x1;
+      // })
+      // //.attr("y1", 0)
+      // .attr("y1", 0)
+      // .attr("x2", (d, i) => {
+      //   var x1;
+      //   if (allDataIndex == levels - 1) {
+      //     x1 = xScale(d.category) - (xScale.padding() * xScale.step()) / 2;
+      //   } else {
+      //     x1 = xAxisrange[i];
+      //   }
+      //   return x1;
+      // })
+      //  .attr("y2", - this.xAxisPosition)
+      // .attr("stroke-width", (d, i) => this.lineWidth(d, i))
+      // .attr("stroke", this.visualSettings.xAxisFormatting.gridLineColor);
+      //end
     } else {
       myxAxisParent
         .selectAll("path")
@@ -3621,6 +3709,7 @@ export class Visual implements IVisual {
 
       width = standardwidth * text.datum()["childrenCount"];
       joinwith = "";
+
       // var words = text.text().split("").reverse();
 
       // var tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
@@ -3646,6 +3735,7 @@ export class Visual implements IVisual {
       //     }
 
       // }
+
     });
   }
   private labelWrapText(text, standardwidth) {
@@ -3856,7 +3946,7 @@ export class Visual implements IVisual {
             .style(
               "stroke-width",
               this.visualSettings.yAxisFormatting.joinBarsStrokeWidth / 10 +
-                "pt"
+              "pt"
             )
             .attr("x1", () => {
               var x1;
@@ -4286,12 +4376,12 @@ export class Visual implements IVisual {
             if (
               dragScrollBarXStartposition + scrollBarMovement >= 0 &&
               dragScrollBarXStartposition +
-                scrollBarMovement +
-                scrollbarHeight <=
-                this.height -
-                  this.margin.top -
-                  this.margin.bottom -
-                  this.yAxisHeightHorizontal
+              scrollBarMovement +
+              scrollbarHeight <=
+              this.height -
+              this.margin.top -
+              this.margin.bottom -
+              this.yAxisHeightHorizontal
             ) {
               scrollbar.attr(
                 "y",
@@ -4299,19 +4389,18 @@ export class Visual implements IVisual {
               );
               this.gScrollable.attr(
                 "transform",
-                `translate(${0},${
-                  ((dragScrollBarXStartposition + scrollBarMovement) /
-                    (this.height -
-                      this.margin.top -
-                      this.margin.bottom -
-                      this.yAxisHeightHorizontal -
-                      scrollbarHeight)) *
-                  (this.innerHeight -
-                    this.height +
-                    this.margin.top +
-                    this.margin.bottom +
-                    this.yAxisHeightHorizontal) *
-                  -1
+                `translate(${0},${((dragScrollBarXStartposition + scrollBarMovement) /
+                  (this.height -
+                    this.margin.top -
+                    this.margin.bottom -
+                    this.yAxisHeightHorizontal -
+                    scrollbarHeight)) *
+                (this.innerHeight -
+                  this.height +
+                  this.margin.top +
+                  this.margin.bottom +
+                  this.yAxisHeightHorizontal) *
+                -1
                 })`
               );
             }
@@ -4341,19 +4430,18 @@ export class Visual implements IVisual {
           scrollbar.attr("y", scrollBarMovement);
           this.gScrollable.attr(
             "transform",
-            `translate(${0},${
-              (scrollBarMovement /
-                (this.height -
-                  this.margin.top -
-                  this.margin.bottom -
-                  this.yAxisHeightHorizontal -
-                  scrollbarHeight)) *
-              (this.innerHeight -
-                this.height +
-                this.margin.top +
-                this.margin.bottom +
-                this.yAxisHeightHorizontal) *
-              -1
+            `translate(${0},${(scrollBarMovement /
+              (this.height -
+                this.margin.top -
+                this.margin.bottom -
+                this.yAxisHeightHorizontal -
+                scrollbarHeight)) *
+            (this.innerHeight -
+              this.height +
+              this.margin.top +
+              this.margin.bottom +
+              this.yAxisHeightHorizontal) *
+            -1
             })`
           );
         });
@@ -4526,8 +4614,7 @@ export class Visual implements IVisual {
       myxAxisParent
         .attr(
           "transform",
-          `translate(${myAxisParentHeight - 5}, ${
-            xBaseScale.step() * xBaseScale.padding() * 0.5
+          `translate(${myAxisParentHeight - 5}, ${xBaseScale.step() * xBaseScale.padding() * 0.5
           })`
         )
         .selectAll("path")
@@ -4537,10 +4624,9 @@ export class Visual implements IVisual {
       myxAxisParent
         .attr(
           "transform",
-          `translate(${myAxisParentHeight - 5}, ${
-            xBaseScale.bandwidth() +
-            xBaseScale.step() * xBaseScale.padding() * 1.5 +
-            myWidth * (index - 1)
+          `translate(${myAxisParentHeight - 5}, ${xBaseScale.bandwidth() +
+          xBaseScale.step() * xBaseScale.padding() * 1.5 +
+          myWidth * (index - 1)
           })`
         )
         .selectAll("path")
@@ -4596,8 +4682,7 @@ export class Visual implements IVisual {
         .attr(
           "transform",
           (d, i) =>
-            `translate(${-this.visualSettings.xAxisFormatting.padding},${
-              (xAxisrange[i + 1] - xAxisrange[i]) / 2
+            `translate(${-this.visualSettings.xAxisFormatting.padding},${(xAxisrange[i + 1] - xAxisrange[i]) / 2
             })`
         );
 
@@ -4815,9 +4900,9 @@ export class Visual implements IVisual {
       if (this.visualSettings.yAxisFormatting.showGridLine) {
         const scaledDashArray = this.visualSettings.yAxisFormatting.scaleByWidth
           ? this.scaleDashArray(
-              this.visualSettings.yAxisFormatting.dashArray,
-              this.innerWidth
-            )
+            this.visualSettings.yAxisFormatting.dashArray,
+            this.innerWidth
+          )
           : this.visualSettings.yAxisFormatting.dashArray;
 
         yAxis
@@ -4833,8 +4918,8 @@ export class Visual implements IVisual {
             this.visualSettings.yAxisFormatting.gridLineStyle === "custom"
               ? scaledDashArray
               : this.getLineDashArray(
-                  this.visualSettings.yAxisFormatting.gridLineStyle
-                )
+                this.visualSettings.yAxisFormatting.gridLineStyle
+              )
           )
           .style(
             "stroke-linecap",
@@ -4861,7 +4946,7 @@ export class Visual implements IVisual {
               .style(
                 "stroke-width",
                 this.visualSettings.yAxisFormatting.zeroLineStrokeWidth / 10 +
-                  "pt"
+                "pt"
               );
           }
         });

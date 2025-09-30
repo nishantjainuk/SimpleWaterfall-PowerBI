@@ -336,6 +336,10 @@
     "xAxisFormatting": {
       "displayName": "X-Axis",
       "properties": {
+        "show": {
+      "displayName": "Show X Axis",
+      "type": { "bool": true }
+    },
         "fontSize": {
           "displayName": "Font Size",
           "description": "Font Size",
@@ -416,6 +420,13 @@
           "description": "Enter a numeric value to specify the padding between the x-axis and x-axis laels (min:0; max: 20)",
           "type": {
             "integer": true
+          }
+        },
+        "showXAxisValues": {
+          "displayName": "Show / Hide Values",
+          "description": "Show / Hide Values",
+          "type": {
+            "bool": true
           }
         },
         "showGridLine": {
@@ -918,156 +929,76 @@
         "labelPosition": {
           "displayName": "Position of labels",
           "type": {
-            "enumeration": [
-              {
-                "displayName": "Inside end",
-                "value": "Inside end"
-              },
-              {
-                "displayName": "Outside end",
-                "value": "Outside end"
-              },
-              {
-                "displayName": "Inside center",
-                "value": "Inside center"
-              },
-              {
-                "displayName": "Inside base",
-                "value": "Inside base"
-              },
-              {
-                "displayName": "Always top/right",
-                "value": "Outside top"
-              },
-              {
-                "displayName": "Always bottom/left",
-                "value": "Inside bottom"
-              }
-            ]
+           "enumeration": [
+      { "displayName": "Inside end", "value": "Inside end" },
+      { "displayName": "Outside end", "value": "Outside end" },
+      { "displayName": "Inside center", "value": "Inside center" },
+      { "displayName": "Inside base", "value": "Inside base" },
+      { "displayName": "Always top", "value": "Always top" },
+      { "displayName": "Always bottom", "value": "Always bottom" },
+      { "displayName": "Always left", "value": "Always left" },
+      { "displayName": "Always right", "value": "Always right" }
+    ]
           }
         },
         "labelPositionTotal": {
           "displayName": "Totals",
           "type": {
-            "enumeration": [
-              {
-                "displayName": "Inside end",
-                "value": "Inside end"
-              },
-              {
-                "displayName": "Outside end",
-                "value": "Outside end"
-              },
-              {
-                "displayName": "Inside center",
-                "value": "Inside center"
-              },
-              {
-                "displayName": "Inside base",
-                "value": "Inside base"
-              },
-              {
-                "displayName": "Always top/right",
-                "value": "Outside top"
-              },
-              {
-                "displayName": "Always bottom/left",
-                "value": "Inside bottom"
-              }
-            ]
+           "enumeration": [
+      { "displayName": "Inside end", "value": "Inside end" },
+      { "displayName": "Outside end", "value": "Outside end" },
+      { "displayName": "Inside center", "value": "Inside center" },
+      { "displayName": "Inside base", "value": "Inside base" },
+      { "displayName": "Always top", "value": "Always top" },
+      { "displayName": "Always bottom", "value": "Always bottom" },
+      { "displayName": "Always left", "value": "Always left" },
+      { "displayName": "Always right", "value": "Always right" }
+    ] 
           }
         },
         "labelPositionFavourable": {
           "displayName": "Favourable",
           "type": {
-            "enumeration": [
-              {
-                "displayName": "Inside end",
-                "value": "Inside end"
-              },
-              {
-                "displayName": "Outside end",
-                "value": "Outside end"
-              },
-              {
-                "displayName": "Inside center",
-                "value": "Inside center"
-              },
-              {
-                "displayName": "Inside base",
-                "value": "Inside base"
-              },
-              {
-                "displayName": "Always top/right",
-                "value": "Outside top"
-              },
-              {
-                "displayName": "Always bottom/left",
-                "value": "Inside bottom"
-              }
-            ]
+           "enumeration": [
+      { "displayName": "Inside end", "value": "Inside end" },
+      { "displayName": "Outside end", "value": "Outside end" },
+      { "displayName": "Inside center", "value": "Inside center" },
+      { "displayName": "Inside base", "value": "Inside base" },
+      { "displayName": "Always top", "value": "Always top" },
+      { "displayName": "Always bottom", "value": "Always bottom" },
+      { "displayName": "Always left", "value": "Always left" },
+      { "displayName": "Always right", "value": "Always right" }
+    ] 
           }
         },
         "labelPositionAdverse": {
           "displayName": "Adverse",
           "type": {
             "enumeration": [
-              {
-                "displayName": "Inside end",
-                "value": "Inside end"
-              },
-              {
-                "displayName": "Outside end",
-                "value": "Outside end"
-              },
-              {
-                "displayName": "Inside center",
-                "value": "Inside center"
-              },
-              {
-                "displayName": "Inside base",
-                "value": "Inside base"
-              },
-              {
-                "displayName": "Always top/right",
-                "value": "Outside top"
-              },
-              {
-                "displayName": "Always bottom/left",
-                "value": "Inside bottom"
-              }
-            ]
+      { "displayName": "Inside end", "value": "Inside end" },
+      { "displayName": "Outside end", "value": "Outside end" },
+      { "displayName": "Inside center", "value": "Inside center" },
+      { "displayName": "Inside base", "value": "Inside base" },
+      { "displayName": "Always top", "value": "Always top" },
+      { "displayName": "Always bottom", "value": "Always bottom" },
+      { "displayName": "Always left", "value": "Always left" },
+      { "displayName": "Always right", "value": "Always right" }
+    ] 
           }
         },
         "labelPositionOther": {
           "displayName": "Other",
           "type": {
-            "enumeration": [
-              {
-                "displayName": "Inside end",
-                "value": "Inside end"
-              },
-              {
-                "displayName": "Outside end",
-                "value": "Outside end"
-              },
-              {
-                "displayName": "Inside center",
-                "value": "Inside center"
-              },
-              {
-                "displayName": "Inside base",
-                "value": "Inside base"
-              },
-              {
-                "displayName": "Always top/right",
-                "value": "Outside top"
-              },
-              {
-                "displayName": "Always bottom/left",
-                "value": "Inside bottom"
-              }
-            ]
+           "enumeration": [
+      { "displayName": "Inside end", "value": "Inside end" },
+      { "displayName": "Outside end", "value": "Outside end" },
+      { "displayName": "Inside center", "value": "Inside center" },
+      { "displayName": "Inside base", "value": "Inside base" },
+      { "displayName": "Always top", "value": "Always top" },
+      { "displayName": "Always bottom", "value": "Always bottom" },
+      { "displayName": "Always left", "value": "Always left" },
+      { "displayName": "Always right", "value": "Always right" }
+    ] 
           }
         },
         "negativeInBrackets": {

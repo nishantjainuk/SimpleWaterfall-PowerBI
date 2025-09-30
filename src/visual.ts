@@ -189,7 +189,7 @@ export class Visual implements IVisual {
       (this.isHorizontalLegend ? this.legendHeight : 0);
 
     this.xAxisPosition = 0;
-     this.visualSettings.xAxisFormatting.verticalLabels = true;
+    this.visualSettings.xAxisFormatting.verticalLabels = true;
     if (dataView.matrix.rows.levels.length != 1) {
       this.visualSettings.chartOrientation.limitBreakdown = false;
     }
@@ -348,6 +348,20 @@ export class Visual implements IVisual {
         this.visualSettings.Legend.textAdverse
       );
 
+      // Add Total legend
+      this.createLegendItem(
+        legendDiv,
+        this.visualSettings.sentimentColor.sentimentColorTotal,
+        this.visualSettings.Legend.textTotal
+      );
+
+      // Add other legend
+      this.createLegendItem(
+        legendDiv,
+        this.visualSettings.sentimentColor.sentimentColorOther,
+        this.visualSettings.Legend.textOther
+      );
+
       this.legendHeight = legendDiv.node().getBoundingClientRect().height;
       this.legendWidth = this.isVerticalLegend
         ? legendDiv.node().getBoundingClientRect().width
@@ -448,13 +462,15 @@ export class Visual implements IVisual {
     this.chartContainer.attr("height", this.height);
     this.svg.attr("height", this.height);
     this.svgYAxis.attr("height", this.height);
-
     this.margin = {
       top: this.visualSettings.margins.topMargin + 20,
       right: this.visualSettings.margins.rightMargin,
       bottom: this.visualSettings.margins.bottomMargin,
       left: this.visualSettings.margins.leftMargin,
     };
+    if (!this.visualSettings.xAxisFormatting.show) {
+      this.margin.bottom = 30; // more space when X axis is hidden
+    }
     this.innerWidth = this.width - this.margin.left - this.margin.right;
     this.innerHeight = this.height - this.margin.top - this.margin.bottom;
     this.adjustmentConstant = this.findXaxisAdjustment(this.barChartData);
@@ -801,7 +817,7 @@ export class Visual implements IVisual {
           "text-decoration",
           this.visualSettings.yAxisFormatting.underline ? "underline" : "none"
         );
-
+      //checking
       if (!this.visualSettings.yAxisFormatting.showYAxisValues) {
         yAxis.selectAll("text").style("visibility", "hidden");
       }
@@ -1130,11 +1146,11 @@ export class Visual implements IVisual {
             this.getHeight(d, i) -
             heightAdjustment / 2;
           break;
-        case "Outside top":
+        case "Always top":
           yPosition = this.getYPosition(d, i) - 5;
 
           break;
-        case "Inside bottom":
+        case "Always bottom":
           yPosition =
             this.getYPosition(d, i) + this.getHeight(d, i) + heightAdjustment;
           //if the label touches the x-axis then show on top
@@ -1144,6 +1160,12 @@ export class Visual implements IVisual {
             }
           }
           break;
+    // case "Always top":
+    //   yPosition = 0 + heightAdjustment; // For horizontal orientation, left edge
+    //   break;
+    // case "Always bottom":
+    //   yPosition = this.innerHeight - heightAdjustment; // For horizontal orientation, right edge
+    //   break;
       }
 
       return yPosition;
@@ -1282,7 +1304,6 @@ export class Visual implements IVisual {
         }
       });
     }
-
     // Clear selection when clicking outside a bar
     this.svg.on("click", (d) => {
       if (this.allowInteractions) {
@@ -2736,6 +2757,12 @@ export class Visual implements IVisual {
     return mainNode;
   }
   private createXaxis(gParent, options, allDatatemp) {
+    // let extraBottomMargin = 0;
+    if (!this.visualSettings.xAxisFormatting.show) {
+      // Optionally, remove any existing X axis group if toggled off
+      gParent.selectAll(".xAxisParentGroup").remove();
+      return;
+    }
     var g = gParent.append("g").attr("class", "xAxisParentGroup");
     var myAxisParentHeight = 0;
     var dataView = this.visualUpdateOptions.dataViews[0];
@@ -2748,6 +2775,9 @@ export class Visual implements IVisual {
       .domain(allDatatemp[allDatatemp.length - 1].map(this.xValue))
       .range([0, this.innerWidth])
       .padding(0.2);
+    // if (!this.visualSettings.xAxisFormatting.showXAxisValues) {
+    //   g.selectAll("text").style("visibility", "hidden");
+    // }
 
     if (dataView.matrix.valueSources.length > 1) {
       var pillarsCount = 3;
@@ -2878,6 +2908,10 @@ export class Visual implements IVisual {
           this.findBottom - (this.isHorizontalLegend ? this.legendHeight : 0);
       }
     }
+    //     // this.margin.bottom = 30; // default
+    // if (!this.visualSettings.xAxisFormatting.show) {
+    //     this.margin.bottom = 30; // more space when X axis is hidden
+    // }
     g.attr(
       "transform",
       `translate(${0},${this.height -
@@ -2987,6 +3021,10 @@ export class Visual implements IVisual {
         this.visualSettings.xAxisFormatting.fontUnderline ? "underline" : "none"
       )
       .text((d) => d.displayName);
+    // Hide X axis values if the setting is disabled
+    if (!this.visualSettings.xAxisFormatting.showXAxisValues) {
+      myxAxisParent.selectAll("text").style("visibility", "hidden");
+    }
     if (
       this.visualType == "drillable" ||
       this.visualType == "staticCategory" ||
@@ -3159,6 +3197,10 @@ export class Visual implements IVisual {
           return d.displayName;
         }
       });
+      //Show/hide x-axis values
+    if (!this.visualSettings.xAxisFormatting.showXAxisValues) {
+      myxAxisParent.selectAll("text").style("visibility", "hidden");
+    }
     if (columnWidth <= textWidth && !wrapText) {
       this.visualSettings.xAxisFormatting.verticalLabels = true;
     } else {
@@ -3241,7 +3283,7 @@ export class Visual implements IVisual {
         }` // padding change 0 to -6
       );
     }
-    myxAxisParent.selectAll("text").each((d, i, nodes) => { 
+    myxAxisParent.selectAll("text").each((d, i, nodes) => {
       if (
         this.findBottom <= nodes[i].getBoundingClientRect().bottom &&
         this.visualSettings.xAxisFormatting.verticalLabels
@@ -3310,7 +3352,7 @@ export class Visual implements IVisual {
           const nextSegment = currData[i + 1].category.split("|")[0] || currData[i + 1].category;
 
           if (currentSegment !== nextSegment) {
-                  let x1;
+            let x1;
             if (allDataIndex == levels - 1) {
               x1 = xScale(currData[i].category) - (xScale.padding() * xScale.step()) / 2;
             } else {
@@ -4278,12 +4320,19 @@ export class Visual implements IVisual {
       case "Inside base":
         yPosition = this.getXPositionHorizontal(d, i) + 5;
         break;
-      case "Outside top":
+      case "Always right":
         yPosition =
           this.getXPositionHorizontal(d, i) + this.getWidthHorizontal(d, i) + 5;
         break;
-      case "Inside bottom":
+      case "Always left":
         yPosition = this.getXPositionHorizontal(d, i) - widthAdjustment - 5;
+         break;
+    //   case "Always left":
+    //   yPosition = 0 + widthAdjustment; // Left edge of chart area
+    //   break;
+    // case "Always right":
+    //   yPosition = this.innerWidth - widthAdjustment; // Right edge of chart area
+    //   break;  
     }
 
     return yPosition;
@@ -4638,6 +4687,10 @@ export class Visual implements IVisual {
       .selectAll(".tick text")
       .data(currData)
       .text((d) => d.displayName);
+      //show/hide x-axis labels - Horizontal
+    if (!this.visualSettings.xAxisFormatting.showXAxisValues) {
+      myxAxisParent.selectAll("text").style("visibility", "hidden");
+    }
     if (
       this.visualType == "drillable" ||
       this.visualType == "staticCategory" ||

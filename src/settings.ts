@@ -38,6 +38,13 @@ export class VisualSettings extends DataViewObjectsParser {
   public yAxisFormatting: yAxisFormatting = new yAxisFormatting();
   public LabelsFormatting: LabelsFormatting = new LabelsFormatting();
   public Legend: Legend = new Legend();
+  // public conditionalFormatting: {
+  //   enabled: boolean;
+  //   rules: any; // You can define a more specific type if you want
+  // } = {
+  //   enabled: false,
+  //   rules: null
+  // };
 }
 export class chartOrientation {
   public orientation: string = "Vertical";
@@ -61,12 +68,14 @@ export class Legend {
     '"Segoe UI", wf_segoe-ui_normal, helvetica, arial, sans-serif';
   public textFavourable: string = "Favourable";
   public textAdverse: string = "Adverse";
+  public textTotal: string = "Total";
+  public textOther: string = "Other";
   public bold: boolean = false;
   public italic: boolean = false;
   public underline: boolean = false;
 }
 export class sentimentColor {
-  public sentimentColorTotal: string = "#0000ff";
+  public sentimentColorTotal: string = "#0055fe";
   public sentimentColorFavourable: string = "#00b050";
   public sentimentColorAdverse: string = "#ff0000";
   public sentimentColorOther: string = "#F2C811";
@@ -79,6 +88,7 @@ export class margins {
 }
 
 export class xAxisFormatting {
+   public show: boolean = true; // <-- Add this line
   public fontSize: number = 9;
   public fontBold: boolean = false;
   public fontItalic: boolean = false;
@@ -95,6 +105,7 @@ export class xAxisFormatting {
   public showGridLine: boolean = true;
   public gridLineStrokeWidth: number = 5;
   public gridLineColor: string = "#777777";
+  public showXAxisValues: boolean = true;
 }
 export class yAxisFormatting {
   public show: boolean = true;

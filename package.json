@@ -26,5 +26,20 @@
     },
     "devDependencies": {
         "typescript": "^5.7.2"
-    }
+    },
+    "version": "1.0.0",
+    "description": "Simple Waterfall provides an easy to use interface to create a waterfall chart. You can define pillars based on categories or measures and choose between vertical or horizontal chart type. You can format all elements of the waterfall chart including individual bar colours, label colour and a lot more.",
+    "main": ".eslintrc.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://anshgoyal45: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@github.com/nishantjainuk/SimpleWaterfall-PowerBI.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "bugs": {
+        "url": "https://github.com/nishantjainuk/SimpleWaterfall-PowerBI/issues"
+    },
+    "homepage": "https://github.com/nishantjainuk/SimpleWaterfall-PowerBI#readme"
 }

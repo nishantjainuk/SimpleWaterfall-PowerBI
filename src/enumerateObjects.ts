@@ -109,11 +109,26 @@ class enumerateObjects implements IEnumerateObjects {
       case "margins":
         this.propertiesMargin(objectName, objectEnumeration);
         break;
+      //   case "conditionalFormatting":
+      // this.propertiesConditionalFormatting(objectName, objectEnumeration);
+      // break;
     }
 
     return objectEnumeration;
   }
-
+  //   private propertiesConditionalFormatting(
+  //   objectName: string,
+  //   objectEnumeration: VisualObjectInstance[]
+  // ) {
+  //   objectEnumeration.push({
+  //     objectName: objectName,
+  //     properties: {
+  //       enabled: this.visualSettings.conditionalFormatting?.enabled ?? false,
+  //       rules: this.visualSettings.conditionalFormatting?.rules ?? null
+  //     },
+  //     selector: null
+  //   });
+  // }
   private propertiesDefinePillars(
     objectName: string,
     objectEnumeration: VisualObjectInstance[]
@@ -216,6 +231,8 @@ class enumerateObjects implements IEnumerateObjects {
           position: this.visualSettings.Legend.position,
           textFavourable: this.visualSettings.Legend.textFavourable,
           textAdverse: this.visualSettings.Legend.textAdverse,
+          textTotal: this.visualSettings.Legend.textTotal,
+          textOther: this.visualSettings.Legend.textOther,
           showTitle: this.visualSettings.Legend.showTitle,
         },
         selector: null,
@@ -461,12 +478,14 @@ class enumerateObjects implements IEnumerateObjects {
     objectEnumeration.push({
       objectName: "objectName",
       properties: {
+        show: this.visualSettings.xAxisFormatting.show, // <-- Add this line
         fontSize: this.visualSettings.xAxisFormatting.fontSize,
         fontBold: this.visualSettings.xAxisFormatting.fontBold,
         fontItalic: this.visualSettings.xAxisFormatting.fontItalic,
         fontUnderline: this.visualSettings.xAxisFormatting.fontUnderline,
         fontColor: this.visualSettings.xAxisFormatting.fontColor,
         fontFamily: this.visualSettings.xAxisFormatting.fontFamily,
+        showXAxisValues: this.visualSettings.xAxisFormatting.showXAxisValues,
         // fitToWidth: this.visualSettings.xAxisFormatting.fitToWidth,
         // labelWrapText: this.visualSettings.xAxisFormatting.labelWrapText,
       },
@@ -777,6 +796,30 @@ class enumerateObjects implements IEnumerateObjects {
     objectName: string,
     objectEnumeration: VisualObjectInstance[]
   ) {
+    // Determine orientation
+    const orientation = this.visualSettings.chartOrientation.orientation;
+    // Define label position options based on orientation
+    let positionOptions;
+    if (orientation === "Horizontal") {
+      positionOptions = [
+        { value: "Inside end", displayName: "Inside end" },
+        { value: "Outside end", displayName: "Outside end" },
+        { value: "Inside center", displayName: "Inside center" },
+        { value: "Inside base", displayName: "Inside base" },
+        { value: "Always left", displayName: "Always left" },
+        { value: "Always right", displayName: "Always right" }
+      ];
+    } else {
+      // Default to Vertical
+      positionOptions = [
+        { value: "Inside end", displayName: "Inside end" },
+        { value: "Outside end", displayName: "Outside end" },
+        { value: "Inside center", displayName: "Inside center" },
+        { value: "Inside base", displayName: "Inside base" },
+        { value: "Always top", displayName: "Always top" },
+        { value: "Always bottom", displayName: "Always bottom" }
+      ];
+    }
     if (this.visualSettings.LabelsFormatting.useDefaultLabelPositioning) {
       objectEnumeration.push({
         objectName: "objectName",
@@ -784,6 +827,9 @@ class enumerateObjects implements IEnumerateObjects {
           labelPosition: this.visualSettings.LabelsFormatting.labelPosition,
         },
         selector: null,
+         validValues: {
+                  labelPosition: positionOptions.map(opt => opt.value)
+                }
       });
     } else {
       if (
@@ -803,6 +849,14 @@ class enumerateObjects implements IEnumerateObjects {
               this.visualSettings.LabelsFormatting.labelPositionOther,
           },
           selector: null,
+          validValues: {
+            labelPositionOther: positionOptions.map(opt => opt.value),
+            labelPositionFavourable: positionOptions.map(opt => opt.value),
+            labelPositionAdverse: positionOptions.map(opt => opt.value),
+            labelPositionTotal: positionOptions.map(opt => opt.value)
+          }
+
+
         });
       } else {
         if (
@@ -823,6 +877,9 @@ class enumerateObjects implements IEnumerateObjects {
                     this.barChartData[index].customLabelPositioning,
                 },
                 selector: this.barChartData[index].selectionId.getSelector(),
+                 validValues: {
+                  labelPosition: positionOptions.map(opt => opt.value)
+                }
               });
             } else {
               objectEnumeration.push({
@@ -833,6 +890,9 @@ class enumerateObjects implements IEnumerateObjects {
                     this.visualSettings.LabelsFormatting.labelPositionOther,
                 },
                 selector: null,
+                validValues: {
+                  labelPositionOther: positionOptions.map(opt => opt.value)
+                }
               });
             }
           }

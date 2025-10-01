@@ -3472,7 +3472,16 @@ export class Visual implements IVisual {
           return x1;
         })
         // .attr("y2", this.height - this.margin.bottom)
-        .attr("y2", this.findBottom - myAxisTop)
+        .attr("y2", (d, i) => {
+          if (
+            this.visualType === "drillable" ||
+            this.visualType === "drillableCategory"
+          ) {
+            return this.findBottom - myAxisTop;
+          } else {
+            return this.findBottom + myAxisTop;
+          }
+        })
         .attr("stroke-width", (d, i) => this.lineWidth(d, i))
         .attr("stroke", this.visualSettings.xAxisFormatting.gridLineColor);
       //console.log("currData sample for debug:", currData[0]);

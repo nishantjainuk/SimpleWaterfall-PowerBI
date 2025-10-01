@@ -189,7 +189,7 @@ export class Visual implements IVisual {
       (this.isHorizontalLegend ? this.legendHeight : 0);
 
     this.xAxisPosition = 0;
-     this.visualSettings.xAxisFormatting.verticalLabels = true;
+    this.visualSettings.xAxisFormatting.verticalLabels = true;
     if (dataView.matrix.rows.levels.length != 1) {
       this.visualSettings.chartOrientation.limitBreakdown = false;
     }
@@ -3241,7 +3241,7 @@ export class Visual implements IVisual {
         }` // padding change 0 to -6
       );
     }
-    myxAxisParent.selectAll("text").each((d, i, nodes) => { 
+    myxAxisParent.selectAll("text").each((d, i, nodes) => {
       if (
         this.findBottom <= nodes[i].getBoundingClientRect().bottom &&
         this.visualSettings.xAxisFormatting.verticalLabels
@@ -3310,7 +3310,7 @@ export class Visual implements IVisual {
           const nextSegment = currData[i + 1].category.split("|")[0] || currData[i + 1].category;
 
           if (currentSegment !== nextSegment) {
-                  let x1;
+            let x1;
             if (allDataIndex == levels - 1) {
               x1 = xScale(currData[i].category) - (xScale.padding() * xScale.step()) / 2;
             } else {
@@ -3430,7 +3430,16 @@ export class Visual implements IVisual {
           return x1;
         })
         // .attr("y2", this.height - this.margin.bottom)
-        .attr("y2", this.findBottom - myAxisTop)
+        .attr("y2", (d, i) => {
+          if (
+            this.visualType === "drillable" ||
+            this.visualType === "drillableCategory"
+          ) {
+            return this.findBottom - myAxisTop;
+          } else {
+            return this.findBottom + myAxisTop;
+          }
+        })
         .attr("stroke-width", (d, i) => this.lineWidth(d, i))
         .attr("stroke", this.visualSettings.xAxisFormatting.gridLineColor);
       //console.log("currData sample for debug:", currData[0]);

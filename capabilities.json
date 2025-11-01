@@ -56,7 +56,7 @@
     }
   ],
   "objects": {
-    "chartOrientation": {
+    "chartOptions": {
       "displayName": "Chart Options",
       "properties": {
         "orientation": {

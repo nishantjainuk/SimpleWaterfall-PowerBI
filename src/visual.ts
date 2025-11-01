@@ -63,7 +63,9 @@ import { VisualSettings } from "./settings";
 import { IEnumerateObjects, createenumerateObjects } from "./enumerateObjects";
 import { dataRoleHelper } from "powerbi-visuals-utils-dataviewutils";
 import { BaseType, select } from "d3";
-
+import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
+import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
+import { VisualFormattingModel } from "./formattingpane";
 interface BarChartDataPoint {
   value: PrimitiveValue;
   numberFormat: string;
@@ -127,8 +129,11 @@ export class Visual implements IVisual {
   // private isLabelVertical = false;
   private minLableVerticalHeight = 30;
   private bboxHeight = 0;
-
+  private formattingSettingsService: FormattingSettingsService;
+  private formattingModel: VisualFormattingModel;
+  private builtFormattingModel: powerbi.visuals.FormattingModel;
   constructor(options: VisualConstructorOptions) {
+     this.formattingSettingsService = new FormattingSettingsService();
     this.host = options.host;
     this.mainContainer = d3
       .select<HTMLElement, any>(options.element)
@@ -152,22 +157,141 @@ export class Visual implements IVisual {
   private static parseSettings(dataView: DataView): VisualSettings {
     return <VisualSettings>VisualSettings.parse(dataView);
   }
+// ...existing code...
+private clamp(n: number, min: number, max: number) {
+    return Math.max(min, Math.min(max, n));
+}
 
-  public enumerateObjectInstances(
-    options: EnumerateVisualObjectInstancesOptions
-  ): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
-    this.enumerateObjects = createenumerateObjects(
-      this.visualType,
-      this.barChartData,
-      this.barChartDataAll,
-      this.visualSettings,
-      this.defaultXAxisGridlineStrokeWidth(),
-      this.defaultYAxisGridlineStrokeWidth(),
-      this.visualUpdateOptions.dataViews[0],
-      this.currentBarWidth
-    );
-    return this.enumerateObjects.enumerateObjectInstances(options);
-  }
+private syncFormattingModelToVisualSettings() {
+    if (this.formattingModel && this.visualSettings) {
+        // Chart Options
+        const chartOptionsGeneral = this.formattingModel.chartOptionsCompositeCard.groups.find(g => g.name === "chartOptionsGeneral");
+        const chartOptionsDataControl = this.formattingModel.chartOptionsCompositeCard.groups.find(g => g.name === "chartOptionsDataControl");
+
+        if (chartOptionsGeneral?.slices) {
+            const orientationSlice: any = chartOptionsGeneral.slices.find(s => s.name === "orientation");
+            const useSentimentsSlice: any = chartOptionsGeneral.slices.find(s => s.name === "useSentimentFeatures");
+
+            // dropdown
+            this.visualSettings.chartOrientation.orientation = orientationSlice?.value?.value ?? this.visualSettings.chartOrientation.orientation;
+            this.visualSettings.chartOrientation.useSentimentFeatures = useSentimentsSlice?.value ?? this.visualSettings.chartOrientation.useSentimentFeatures;
+        }
+
+        if (chartOptionsDataControl?.slices) {
+            const sortDataSlice: any = chartOptionsDataControl.slices.find(s => s.name === "sortData");
+            const limitBreakdownSlice: any = chartOptionsDataControl.slices.find(s => s.name === "limitBreakdown");
+            const maxBreakdownSlice: any = chartOptionsDataControl.slices.find(s => s.name === "maxBreakdown");
+            const otherTitleSlice: any = chartOptionsDataControl.slices.find(s => s.name === "otherTitle");
+
+            // dropdown
+            this.visualSettings.chartOrientation.sortData = sortDataSlice?.value?.value ?? this.visualSettings.chartOrientation.sortData;
+
+            this.visualSettings.chartOrientation.limitBreakdown = limitBreakdownSlice?.value ?? this.visualSettings.chartOrientation.limitBreakdown;
+
+            this.visualSettings.chartOrientation.maxBreakdown = maxBreakdownSlice?.value ?? this.visualSettings.chartOrientation.maxBreakdown;
+
+            this.visualSettings.chartOrientation.otherTitle = otherTitleSlice?.value ?? this.visualSettings.chartOrientation.otherTitle;
+        const mb = Number(this.visualSettings.chartOrientation.maxBreakdown);
+    if (!isNaN(mb)) {
+        this.visualSettings.chartOrientation.maxBreakdown = Math.max(1, Math.min(100, Math.floor(mb)));
+    }
+          }
+
+        // Legend fixes
+        const legendGroups = this.formattingModel.legendCompositeCard.groups;
+        const legendVisibility = legendGroups.find(g => g.name === "legendVisibility");
+        if (legendVisibility?.slices) {
+            const showSlice: any = legendVisibility.slices.find(s => s.name === "show");
+            const posSlice: any = legendVisibility.slices.find(s => s.name === "position");
+            this.visualSettings.Legend.show = showSlice?.value ?? this.visualSettings.Legend.show;
+            this.visualSettings.Legend.position = posSlice?.value?.value ?? this.visualSettings.Legend.position;
+        }
+          // X-Axis groups
+        const xGroups = this.formattingModel.xAxisCompositeCard.groups;
+        // Labels (non-font, non-layout)
+        const xLabels = xGroups.find(g => g.name === "xAxisLabels");
+        if (xLabels?.slices) {
+            const s = (name: string) => (xLabels.slices.find(sl => sl.name === name) as any)?.value;
+
+            this.visualSettings.xAxisFormatting.labelWrapText = s("labelWrapText") ?? this.visualSettings.xAxisFormatting.labelWrapText;
+            this.visualSettings.xAxisFormatting.fitToWidth = s("fitToWidth") ?? this.visualSettings.xAxisFormatting.fitToWidth;
+            this.visualSettings.xAxisFormatting.concatenateLabels = s("concatenateLabels") ?? this.visualSettings.xAxisFormatting.concatenateLabels;
+            this.visualSettings.xAxisFormatting.verticalLabels = s("verticalLabels") ?? this.visualSettings.xAxisFormatting.verticalLabels;
+            this.visualSettings.xAxisFormatting.barWidth = s("barWidth") ?? this.visualSettings.xAxisFormatting.barWidth;
+            this.visualSettings.xAxisFormatting.padding = s("padding") ?? this.visualSettings.xAxisFormatting.padding;
+            this.visualSettings.xAxisFormatting.showXAxisValues = s("showXAxisValues") ?? this.visualSettings.xAxisFormatting.showXAxisValues;
+        }
+
+        // Layout group
+        const xLayout = xGroups.find(g => g.name === "xAxisLayout");
+        if (xLayout?.slices) {
+            const showGridLineSlice: any = xLayout.slices.find(s => s.name === "showGridLine");
+            const gridLineColorSlice: any = xLayout.slices.find(s => s.name === "gridLineColor");
+            const gridLineStrokeSlice: any = xLayout.slices.find(s => s.name === "gridLineStrokeWidth");
+
+            this.visualSettings.xAxisFormatting.showGridLine = showGridLineSlice?.value ?? this.visualSettings.xAxisFormatting.showGridLine;
+            this.visualSettings.xAxisFormatting.gridLineColor = gridLineColorSlice?.value?.value ?? this.visualSettings.xAxisFormatting.gridLineColor;
+            this.visualSettings.xAxisFormatting.gridLineStrokeWidth = gridLineStrokeSlice?.value ?? this.visualSettings.xAxisFormatting.gridLineStrokeWidth;
+            
+        }
+          const xf = this.visualSettings.xAxisFormatting;
+
+        if (typeof xf.barWidth === "number") {
+            xf.barWidth = this.clamp(xf.barWidth, 5, 200);
+        }
+        if (typeof xf.padding === "number") {
+            xf.padding = this.clamp(xf.padding, 0, 50);
+        }
+        if (typeof xf.gridLineStrokeWidth === "number") {
+            xf.gridLineStrokeWidth = this.clamp(xf.gridLineStrokeWidth, 1, 10);
+        }
+        if (typeof xf.fontSize === "number") {
+            xf.fontSize = this.clamp(xf.fontSize, 6, 48);
+        }
+
+    const labelsGroups = this.formattingModel.labelsCompositeCard.groups;
+
+    // Position group
+    const p = labelsGroups.find(g => g.name === "labelsPosition");
+    if (p?.slices) {
+        const get = (n: string) => (p.slices.find(s => s.name === n) as any)?.value;
+        const toStr = (x: any) => (x && typeof x === "object" ? x.value : x);
+
+        const useDefault = get("useDefaultLabelPositioning");
+        if (typeof useDefault === "boolean") {
+            this.visualSettings.LabelsFormatting.useDefaultLabelPositioning = useDefault;
+        }
+
+        const selected = toStr(get("labelPosition"));
+        if (selected) this.visualSettings.LabelsFormatting.labelPosition = selected;
+
+        const orient = String(this.visualSettings.chartOrientation.orientation || "Vertical");
+        const vertical = ["Inside end","Outside end","Inside center","Inside base","Always top","Always bottom"];
+        const horizontal = ["Inside end","Outside end","Inside center","Inside base","Always left","Always right"];
+        const allowed = orient === "Horizontal" ? horizontal : vertical;
+
+        if (!allowed.includes(this.visualSettings.LabelsFormatting.labelPosition)) {
+            this.visualSettings.LabelsFormatting.labelPosition = "Outside end";
+        }
+    }
+    }
+}
+// ...existing code...
+  // public enumerateObjectInstances(
+  //   options: EnumerateVisualObjectInstancesOptions
+  // ): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
+  //   this.enumerateObjects = createenumerateObjects(
+  //     this.visualType,
+  //     this.barChartData,
+  //     this.barChartDataAll,
+  //     this.visualSettings,
+  //     this.defaultXAxisGridlineStrokeWidth(),
+  //     this.defaultYAxisGridlineStrokeWidth(),
+  //     this.visualUpdateOptions.dataViews[0],
+  //     this.currentBarWidth
+  //   );
+  //   return this.enumerateObjects.enumerateObjectInstances(options);
+  // }
   public update(options: VisualUpdateOptions) {
     //Certification requirement to use rendering API//
     //-------------------------------------------------------------------------
@@ -179,6 +303,11 @@ export class Visual implements IVisual {
     this.visualSettings = Visual.parseSettings(
       options && options.dataViews && options.dataViews[0]
     );
+    this.formattingModel = this.formattingSettingsService
+    .populateFormattingSettingsModel(VisualFormattingModel, options?.dataViews?.[0]);
+  this.builtFormattingModel = this.getFormattingModel();
+  this.syncFormattingModelToVisualSettings();
+
     this.chartContainer.selectAll("svg").remove();
     this.addLegend(options);
 
@@ -189,7 +318,7 @@ export class Visual implements IVisual {
       (this.isHorizontalLegend ? this.legendHeight : 0);
 
     this.xAxisPosition = 0;
-    this.visualSettings.xAxisFormatting.verticalLabels = true;
+    // this.visualSettings.xAxisFormatting.verticalLabels = true;
     if (dataView.matrix.rows.levels.length != 1) {
       this.visualSettings.chartOrientation.limitBreakdown = false;
     }
@@ -250,7 +379,49 @@ export class Visual implements IVisual {
     this.events.renderingFinished(options);
     //-------------------------------------------------------------------------
   }
+private getViewType(dv?: powerbi.DataView): string | undefined {
+  const m = dv?.matrix;
+  if (!m) return undefined;
+  const levels = m.rows?.levels?.length || 0;
+  const measures = m.valueSources?.length || 0;
+  if (levels === 0) return "static";
+  if (levels === 1 && measures === 1) return "staticCategory";
+  if (levels > 1 && measures === 1) return "drillableCategory";
+  return "drillable";
+}
 
+public getFormattingModel(): powerbi.visuals.FormattingModel {
+  if (!this.formattingModel) {
+    this.formattingModel = new VisualFormattingModel();
+  }
+
+  const orientation = String(this.visualSettings?.chartOrientation?.orientation ?? "Vertical");
+  const posCard = this.formattingModel.labelsCompositeCard?.positionCard;
+
+  if (posCard?.setOrientation) {
+    posCard.setOrientation(orientation);
+  }
+  if (posCard?.labelPosition) {
+    const saved = this.visualSettings?.LabelsFormatting?.labelPosition ?? "Outside end";
+    const items = posCard.labelPosition.items ?? [];
+    posCard.labelPosition.value = items.find(i => i.value === saved) ?? { value: saved, displayName: saved };
+  }
+
+  const viewType = this.visualType ?? this.getViewType(this.visualUpdateOptions?.dataViews?.[0]);
+  const showDataControl = !(viewType === "static" || viewType === "drillableCategory");
+
+  const chartCard = this.formattingModel.chartOptionsCompositeCard;
+  if (chartCard) {
+    chartCard.groups = [
+      { name: "chartOptionsGeneral", displayName: "General", slices: [...chartCard.generalCard.slices] },
+      ...(showDataControl
+        ? [{ name: "chartOptionsDataControl", displayName: "Data Control", slices: [...chartCard.dataControlCard.slices] }]
+        : [])
+    ];
+  }
+
+  return this.formattingSettingsService.buildFormattingModel(this.formattingModel);
+}
   // Function to reorder containers dynamically
   private updateContainerOrder() {
     const position = this.visualSettings.Legend.position;

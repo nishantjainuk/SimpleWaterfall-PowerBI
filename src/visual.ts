@@ -157,7 +157,6 @@ export class Visual implements IVisual {
   private static parseSettings(dataView: DataView): VisualSettings {
     return <VisualSettings>VisualSettings.parse(dataView);
   }
-// ...existing code...
 private clamp(n: number, min: number, max: number) {
     return Math.max(min, Math.min(max, n));
 }

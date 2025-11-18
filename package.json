@@ -16,15 +16,16 @@
         "d3": "^7.9.0",
         "eslint": "^8.57.1",
         "eslint-plugin-powerbi-visuals": "^1.0.0",
-        "powerbi-visuals-api": "~5.11.0",
         "powerbi-visuals-tools": "^5.6.0",
-        "powerbi-visuals-utils-dataviewutils": "^6.0.2",
-        "powerbi-visuals-utils-formattingutils": "^4.5.0",
-        "powerbi-visuals-utils-tooltiputils": "^6.0.3",
+        "powerbi-visuals-utils-dataviewutils": "^6.1.0",
+        "powerbi-visuals-utils-formattingmodel": "^6.2.2",
+        "powerbi-visuals-utils-formattingutils": "^4.7.1",
+        "powerbi-visuals-utils-tooltiputils": "^6.0.4",
         "powerbi-visuals-utils-typeutils": "^6.0.2",
         "regenerator-runtime": "^0.14.1"
     },
     "devDependencies": {
+        "powerbi-visuals-api": "~5.11.0",
         "typescript": "^5.7.2"
     }
 }

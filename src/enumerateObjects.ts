@@ -578,13 +578,26 @@ class enumerateObjects implements IEnumerateObjects {
         objectName: "objectName",
         properties: {
           valueFormat: this.visualSettings.LabelsFormatting.valueFormat,
-          decimalPlaces: this.visualSettings.LabelsFormatting.decimalPlaces,
+          // decimalPlaces: this.visualSettings.LabelsFormatting.decimalPlaces,
         },
         selector: null,
       });
-      objectEnumeration[objectEnumeration.length - 1].validValues = {
-        decimalPlaces: { numberRange: { min: 0, max: 15 } },
-      };
+            // Expose decimalPlaces only when NOT "None"
+      if (this.visualSettings.LabelsFormatting.valueFormat !== "None") {
+        objectEnumeration.push({
+          objectName: "objectName",
+          properties: {
+            decimalPlaces: this.visualSettings.LabelsFormatting.decimalPlaces,
+          },
+          selector: null,
+        });
+        objectEnumeration[objectEnumeration.length - 1].validValues = {
+          decimalPlaces: { numberRange: { min: 0, max: 15 } },
+        };
+      }
+      // objectEnumeration[objectEnumeration.length - 1].validValues = {
+      //   decimalPlaces: { numberRange: { min: 0, max: 15 } },
+      // };
       objectEnumeration.push({
         objectName: "objectName",
         properties: {

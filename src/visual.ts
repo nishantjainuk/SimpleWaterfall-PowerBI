@@ -1738,6 +1738,7 @@ export class Visual implements IVisual {
         data2["selectionId"] = this.host
           .createSelectionIdBuilder()
           .withMatrixNode(x, dataView.matrix.rows.levels)
+          .withMeasure(dataView.matrix.valueSources[measureIndex].queryName)
           .createSelectionId();
         data2["xAxisFormat"] = dataView.matrix.rows.levels[0].sources[0].format;
         data2["type"] = dataView.matrix.rows.levels[0].sources[0].type;
@@ -2522,10 +2523,10 @@ export class Visual implements IVisual {
       this.visualType == "staticCategory" ||
       this.visualType == "drillableCategory"
     ) {
-      xAxislabels.on("click", (d) => {
+      xAxislabels.on("click", (event, d: any) => {
         // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
         if (this.allowInteractions) {
-          const isCtrlPressed: boolean = (<MouseEvent>d).ctrlKey;
+          const isCtrlPressed: boolean = (event as MouseEvent).ctrlKey;
           if (this.selectionManager.hasSelection() && !isCtrlPressed) {
             this.bars.attr("fill-opacity", 1);
           }
@@ -2534,7 +2535,7 @@ export class Visual implements IVisual {
             .then((ids: ISelectionId[]) => {
               this.syncSelectionState(this.bars, ids);
             });
-          (<Event>d).stopPropagation();
+          event.stopPropagation();
         }
       });
     }
@@ -3009,6 +3010,7 @@ export class Visual implements IVisual {
       .data(this.barChartData)
       .enter()
       .append("rect")
+      .attr("id", (d, i) => `hbar_${i}`)
       .attr("x", (d, i) => this.getXPositionHorizontal(d, i))
       .attr("y", (d) => xScale(d.category))
       .attr("width", (d, i) => this.getWidthHorizontal(d, i))
@@ -3059,7 +3061,7 @@ export class Visual implements IVisual {
       });
     }
     // Clear selection when clicking outside a bar
-    this.svg.on("click", (d) => {
+    this.svg.on("click", (event) => {
       if (this.allowInteractions) {
         this.selectionManager.clear().then(() => {
           this.selectionManager.registerOnSelectCallback(
@@ -3082,11 +3084,11 @@ export class Visual implements IVisual {
       this.visualType == "staticCategory" ||
       this.visualType == "drillableCategory"
     ) {
-      this.bars.on("click", (d) => {
+      this.bars.on("click", (event, d: any) => {
         // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
 
         if (this.allowInteractions) {
-          const isCtrlPressed: boolean = (<MouseEvent>d).ctrlKey;
+          const isCtrlPressed: boolean = (event as MouseEvent).ctrlKey;
           if (this.selectionManager.hasSelection() && !isCtrlPressed) {
             this.bars.attr("fill-opacity", 1);
           }
@@ -3095,7 +3097,7 @@ export class Visual implements IVisual {
             .then((ids: ISelectionId[]) => {
               this.syncSelectionState(this.bars, ids);
             });
-          (<Event>d).stopPropagation();
+         event.stopPropagation();
         }
       });
     }
@@ -3675,10 +3677,10 @@ export class Visual implements IVisual {
       this.visualType == "staticCategory" ||
       this.visualType == "drillableCategory"
     ) {
-      xAxislabels.on("click", (d) => {
+      xAxislabels.on("click", (event, d: any) => {
         // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
         if (this.allowInteractions) {
-          const isCtrlPressed: boolean = (<MouseEvent>d).ctrlKey;
+          const isCtrlPressed: boolean = (event as MouseEvent).ctrlKey;
           if (this.selectionManager.hasSelection() && !isCtrlPressed) {
             this.bars.attr("fill-opacity", 1);
           }
@@ -3687,7 +3689,7 @@ export class Visual implements IVisual {
             .then((ids: ISelectionId[]) => {
               this.syncSelectionState(this.bars, ids);
             });
-          (<Event>d).stopPropagation();
+          event.stopPropagation();
         }
       });
     }

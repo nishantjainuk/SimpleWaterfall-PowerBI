@@ -2677,7 +2677,7 @@ export class Visual implements IVisual {
     });
     data2["value"] = totalValue;
     data2["orderIndex"] = orderIndex;
-    data2["numberFormat"] = data[0]["numberFormat"];
+    data2["numberFormat"] = dataView.matrix.valueSources[measureIndex].format;
     data2["isPillar"] = 1;
     data2["category"] = dataView.matrix.valueSources[0].displayName;
     data2["displayName"] = dataView.matrix.valueSources[0].displayName;

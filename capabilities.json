@@ -56,6 +56,17 @@
     }
   ],
   "objects": {
+    "general": {
+      "properties": {
+        "formatString": {
+          "type": {
+            "formatting": {
+              "formatString": true
+            }
+          }
+        }
+      }
+    },
     "chartOrientation": {
       "displayName": "Chart Options",
       "properties": {

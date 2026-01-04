@@ -4232,6 +4232,14 @@ export class Visual implements IVisual {
     var decimalPlaces = this.visualSettings.yAxisFormatting.decimalPlaces;
     var formattedvalue;
     switch (this.visualSettings.yAxisFormatting.YAxisValueFormatOption) {
+      case "None": {
+        iValueFormatter = valueFormatter.create({
+          cultureSelector: this.locale,
+          format: this.barChartData[1].numberFormat,
+        });
+        formattedvalue = iValueFormatter.format(d);
+        break;
+      }
       case "Auto": {
         if (
           Math.abs(this.minValue) >= 1000000000 ||

@@ -1,5 +1,7 @@
 # Simple Waterfall
 
+Simple Waterfall is a custom visual for Power BI, and is published to the Microsoft Marketplace [here](https://marketplace.microsoft.com/en-au/product/WA200000195).
+
 ## Live Version: 2.0.3
 
 ## Under Review (Microsoft): 2.0.9
